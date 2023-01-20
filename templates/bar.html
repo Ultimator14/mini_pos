@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Bar</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bar.css') }}">
+    <meta http-equiv="refresh" content="5" />
+</head>
+<body>
+    <table class="outer-table">
+        <tbody>
+              <tr>
+                <th>Tisch</th>
+                <th>Produkte</th>
+                <th>Erledigt</th>
+            </tr>
+            {%for order in orders%}
+            <tr>
+                <td>{{order.table}}</td>
+                <td>
+                    <table class="inner-table">
+                        <tr>
+                            <th>Produkt</th>
+                            <th>Menge</th>
+                            <th>Sonstiges</th>
+                        </tr>
+                        {%for product in order.products%}
+                        <tr>
+                            <td>{{product.name}}</td>
+                            <td>{{product.amount}}</td>
+                            <td>{{product.comment}}</td>
+                        </tr>
+                        {%endfor%}
+                    </table>
+                </td>
+                <td>
+                    <form action="{{ url_for ('bar_submit') }}" method="post">
+                        <button id="{{order.num}}" type="submit" name="completed" value="{{order.num}}">&#x2713;</button>
+                    </form>
+                </td>
+            </tr>
+            {%endfor%}
+        </tbody>
+    </table>
+</body>
+</html>

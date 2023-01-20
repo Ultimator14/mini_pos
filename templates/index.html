@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+</head>
+<body>
+    <div class="index">
+        <form action="/bar" method="get">
+            <button type="submit">Bar</button>
+        </form>
+        <form action="/service" method="get">
+            <button type="submit">Service</button>
+        </form>
+    </div>
+</body>
+</html>

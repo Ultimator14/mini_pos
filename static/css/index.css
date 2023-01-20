@@ -1,0 +1,10 @@
+/*
+Index page
+*/
+
+/*Stretch buttons over full page width*/
+button {
+    width: 100vw;
+    height: 50vh;
+    font-size: 20vw;
+}

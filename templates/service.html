@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Service</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/service.css') }}">
+    <meta http-equiv="refresh" content="5" />
+</head>
+<body>
+<div>
+    <table>
+        <tbody>
+            {% for table_y in tables_y -%}
+            <tr>
+                {% for table_x in tables_x -%}
+                <td>
+                    {% set table = table_x + table_y -%}
+                    <form action="{{ url_for ('service_table', table=table) }}" method="get">
+                        <button id="{{table}}" type="submit" class="{{ 'active-order' if table in active_tables else 'no-order'}}">{{table}}</button>
+                    </form>
+                </td>
+                {%- endfor %}
+            </tr>
+            {% endfor -%}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

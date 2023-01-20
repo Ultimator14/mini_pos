@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Service Table {{table}}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/service_table.css') }}">
+    <script src="{{ url_for('static', filename='js/service_table.js') }}"></script>
+</head>
+<body>
+<div>
+    <form class="inline" action="{{ url_for ('service') }}" method="get">
+        <button class="back-button" type="submit">&#x2715;</button>
+    </form>
+    <h2 class="inline">Service Tisch {{table}}</h2>
+    <hr style="background-color: darkorange;">
+    <h3>Aktive Bestellungen</h3>
+    <ul>
+        {% for order in orders -%}
+        <li>
+            {{ order|join(' | ')}}
+        </li>
+        {% endfor -%}
+    </ul>
+
+    <hr style="background-color: cornflowerblue;">
+    <h3>Neue Bestellung</h3>
+    <form action="{{ url_for ('service_table', table=table) }}" method="post">
+        <table>
+            <colgroup>
+                <col>
+                <col style="width: 9vw;">
+                <col style="width: 4vw;">
+                <col style="width: 4vw;">
+                <col style="width: 4vw;">
+                <col style="width: 13vw;">
+                <col>
+            </colgroup>
+            <tbody>
+                <tr>
+                    <th>Produkt</th>
+                    <th>Preis</th>
+                    <th colspan="3" style="text-align: center;">Menge</th>
+                    <th>Kosten</th>
+                    <th>Kommentar</th>
+                </tr>
+                {% for pid, pname, pprice in products -%}
+                <tr>
+                    <td>{{pname}}</td>
+                    <td><span id="price-{{pid}}" class="price-text">{{ "{:,.2f}".format(pprice) }}</span> €</td>
+                    <td><button type="button" class="amount-button" onclick="modifyAmount({{pid}}, -1)">&minus;</button></td>
+                    <td><input type="text" id="amount-{{pid}}" class="amount-box" name="amount-{{pid}}" value="0" onchange="recomputeCosts()"/></td>
+                    <td><button type="button" class="amount-button" onclick="modifyAmount({{pid}}, +1)">&plus;</button></td>
+                    <td style="text-align: right;"><span id="cost-{{pid}}" class="cost-text">0.00</span> €</td>
+                    <td><input type="text" id="comment-{{pid}}" class="comment-box" name="comment-{{pid}}"/></td>
+                </tr>
+                {%- endfor %}
+                <tr class="final-border">
+                    <td colspan="2">
+                    <td colspan="3">Gesamtpreis</td>
+                    <td><span id="total-cost">0.00</span> €</td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+        <button type="submit" id="submit-button">Bestellen</button>
+    </form>
+</div>
+</body>
+</html>

@@ -1,0 +1,46 @@
+/*
+Bar page
+*/
+
+/*Table style*/
+table {
+    width: 100%;
+    border-style: solid;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 5px;
+    text-align: left;
+}
+.outer-table > tbody > tr > td {
+    border: 1px solid;
+}
+
+/*Table colors*/
+.outer-table > tbody > tr > th {
+    background-color: darkorange;
+    color: white;
+}
+.inner-table > tbody > tr > th {
+    background-color: cornflowerblue;
+    color: white;
+}
+
+/*Every 2nd row grey in inner table*/
+table table tr:nth-child(odd){background-color: #dbd9d9}
+
+/*Checkbox buttons*/
+button {
+    width: 100%;
+    height: 100%;
+    font-size: 100%;
+    text-align: center;
+
+    background-color: #4CAF50;
+    color: white;
+
+    border: none;
+    border-radius: 20px;
+
+    cursor: pointer;
+}

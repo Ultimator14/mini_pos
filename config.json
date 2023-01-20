@@ -1,0 +1,9 @@
+{
+  "products":
+         [
+           ["produkt1", 2],
+           ["produkt2", 4]
+         ],
+    "tables":
+          ["ABCDEF", "123456789"]
+}
