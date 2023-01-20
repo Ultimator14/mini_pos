@@ -1,9 +1,45 @@
 {
-  "products":
-         [
-           ["produkt1", 2],
-           ["produkt2", 4]
-         ],
-    "tables":
-          ["ABCDEF", "123456789"]
+	"products":
+		[
+			["Mineralwasser Classic 0,5", 2.50],
+			["Mineralwasser Medium", 2.50],
+			["Mineralwasser Classic 0,7", 3.50],
+			["Fanta", 2.50],
+			["Cola", 2.50],
+			["Spezi", 2.50],
+			["Apfelschorle", 3.00],
+
+			["Pils", 3.00],
+			["Radler", 3.00],
+			["Hefeweizen", 3.80],
+			["Colaweizen", 3.80],
+			["Weizen alkoholfrei", 3.80],
+
+			["Müller lieblich", 3.50],
+			["Flasche Müller lieblich", 13.00],
+			["Riesling trocken", 3.50],
+			["Flasche Riesling trocken", 13.00],
+			["Spätburgunder trocken", 3.50],
+			["Flasche Spätburgunder trocken", 13.00],
+			["Weißweinschorle süß", 3.00],
+			["Weißweinschorle sauer", 3.00],
+			["Rieslingschorle süß", 3.00],
+			["Rieslingschorle sauer", 3.00],
+			["Rotweinschorle süß", 3.00],
+			["Rotweinschorle sauer", 3.00],
+			["Glas Sekt", 3.00],
+			["Flasche Sekt", 20.00],
+
+			["Gedopter", 3.00],
+			["Gin Tonic", 4.50],
+
+			["Schinkenweck", 3.50],
+			["Käseweck", 3.50],
+			["Chilli sin Carne", 5.00],
+			["Wurstsalat", 7.00],
+			["Schnitzelweck", 5.00],
+			["Schnitzel mit Kartoffelsalat", 8.00]
+		],
+	"tables":
+		["ABCDEF","123456789"]
 }
