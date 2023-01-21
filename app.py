@@ -1,10 +1,12 @@
 #!/usr/bin/python3.10
 
 # region includes
+from __future__ import annotations  # required for type hinting of classes in itself
 import json
 from flask import Flask, render_template, request, redirect, url_for
-from typing import List
 from datetime import datetime, timedelta
+
+from typing import Union
 # endregion includes
 
 # region config
@@ -17,97 +19,102 @@ config_file.close()
 
 
 # region helper
-def _green(prompt):
+def _green(prompt: str) -> str:
     return f"\033[32;1m{prompt}\033[0m"
 
 
-def _yellow(prompt):
+def _yellow(prompt: str) -> str:
     return f"\033[33;1m{prompt}\033[0m"
 
 
-def _red(prompt):
+def _red(prompt: str) -> str:
     return f"\033[31;1m{prompt}\033[0m"
 
 
-def log_info(msg):
+def log_info(msg: str) -> None:
     print(_green(f"*** Info ***: {msg}"))
 
 
-def log_warn(msg):
+def log_warn(msg: str) -> None:
     print(_yellow(f"*** Warning! ***: {msg}"))
 
 
-def log_error(msg):
+def log_error(msg: str) -> None:
     print(_red(f"*** Error! ***: {msg}"))
 # endregion helper
 
 
+# region types
+Template_Products = dict[int, tuple[str, float]]
+# endregion types
+
+
 # region products
-template_products = dict(enumerate(config_data["products"], start=1))
-num_template_products = len(template_products)
+template_products: Template_Products = dict(enumerate([(p[0], p[1]) for p in config_data["products"]], start=1))
+num_template_products: int = len(template_products)
 
 
 class Product:
-    product_counter = 1
+    product_counter: int = 1
 
     @staticmethod
-    def next_product_num():
+    def next_product_num() -> int:
         next_num = Product.product_counter
         Product.product_counter += 1
 
         return next_num
 
-    def __init__(self, template_product, amount, comment="", num=None):
+    def __init__(self, template_product: int, amount: int, comment="", num=None):
         if num:
-            self._num = num
+            self._num: int = num
         else:
-            self._num = Product.next_product_num()
+            self._num: int = Product.next_product_num()
 
-        self._template_product = template_product
-        self._amount = amount
-        self._comment = comment
+        self._template_product: int = template_product
+        self._amount: int = amount
+        self._comment: str = comment
 
-        self._completed = False
+        self._completed: bool = False
 
     @property
-    def num(self):
+    def num(self) -> int:
         return self._num
 
     @property
-    def name(self):
+    def name(self) -> str:
         if self._template_product != 0:
             return template_products[self._template_product][0]
         else:
             return "Invalid"
 
     @property
-    def amount(self):
+    def amount(self) -> int:
         return self._amount
 
     @property
-    def comment(self):
+    def comment(self) -> str:
         return self._comment
 
     @property
-    def completed(self):
+    def completed(self) -> bool:
         return self._completed
 
-    def complete(self):
+    def complete(self) -> None:
         self._completed = True
 
 
-def handle_product_completed_event(completed_data, order_data):
+def handle_product_completed_event(completed_data: str, order_data: str):
     if not completed_data.isdigit() or not order_data.isdigit():
         log_error("POST in /bar but filetype not convertible to integer")
         return
 
-    order = next((order for order in orders if int(request.form["order"]) == order.num), None)
+    order: Union[Order, None] = next((order for order in orders if int(request.form["order"]) == order.num), None)
 
     if order is None:
         log_error("POST in /bar but no matching Order found")
         return
 
-    product = next((p for p in order.products if int(request.form["product-completed"]) == p.num), None)
+    product: Union[Product, None] = next((p for p in order.products if int(request.form["product-completed"]) == p.num), None)
 
     if product is None:
         log_error("POST in /bar but no matching Product for order found")
@@ -123,43 +130,44 @@ def handle_product_completed_event(completed_data, order_data):
 
 # region orders
 class Order:
-    order_counter = 1
+    order_counter: int = 1
 
     @staticmethod
-    def next_order_num():
+    def next_order_num() -> int:
         next_num = Order.order_counter
         Order.order_counter += 1
 
         return next_num
 
-    def __init__(self, table, num=None, date=None):
-        self._table = table
-        self._products: List[Product] = []
-        self._product_counter = 0
+    def __init__(self, table: str, num=None, date=None):
+        self._table: str = table
+        self._products: list[Product] = []
+        self._product_counter: int = 0
+
         if num is not None:
-            self._num = num
+            self._num: int = num
         else:
-            self._num = Order.next_order_num()
+            self._num: int = Order.next_order_num()
 
         if date is not None:
-            self._date = date
+            self._date: datetime = date
         else:
-            self._date = datetime.now()
+            self._date: datetime = datetime.now()
 
     @property
-    def num(self):
+    def num(self) -> int:
         return self._num
 
     @property
-    def table(self):
+    def table(self) -> str:
         return self._table
 
     @property
-    def products(self):
+    def products(self) -> list[Product]:
         return self._products
 
     @property
-    def active_since(self):
+    def active_since(self) -> str:
         timediff = datetime.now() - self._date
         if timediff > timedelta(minutes=10):
             return ">10min"
@@ -175,31 +183,31 @@ class Order:
             self._products.append(product)
             self._product_counter += 1
 
-    def copy_empty(self):
+    def copy_empty(self) -> Order:
         return Order(self._table, self._num)
 
 
-orders: List[Order] = []
+orders: list[Order] = []
 #completed_orders: List[Order] = []
 
 
-def add_order(order: Order):
+def add_order(order: Order) -> None:
     """Add order to orders list"""
     orders.append(order)
 
 
-def complete_order(order):
+def complete_order(order: Order) -> None:
     # completed_orders.append(completed_order)
     orders.remove(order)
     log_info(f"Completed order {str(order.num)}")
 
 
-def handle_order_completed_event(completed_data):
+def handle_order_completed_event(completed_data: str) -> None:
     if not completed_data.isdigit():
         log_error("POST in /bar but filetype not convertible to integer")
         return
 
-    order = next((o for o in orders if int(request.form["order-completed"]) == o.num), None)
+    order: Union[Order, None] = next((o for o in orders if int(request.form["order-completed"]) == o.num), None)
 
     if order is None:
         log_error("POST in /bar but no matching Order to complete")
@@ -210,14 +218,14 @@ def handle_order_completed_event(completed_data):
 
 
 # region tables
-tables_x = config_data["tables"][0]
-tables_y = config_data["tables"][1]
-tables = [f"{x}{y}" for x in tables_x for y in tables_y]  # tables 1A-9F
+tables_x: str = config_data["tables"][0]
+tables_y: str = config_data["tables"][1]
+tables: list[str] = [f"{x}{y}" for x in tables_x for y in tables_y]  # tables 1A-9F
 # endregion tables
 
 
 # region flask
-app = Flask(__name__)
+app: Flask = Flask(__name__)
 
 
 @app.route("/")
