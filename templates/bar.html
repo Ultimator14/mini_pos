@@ -10,12 +10,14 @@
     <table class="outer-table">
         <tbody>
               <tr>
-                <th>Tisch</th>
-                <th>Produkte</th>
-                <th>Erledigt</th>
+                  <th>Dauer</th>
+                  <th>Tisch</th>
+                  <th>Produkte</th>
+                  <th>Erledigt</th>
             </tr>
             {%for order in orders%}
             <tr>
+                <td>{{order.active_since}}</td>
                 <td>{{order.table}}</td>
                 <td>
                     <table class="inner-table">

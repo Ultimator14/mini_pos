@@ -4,6 +4,7 @@
 import json
 from flask import Flask, render_template, request, redirect, url_for
 from typing import List
+from datetime import datetime, timedelta
 # endregion includes
 
 # region config
@@ -131,14 +132,19 @@ class Order:
 
         return next_num
 
-    def __init__(self, table, num=None):
+    def __init__(self, table, num=None, date=None):
         self._table = table
         self._products: List[Product] = []
         self._product_counter = 0
-        if num:
+        if num is not None:
             self._num = num
         else:
             self._num = Order.next_order_num()
+
+        if date is not None:
+            self._date = date
+        else:
+            self._date = datetime.now()
 
     @property
     def num(self):
@@ -151,6 +157,18 @@ class Order:
     @property
     def products(self):
         return self._products
+
+    @property
+    def active_since(self):
+        timediff = datetime.now() - self._date
+        if timediff > timedelta(minutes=10):
+            return ">10min"
+
+        seconds_aligned = timediff.seconds // 5 * 5  # align by 5 seconds (easy way to circumvent javascript timers)
+        seconds = str(seconds_aligned % 60).rjust(2, '0')
+        minutes = str(seconds_aligned // 60).rjust(2, '0')
+
+        return f"{minutes}:{seconds}"
 
     def add_products(self, *products: Product):
         for product in products:
