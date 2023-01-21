@@ -73,7 +73,7 @@ table tr:nth-child(odd){background-color: #dbd9d9}
 }
 
 /*Total price*/
-#total-p {
+#total-cost-p {
     font-size: 7vmin;
     padding-left: 10px;
 }

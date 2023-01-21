@@ -14,9 +14,9 @@
     <h2 class="inline">Service Tisch {{table}}</h2>
     <hr style="background-color: darkorange;">
     <ul>
-        {% for order in orders -%}
+        {% for products in orders -%}
         <li>
-            {{ order|join('<br/>')|safe}}
+            {{ products|join('<br/>')|safe}}
         </li>
         {% endfor -%}
     </ul>
@@ -36,7 +36,7 @@
                     <th colspan="2">Produkt</th>
                     <th colspan="3">Menge</th>
                 </tr>
-                {% for pid, pname, pprice in products -%}
+                {% for pid, pname, pprice in template_products -%}
                 <tr>
                     <td><button type="button" id="customize-button-{{pid}}" class="customize-button" onclick="showPopup({{pid}})">&#9881;</button></td>
                     <td>{{pname}}</td>
@@ -47,9 +47,9 @@
                 {%- endfor %}
             </tbody>
         </table>
-        <p id="total-p">Gesamtpreis <span id="total-cost">0.00</span> €</p>
+        <p id="total-cost-p">Gesamtpreis <span id="total-cost">0.00</span> €</p>
         <button type="submit" id="submit-button">Bestellen</button>
-        {%  for pid, pname, pprice in products %}
+        {%  for pid, pname, pprice in template_products %}
         <div id="customize-popup-{{pid}}" class="popup">
             <div class="popup-inner">
                 <h2>{{ pname }}</h2>

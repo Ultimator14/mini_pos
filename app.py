@@ -26,10 +26,30 @@ num_template_products = len(template_products)
 
 
 class Product:
-    def __init__(self, template_product, amount, comment=""):
+    product_counter = 1
+
+    @staticmethod
+    def next_product_num():
+        next_num = Product.product_counter
+        Product.product_counter += 1
+
+        return next_num
+
+    def __init__(self, template_product, amount, comment="", num=None):
+        if num:
+            self._num = num
+        else:
+            self._num = Product.next_product_num()
+
         self._template_product = template_product
         self._amount = amount
         self._comment = comment
+
+        self._completed = False
+
+    @property
+    def num(self):
+        return self._num
 
     @property
     def name(self):
@@ -45,6 +65,13 @@ class Product:
     @property
     def comment(self):
         return self._comment
+
+    @property
+    def completed(self):
+        return self._completed
+
+    def complete(self):
+        self._completed = True
 # endregion products
 
 
@@ -59,10 +86,14 @@ class Order:
 
         return next_num
 
-    def __init__(self, table):
-        self._num = Order.next_order_num()
+    def __init__(self, table, num=None):
         self._table = table
-        self._products = []
+        self._products: List[Product] = []
+        self._product_counter = 0
+        if num:
+            self._num = num
+        else:
+            self._num = Order.next_order_num()
 
     @property
     def num(self):
@@ -79,6 +110,10 @@ class Order:
     def add_products(self, *products: Product):
         for product in products:
             self._products.append(product)
+            self._product_counter += 1
+
+    def copy_empty(self):
+        return Order(self._table, self._num)
 
 
 orders: List[Order] = []
@@ -114,21 +149,45 @@ def bar():
 
 @app.route("/bar", methods=["POST"])
 def bar_submit():
-    if "completed" not in request.form:
+    if "completed" in request.form:
+        if not request.form["completed"].isdigit():
+            print("Warning! POST request in /bar with filetype not convertible to integer")
+        else:
+            completed_order = next((order for order in orders if int(request.form["completed"]) == order.num), None)
+
+            if completed_order is None:
+                print("Warning! POST complete request in /bar but no matching Order found")
+            else:
+                # completed_orders.append(completed_order)
+                orders.remove(completed_order)
+                print(f"Removed order {str(completed_order.num)}")
+    elif "product-completed" in request.form:
+        if "order" not in request.form:
+            print("Warning! POST request in /bar but missing order for completed product")
+        if not request.form["product-completed"].isdigit() or not request.form["order"].isdigit():
+            print("Warning! POST request in /bar with filetype not convertible to integer")
+        else:
+            order = next((order for order in orders if int(request.form["order"]) == order.num), None)
+
+            if order is None:
+                print("Warning! POST complete request in /bar but no matching Order found")
+            else:
+                product = next((p for p in order.products if int(request.form["product-completed"]) == p.num), None)
+
+                if product is None:
+                    print("Warning! POST complete request in /bar but no matching Product for order found")
+                else:
+                    product.complete()
+                    print(f"Completed product {str(product.num)}")
+                    if all([p.completed for p in order.products]):
+                        # completed_orders.append(completed_order)
+                        orders.remove(order)
+                        print(f"Removed order {str(order.num)}")
+
+    else:
         # somehow a post request occured but the request did not contain a completed event
         # this should not happen
         print("Warning! POST request in /bar but missing completed event")
-    elif not request.form["completed"].isdigit():
-        print("Warning! POST request in /bar with filetype not convertible to integer")
-    else:
-        completed_order = next((order for order in orders if int(request.form["completed"]) == order.num), None)
-
-        if completed_order is None:
-            print("Warning! POST complete request in /bar but no matching Order found")
-        else:
-            #completed_orders.append(completed_order)
-            orders.remove(completed_order)
-            print(f"Removed order {str(completed_order.num)}")
 
     return redirect(url_for("bar"))
 
@@ -148,9 +207,9 @@ def service_table(table):
     return render_template("service_table.html", table=table,
                            orders=[[f"{p.amount}x {p.name}" +
                                     (f" ({p.comment})" if p.comment else "")
-                                    for p in o.products]
+                                    for p in o.products if not p.completed]
                                    for o in orders if o.table == table],
-                           products=[(p, template_products[p][0], template_products[p][1]) for p in template_products])
+                           template_products=[(p, template_products[p][0], template_products[p][1]) for p in template_products])
 
 
 @app.route("/service/<table>", methods=["POST"])
