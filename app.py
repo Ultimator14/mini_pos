@@ -183,14 +183,14 @@ class Order:
         return f"{minutes}:{seconds}"
 
     @property
-    def active_since_color(self) -> str:
+    def active_since_timeout_class(self) -> str:
         timediff = datetime.now() - self._date
         if timediff > timedelta(seconds=Order.timeout_crit):
-            return "#b33d3d"
+            return "timeout_crit"
         elif timediff > timedelta(seconds=Order.timeout_warn):
-            return "darkorange"
+            return "timeout_warn"
         else:
-            return "#4CAF50"
+            return "timeout_ok"
 
     def add_products(self, *products: Product):
         for product in products:

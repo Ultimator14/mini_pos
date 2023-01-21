@@ -17,7 +17,7 @@
             </tr>
             {%for order in orders%}
             <tr>
-                <td><span style="color: {{order.active_since_color}};">{{order.active_since}}</span></td>
+                <td><span class="{{order.active_since_timeout_class}}">{{order.active_since}}</span></td>
                 <td>{{order.table}}</td>
                 <td>
                     <table class="inner-table">

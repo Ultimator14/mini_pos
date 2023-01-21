@@ -18,6 +18,15 @@ th, td {
 }
 
 /*Table colors*/
+.timeout_ok {
+    color: #4CAF50;
+}
+.timeout_warn {
+    color: darkorange;
+}
+.timeout_crit {
+    color: #b33d3d;
+}
 .outer-table > tbody > tr > th {
     background-color: darkorange;
     color: white;
