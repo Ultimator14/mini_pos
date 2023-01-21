@@ -124,7 +124,7 @@ def handle_product_completed_event(completed_data: str, order_data: str):
     log_info(f"Completed product {str(product.num)}")
 
     if all([p.completed for p in order.products]):
-        complete_order(order)
+        order.complete()
 # endregion products
 
 
@@ -157,6 +157,8 @@ class Order:
             self._date: datetime = date
         else:
             self._date: datetime = datetime.now()
+
+        self._completed_at: Union[datetime, None] = None
 
     @property
     def num(self) -> int:
@@ -192,6 +194,14 @@ class Order:
         else:
             return "timeout_ok"
 
+    @property
+    def completed_at(self) -> str:
+        if self._completed_at is None:
+            log_warn(f"completed_at for order {str(self._num)} called but order is not completed")
+            return ""
+
+        return self._completed_at.strftime("%Y-%m-%d %H:%M:%S")
+
     def add_products(self, *products: Product):
         for product in products:
             self._products.append(product)
@@ -200,20 +210,22 @@ class Order:
     def copy_empty(self) -> Order:
         return Order(self._table, self._num)
 
+    def add(self):
+        orders.append(self)
+
+    def complete(self) -> None:
+        completed_orders.append(self)
+        orders.remove(self)
+
+        for product in self._products:
+            product.complete()
+
+        self._completed_at = datetime.now()
+        log_info(f"Completed order {str(self._num)}")
+
 
 orders: list[Order] = []
-#completed_orders: List[Order] = []
-
-
-def add_order(order: Order) -> None:
-    """Add order to orders list"""
-    orders.append(order)
-
-
-def complete_order(order: Order) -> None:
-    # completed_orders.append(completed_order)
-    orders.remove(order)
-    log_info(f"Completed order {str(order.num)}")
+completed_orders: list[Order] = []
 
 
 def handle_order_completed_event(completed_data: str) -> None:
@@ -227,7 +239,7 @@ def handle_order_completed_event(completed_data: str) -> None:
         log_error("POST in /bar but no matching Order to complete")
         return
 
-    complete_order(order)
+    order.complete()
 # endregion orders
 
 
@@ -249,7 +261,7 @@ def home():
 
 @app.route("/bar")
 def bar():
-    return render_template("bar.html", orders=orders)
+    return render_template("bar.html", orders=orders, completed_orders=completed_orders[:-6:-1])
 
 
 @app.route("/bar", methods=["POST"])
@@ -322,7 +334,7 @@ def service_table_submit(table):
     if not new_order.products:
         log_warn("POST in /service/<table> but order does not contain any product. Skipping...")
     else:
-        add_order(new_order)
+        new_order.add()
 
     return redirect(url_for("service"))
 # endregion flask

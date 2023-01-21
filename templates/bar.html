@@ -15,7 +15,7 @@
                   <th>Produkte</th>
                   <th>Erledigt</th>
             </tr>
-            {%for order in orders%}
+            {%for order in orders-%}
             <tr>
                 <td><span class="{{order.active_since_timeout_class}}">{{order.active_since}}</span></td>
                 <td>{{order.table}}</td>
@@ -28,17 +28,19 @@
                             <th>Erledigt</th>
                         </tr>
                         {% for product in order.products -%}
+                        <tr>
+                            <td>{{product.name}}</td>
+                            <td>{{product.amount}}</td>
+                            <td>{{product.comment}}</td>
                             {%- if not product.completed %}
-                                <tr>
-                                    <td>{{product.name}}</td>
-                                    <td>{{product.amount}}</td>
-                                    <td>{{product.comment}}</td>
-                                    <td><form action="{{ url_for ('bar_submit') }}" method="post">
-                                        <button id="{{order.num}}" type="submit" name="product-completed" value="{{product.num}}">&#x2713;</button>
-                                        <input type="hidden" name="order" value="{{order.num}}"/>
-                                    </form></td>
-                                </tr>
+                            <td><form action="{{ url_for ('bar_submit') }}" method="post">
+                                <button id="{{order.num}}" type="submit" name="product-completed" value="{{product.num}}">&#x2713;</button>
+                                <input type="hidden" name="order" value="{{order.num}}"/>
+                            </form></td>
+                            {% else -%}
+                            <td><button class="no-click" type="button">&#x2713;</button></td>
                             {%- endif -%}
+                        </tr>
                         {%- endfor %}
                     </table>
                 </td>
@@ -46,6 +48,40 @@
                     <form action="{{ url_for ('bar_submit') }}" method="post">
                         <button id="{{order.num}}" type="submit" name="order-completed" value="{{order.num}}">&#x2713;</button>
                     </form>
+                </td>
+            </tr>
+            {%endfor%}
+        </tbody>
+    </table>
+    <br/><br/>
+    <table class="completed-outer-table">
+        <tbody>
+              <tr>
+                  <th>Abgeschlossen</th>
+                  <th>Tisch</th>
+                  <th>Produkte</th>
+            </tr>
+            {%for completed_order in completed_orders-%}
+            <tr>
+                <td>{{completed_order.completed_at}}</td>
+                <td>{{completed_order.table}}</td>
+                <td>
+                    <table>
+                        <tr>
+                            <th>Produkt</th>
+                            <th>Menge</th>
+                            <th>Sonstiges</th>
+                        </tr>
+                        {% for product in completed_order.products -%}
+                            {%- if product.completed %}
+                                <tr>
+                                    <td>{{product.name}}</td>
+                                    <td>{{product.amount}}</td>
+                                    <td>{{product.comment}}</td>
+                                </tr>
+                            {%- endif -%}
+                        {%- endfor %}
+                    </table>
                 </td>
             </tr>
             {%endfor%}
