@@ -55,12 +55,12 @@ num_template_products: int = len(template_products)
 
 
 class Product:
-    product_counter: int = 1
+    counter: int = 1
 
     @staticmethod
     def next_product_num() -> int:
-        next_num = Product.product_counter
-        Product.product_counter += 1
+        next_num = Product.counter
+        Product.counter += 1
 
         return next_num
 
@@ -130,12 +130,16 @@ def handle_product_completed_event(completed_data: str, order_data: str):
 
 # region orders
 class Order:
-    order_counter: int = 1
+    counter: int = 1
+
+    timeout_warn: int
+    timeout_crit: int
+    timeout_warn, timeout_crit = config_data["order_timeout"]
 
     @staticmethod
     def next_order_num() -> int:
-        next_num = Order.order_counter
-        Order.order_counter += 1
+        next_num = Order.counter
+        Order.counter += 1
 
         return next_num
 
@@ -169,14 +173,24 @@ class Order:
     @property
     def active_since(self) -> str:
         timediff = datetime.now() - self._date
-        if timediff > timedelta(minutes=10):
-            return ">10min"
+        if timediff > timedelta(minutes=60):
+            return ">60min"
 
         seconds_aligned = timediff.seconds // 5 * 5  # align by 5 seconds (easy way to circumvent javascript timers)
         seconds = str(seconds_aligned % 60).rjust(2, '0')
         minutes = str(seconds_aligned // 60).rjust(2, '0')
 
         return f"{minutes}:{seconds}"
+
+    @property
+    def active_since_color(self) -> str:
+        timediff = datetime.now() - self._date
+        if timediff > timedelta(seconds=Order.timeout_crit):
+            return "#b33d3d"
+        elif timediff > timedelta(seconds=Order.timeout_warn):
+            return "darkorange"
+        else:
+            return "#4CAF50"
 
     def add_products(self, *products: Product):
         for product in products:

@@ -41,5 +41,7 @@
 			["Schnitzel mit Kartoffelsalat", 8.00]
 		],
 	"tables":
-		["ABCDEF","123456789"]
+		["ABCDEF","123456789"],
+	"order_timeout":
+		[ 120, 600 ]
 }
