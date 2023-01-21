@@ -1,3 +1,24 @@
+function showPopup(pid) {
+    /*Display popup*/
+    document.getElementById("customize-popup-" + pid).style.display = "block";
+}
+
+function hidePopup(pid) {
+    /*Colorize Customization button if textbox contains content*/
+    let textbox = document.getElementById("comment-" + pid);
+    let customizeButton = document.getElementById("customize-button-" + pid);
+
+    if (textbox.value === "") {
+        customizeButton.style.backgroundColor = null;
+    }
+    else {
+        customizeButton.style.backgroundColor = "#4CAF50";
+    }
+
+    /*Hide popup*/
+    document.getElementById("customize-popup-" + pid).style.display = "none";
+}
+
 function recomputeCosts() {
     //Recompute costs
     let prices = Array.from(document.getElementsByClassName("price-text"));

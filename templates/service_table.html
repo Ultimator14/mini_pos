@@ -13,56 +13,56 @@
     </form>
     <h2 class="inline">Service Tisch {{table}}</h2>
     <hr style="background-color: darkorange;">
-    <h3>Aktive Bestellungen</h3>
     <ul>
         {% for order in orders -%}
         <li>
-            {{ order|join(' | ')}}
+            {{ order|join('<br/>')|safe}}
         </li>
         {% endfor -%}
     </ul>
 
     <hr style="background-color: cornflowerblue;">
-    <h3>Neue Bestellung</h3>
     <form action="{{ url_for ('service_table', table=table) }}" method="post">
         <table>
             <colgroup>
-                <col>
-                <col style="width: 9vw;">
-                <col style="width: 4vw;">
-                <col style="width: 4vw;">
-                <col style="width: 4vw;">
-                <col style="width: 13vw;">
-                <col>
+                <col style="width: 15vw;">
+                <col style="width: 40vw;">
+                <col style="width: 15vw;">
+                <col style="width: 15vw;">
+                <col style="width: 15vw;">
             </colgroup>
             <tbody>
                 <tr>
-                    <th>Produkt</th>
-                    <th>Preis</th>
-                    <th colspan="3" style="text-align: center;">Menge</th>
-                    <th>Kosten</th>
-                    <th>Kommentar</th>
+                    <th colspan="2">Produkt</th>
+                    <th colspan="3">Menge</th>
                 </tr>
                 {% for pid, pname, pprice in products -%}
                 <tr>
+                    <td><button type="button" id="customize-button-{{pid}}" class="customize-button" onclick="showPopup({{pid}})">&#9881;</button></td>
                     <td>{{pname}}</td>
-                    <td><span id="price-{{pid}}" class="price-text">{{ "{:,.2f}".format(pprice) }}</span> €</td>
                     <td><button type="button" class="amount-button" onclick="modifyAmount({{pid}}, -1)">&minus;</button></td>
                     <td><input type="text" id="amount-{{pid}}" class="amount-box" name="amount-{{pid}}" value="0" onchange="recomputeCosts()"/></td>
                     <td><button type="button" class="amount-button" onclick="modifyAmount({{pid}}, +1)">&plus;</button></td>
-                    <td style="text-align: right;"><span id="cost-{{pid}}" class="cost-text">0.00</span> €</td>
-                    <td><input type="text" id="comment-{{pid}}" class="comment-box" name="comment-{{pid}}"/></td>
                 </tr>
                 {%- endfor %}
-                <tr class="final-border">
-                    <td colspan="2">
-                    <td colspan="3">Gesamtpreis</td>
-                    <td><span id="total-cost">0.00</span> €</td>
-                    <td></td>
-                </tr>
             </tbody>
         </table>
+        <p id="total-p">Gesamtpreis <span id="total-cost">0.00</span> €</p>
         <button type="submit" id="submit-button">Bestellen</button>
+        {%  for pid, pname, pprice in products %}
+        <div id="customize-popup-{{pid}}" class="popup">
+            <div class="popup-inner">
+                <h2>{{ pname }}</h2>
+                <ul>
+                    <li>Preis: <span id="price-{{pid}}" class="price-text">{{ "{:,.2f}".format(pprice) }}</span> €</li>
+                    <li>Kosten: <span id="cost-{{pid}}" class="cost-text">0.00</span> €<br/></li>
+                </ul>
+                <p>Kommentar:</p>
+                <input type="text" id="comment-{{pid}}" class="comment-box" name="comment-{{pid}}"/><br/>
+                <button type="button" id="done-button" onclick="hidePopup({{pid}})">Fertig</button>
+            </div>
+        </div>
+        {%  endfor %}
     </form>
 </div>
 </body>
