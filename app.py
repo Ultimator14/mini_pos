@@ -16,7 +16,28 @@ config_file.close()
 
 
 # region helper
+def _green(prompt):
+    return f"\033[32;1m{prompt}\033[0m"
 
+
+def _yellow(prompt):
+    return f"\033[33;1m{prompt}\033[0m"
+
+
+def _red(prompt):
+    return f"\033[31;1m{prompt}\033[0m"
+
+
+def log_info(msg):
+    print(_green(f"*** Info ***: {msg}"))
+
+
+def log_warn(msg):
+    print(_yellow(f"*** Warning! ***: {msg}"))
+
+
+def log_error(msg):
+    print(_red(f"*** Error! ***: {msg}"))
 # endregion helper
 
 
@@ -72,6 +93,30 @@ class Product:
 
     def complete(self):
         self._completed = True
+
+
+def handle_product_completed_event(completed_data, order_data):
+    if not completed_data.isdigit() or not order_data.isdigit():
+        log_error("POST in /bar but filetype not convertible to integer")
+        return
+
+    order = next((order for order in orders if int(request.form["order"]) == order.num), None)
+
+    if order is None:
+        log_error("POST in /bar but no matching Order found")
+        return
+
+    product = next((p for p in order.products if int(request.form["product-completed"]) == p.num), None)
+
+    if product is None:
+        log_error("POST in /bar but no matching Product for order found")
+        return
+
+    product.complete()
+    log_info(f"Completed product {str(product.num)}")
+
+    if all([p.completed for p in order.products]):
+        complete_order(order)
 # endregion products
 
 
@@ -123,6 +168,26 @@ orders: List[Order] = []
 def add_order(order: Order):
     """Add order to orders list"""
     orders.append(order)
+
+
+def complete_order(order):
+    # completed_orders.append(completed_order)
+    orders.remove(order)
+    log_info(f"Completed order {str(order.num)}")
+
+
+def handle_order_completed_event(completed_data):
+    if not completed_data.isdigit():
+        log_error("POST in /bar but filetype not convertible to integer")
+        return
+
+    order = next((o for o in orders if int(request.form["order-completed"]) == o.num), None)
+
+    if order is None:
+        log_error("POST in /bar but no matching Order to complete")
+        return
+
+    complete_order(order)
 # endregion orders
 
 
@@ -149,45 +214,18 @@ def bar():
 
 @app.route("/bar", methods=["POST"])
 def bar_submit():
-    if "completed" in request.form:
-        if not request.form["completed"].isdigit():
-            print("Warning! POST request in /bar with filetype not convertible to integer")
-        else:
-            completed_order = next((order for order in orders if int(request.form["completed"]) == order.num), None)
+    if "order-completed" in request.form and "product-completed" in request.form:
+        log_info("POST in /bar with order and product completion data. Using order...")
 
-            if completed_order is None:
-                print("Warning! POST complete request in /bar but no matching Order found")
-            else:
-                # completed_orders.append(completed_order)
-                orders.remove(completed_order)
-                print(f"Removed order {str(completed_order.num)}")
+    if "order-completed" in request.form:
+        handle_order_completed_event(request.form["order-completed"])
     elif "product-completed" in request.form:
-        if "order" not in request.form:
-            print("Warning! POST request in /bar but missing order for completed product")
-        if not request.form["product-completed"].isdigit() or not request.form["order"].isdigit():
-            print("Warning! POST request in /bar with filetype not convertible to integer")
+        if "order" in request.form:
+            handle_product_completed_event(request.form["product-completed"], request.form["order"])
         else:
-            order = next((order for order in orders if int(request.form["order"]) == order.num), None)
-
-            if order is None:
-                print("Warning! POST complete request in /bar but no matching Order found")
-            else:
-                product = next((p for p in order.products if int(request.form["product-completed"]) == p.num), None)
-
-                if product is None:
-                    print("Warning! POST complete request in /bar but no matching Product for order found")
-                else:
-                    product.complete()
-                    print(f"Completed product {str(product.num)}")
-                    if all([p.completed for p in order.products]):
-                        # completed_orders.append(completed_order)
-                        orders.remove(order)
-                        print(f"Removed order {str(order.num)}")
-
+            log_error("POST in /bar but missing order data for completed product")
     else:
-        # somehow a post request occured but the request did not contain a completed event
-        # this should not happen
-        print("Warning! POST request in /bar but missing completed event")
+        log_error("POST in /bar but missing completion data")
 
     return redirect(url_for("bar"))
 
@@ -201,7 +239,7 @@ def service():
 @app.route("/service/<table>")
 def service_table(table):
     if table not in tables:
-        print("Warning! Get request in /service/<table> but matching table not found")
+        log_error("GET in /service/<table> but invalid table. Skipping...")
         return "Error! Invalid table"
 
     return render_template("service_table.html", table=table,
@@ -215,23 +253,24 @@ def service_table(table):
 @app.route("/service/<table>", methods=["POST"])
 def service_table_submit(table):
     if table not in tables:
-        print(f"Error! POST request in /service/<table> but invalid table. Skipping...")
+        log_error("POST in /service/<table> but invalid table. Skipping...")
         return "Error! Invalid table"
 
     new_order = Order(table)
 
     for template_product in range(1, num_template_products + 1):
         if f"amount-{template_product}" not in request.form:
-            print(f"Warning! POST request in /service/<table> but missing amount-{template_product} event. Skipping...")
+            log_warn(f"POST in /service/<table> but missing amount-{template_product} event. Skipping...")
             continue
+
         if not request.form[f"amount-{template_product}"].isdigit():
-            print("Warning! POST request in /service/<table> with filetype not convertible to integer. Skipping...")
+            log_warn("POST in /service/<table> with filetype not convertible to integer. Skipping...")
             continue
 
         amount = int(request.form[f"amount-{template_product}"])
 
         if f"comment-{template_product}" not in request.form:
-            print(f"Warning! POST request in /service/<table> but missing comment-{template_product} event")
+            log_warn(f"POST in /service/<table> but missing comment-{template_product} event")
             comment = ""
         else:
             comment = request.form[f"comment-{template_product}"]
@@ -241,7 +280,7 @@ def service_table_submit(table):
             new_order.add_products(product)
 
     if not new_order.products:
-        print(f"Warning! POST request in /service/<table> but order does not contain any product. Skipping...")
+        log_warn("POST in /service/<table> but order does not contain any product. Skipping...")
     else:
         add_order(new_order)
 

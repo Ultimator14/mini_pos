@@ -25,8 +25,8 @@
                             <th>Sonstiges</th>
                             <th>Erledigt</th>
                         </tr>
-                        {%for product in order.products%}
-                            {% if not product.completed %}
+                        {% for product in order.products -%}
+                            {%- if not product.completed %}
                                 <tr>
                                     <td>{{product.name}}</td>
                                     <td>{{product.amount}}</td>
@@ -36,13 +36,13 @@
                                         <input type="hidden" name="order" value="{{order.num}}"/>
                                     </form></td>
                                 </tr>
-                            {% endif %}
-                        {%endfor%}
+                            {%- endif -%}
+                        {%- endfor %}
                     </table>
                 </td>
                 <td>
                     <form action="{{ url_for ('bar_submit') }}" method="post">
-                        <button id="{{order.num}}" type="submit" name="completed" value="{{order.num}}">&#x2713;</button>
+                        <button id="{{order.num}}" type="submit" name="order-completed" value="{{order.num}}">&#x2713;</button>
                     </form>
                 </td>
             </tr>
