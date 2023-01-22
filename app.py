@@ -2,23 +2,51 @@
 
 # region includes
 from __future__ import annotations  # required for type hinting of classes in itself
-import json
-from flask import Flask, render_template, request, redirect, url_for
-from datetime import datetime, timedelta
-
 from typing import Union
+
+from flask import Flask, render_template, request, redirect, url_for
+import json
+from datetime import datetime, timedelta
 # endregion includes
 
+
+# region types
+TemplateProductsT = dict[int, tuple[str, float]]
+# endregion types
+
+
 # region config
-CONFIG_FILE = "config.json"
+CONFIG_FILE: str = "config.json"
+DEFAULT_AUTOCLOSE: bool = True
+DEFAULT_SHOW_COMPLETED: int = 5
+DEFAULT_TIMEOUT_WARN: int = 120
+DEFAULT_TIMEOUT_CRIT: int = 300
+
+tables_x: str
+tables_y: str
+tables: list[str] = []
+template_products: TemplateProductsT = dict()
+template_products_unavailable: TemplateProductsT = dict()
+num_template_products: int = 0
 
 
 def load_config():
     with open("config.json", "r") as f:
-        return json.load(f)
+        config_data = json.load(f)
 
+        Order.auto_close = config_data["order"]["auto_close"]
+        Order.show_completed = config_data["order"]["show_completed"]  # zero = don't show
+        Order.timeout_warn = config_data["order"]["timeout"][0]
+        Order.timeout_crit = config_data["order"]["timeout"][1]
 
-config_data = load_config()
+        global tables_x, tables_y, tables
+        tables_x = config_data["tables"][0]
+        tables_y = config_data["tables"][1]
+        tables = [f"{x}{y}" for x in tables_x for y in tables_y]  # tables 1A-9F
+
+        global template_products, template_products_unavailable, num_template_products
+        template_products = dict(enumerate([(p[0], p[1]) for p in config_data["products"]], start=1))
+        num_template_products = len(template_products)
 # endregion config
 
 
@@ -48,16 +76,7 @@ def log_error(msg: str) -> None:
 # endregion helper
 
 
-# region types
-Template_Products = dict[int, tuple[str, float]]
-# endregion types
-
-
 # region products
-template_products: Template_Products = dict(enumerate([(p[0], p[1]) for p in config_data["products"]], start=1))
-num_template_products: int = len(template_products)
-
-
 class Product:
     counter: int = 1
 
@@ -139,10 +158,11 @@ def handle_product_completed_event(completed_data: str, order_data: str):
 class Order:
     counter: int = 1
 
-    auto_close: bool = config_data["order"]["auto_close"]
-    show_completed: int = config_data["order"]["show_completed"]  # zero = don't show
-    timeout_warn: int = config_data["order"]["timeout"][0]
-    timeout_crit: int = config_data["order"]["timeout"][1]
+    # set defaults
+    auto_close: bool = DEFAULT_AUTOCLOSE
+    show_completed: int = DEFAULT_SHOW_COMPLETED
+    timeout_warn: int = DEFAULT_TIMEOUT_WARN
+    timeout_crit: int = DEFAULT_TIMEOUT_CRIT
 
     @staticmethod
     def next_order_num() -> int:
@@ -248,14 +268,8 @@ def handle_order_completed_event(completed_data: str) -> None:
 # endregion orders
 
 
-# region tables
-tables_x: str = config_data["tables"][0]
-tables_y: str = config_data["tables"][1]
-tables: list[str] = [f"{x}{y}" for x in tables_x for y in tables_y]  # tables 1A-9F
-# endregion tables
-
-
 # region flask
+load_config()  # must be after class and function definitions to prevent type error
 app: Flask = Flask(__name__)
 
 
