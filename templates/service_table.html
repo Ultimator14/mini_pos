@@ -41,7 +41,7 @@
                     <td><button type="button" id="customize-button-{{pid}}" class="customize-button" onclick="showPopup({{pid}})">&#9881;</button></td>
                     <td>{{pname}}</td>
                     <td><button type="button" class="amount-button" onclick="modifyAmount({{pid}}, -1)">&minus;</button></td>
-                    <td><input type="text" id="amount-{{pid}}" class="amount-box" name="amount-{{pid}}" value="0" onchange="recomputeCosts()"/></td>
+                    <td><input type="text" id="amount-{{pid}}" class="amount-box" name="amount-{{pid}}" value="0" onchange="updateValues()"/></td>
                     <td><button type="button" class="amount-button" onclick="modifyAmount({{pid}}, +1)">&plus;</button></td>
                 </tr>
                 {%- endfor %}
@@ -53,10 +53,26 @@
         <div id="customize-popup-{{pid}}" class="popup">
             <div class="popup-inner">
                 <h2>{{ pname }}</h2>
-                <ul>
-                    <li>Preis: <span id="price-{{pid}}" class="price-text">{{ "{:,.2f}".format(pprice) }}</span> €</li>
-                    <li>Kosten: <span id="cost-{{pid}}" class="cost-text">0.00</span> €<br/></li>
-                </ul>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>Preis</td>
+                            <td><span id="price-{{pid}}" class="price-text">{{ "{:,.2f}".format(pprice) }}</span> €</td>
+                        </tr>
+                        <tr>
+                            <td>Menge</td>
+                            <td>
+                                <button type="button" class="amount-button" onclick="modifyAmount({{pid}}, -1)">&minus;</button>
+                                <span id="amount2-{{pid}}" class="amount2-text">0</span>
+                                <button type="button" class="amount-button" onclick="modifyAmount({{pid}}, +1)">&plus;</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Kosten</td>
+                            <td><span id="cost-{{pid}}" class="cost-text">0.00</span> €</td>
+                        </tr>
+                    </tbody>
+                </table>
                 <p>Kommentar:</p>
                 <input type="text" id="comment-{{pid}}" class="comment-box" name="comment-{{pid}}"/><br/>
                 <button type="button" id="done-button" onclick="hidePopup({{pid}})">Fertig</button>

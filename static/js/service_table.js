@@ -19,15 +19,16 @@ function hidePopup(pid) {
     document.getElementById("customize-popup-" + pid).style.display = "none";
 }
 
-function recomputeCosts() {
-    //Recompute costs
+function updateValues() {
     let prices = Array.from(document.getElementsByClassName("price-text"));
     let amounts = Array.from(document.getElementsByClassName("amount-box"));
     let costs = Array.from(document.getElementsByClassName("cost-text"));
+    let amounts2 = Array.from(document.getElementsByClassName("amount2-text"));
 
     prices.sort(compare_ids);
     amounts.sort(compare_ids);
     costs.sort(compare_ids);
+    amounts2.sort(compare_ids);
 
     let sum = 0
 
@@ -35,10 +36,15 @@ function recomputeCosts() {
         let price = prices[i].innerHTML;
         let amount = amounts[i].value;
 
+        //Compute per product cose and accumulation
         let current_cost = parseFloat(price) * parseFloat(amount);
         sum += current_cost;
 
+        //Set cost field
         costs[i].innerHTML = current_cost.toFixed(2).toString();
+
+        //Sync second amount field
+        amounts2[i].innerHTML = amount;
     }
 
     //Recompute total value
@@ -73,5 +79,5 @@ function modifyAmount(pid, value) {
     }
 
     textbox.value = new_value;
-    recomputeCosts();
+    updateValues();
 }
