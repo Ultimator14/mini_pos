@@ -12,9 +12,13 @@ from typing import Union
 # region config
 CONFIG_FILE = "config.json"
 
-config_file = open("config.json", "r")
-config_data = json.load(config_file)
-config_file.close()
+
+def load_config():
+    with open("config.json", "r") as f:
+        return json.load(f)
+
+
+config_data = load_config()
 # endregion config
 
 
@@ -123,8 +127,10 @@ def handle_product_completed_event(completed_data: str, order_data: str):
     product.complete()
     log_info(f"Completed product {str(product.num)}")
 
-    if all([p.completed for p in order.products]):
-        order.complete()
+    if Order.autoclose:
+        if all([p.completed for p in order.products]):
+            log_info("Last Product completed. Attempting autoclose")
+            order.complete()
 # endregion products
 
 
@@ -132,9 +138,10 @@ def handle_product_completed_event(completed_data: str, order_data: str):
 class Order:
     counter: int = 1
 
-    timeout_warn: int
-    timeout_crit: int
-    timeout_warn, timeout_crit = config_data["order_timeout"]
+    autoclose: bool = config_data["order"]["autoclose"]
+    showcompleted: int = config_data["order"]["showcompleted"]  # zero = don't show
+    timeout_warn: int = config_data["order"]["timeout"][0]
+    timeout_crit: int = config_data["order"]["timeout"][1]
 
     @staticmethod
     def next_order_num() -> int:
@@ -261,7 +268,8 @@ def home():
 
 @app.route("/bar")
 def bar():
-    return render_template("bar.html", orders=orders, completed_orders=completed_orders[:-6:-1])
+    return render_template("bar.html", orders=orders, completed_orders=completed_orders[:-(Order.showcompleted + 1):-1],
+                           showcompleted=bool(Order.showcompleted))
 
 
 @app.route("/bar", methods=["POST"])

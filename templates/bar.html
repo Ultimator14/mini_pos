@@ -53,6 +53,7 @@
             {%endfor%}
         </tbody>
     </table>
+    {% if showcompleted -%}
     <br/><br/>
     <table class="completed-outer-table">
         <tbody>
@@ -87,5 +88,6 @@
             {%endfor%}
         </tbody>
     </table>
+    {%- endif %}
 </body>
 </html>

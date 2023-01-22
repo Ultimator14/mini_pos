@@ -40,8 +40,12 @@
 			["Schnitzelweck", 5.00],
 			["Schnitzel mit Kartoffelsalat", 8.00]
 		],
+	"order":
+		{
+			"autoclose": true,
+			"showcompleted": 5,
+			"timeout": [ 120, 600 ]
+		},
 	"tables":
-		["ABCDEF","123456789"],
-	"order_timeout":
-		[ 120, 600 ]
+		["ABCDEF","123456789"]
 }
