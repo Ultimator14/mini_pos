@@ -47,5 +47,8 @@
 			"timeout": [ 120, 600 ]
 		},
 	"tables":
-		["ABCDEF","123456789"]
+		[
+			"ABCDEF","123456789"
+		],
+	"persistence": true
 }

@@ -2,11 +2,14 @@
 
 # region includes
 from __future__ import annotations  # required for type hinting of classes in itself
+
+import os.path
 from typing import Optional
 
 from flask import Flask, render_template, request, redirect, url_for
-import json
 from datetime import datetime, timedelta
+import json
+import pickle
 # endregion includes
 
 
@@ -17,10 +20,13 @@ TemplateProductsT = dict[int, tuple[str, float]]
 
 # region config
 CONFIG_FILE: str = "config.json"
+DATABASE_FILE: str = "data.pkl"
 DEFAULT_AUTO_CLOSE: bool = True
 DEFAULT_SHOW_COMPLETED: int = 5
 DEFAULT_TIMEOUT_WARN: int = 120
 DEFAULT_TIMEOUT_CRIT: int = 300
+
+config_data = None
 
 tables_x: str
 tables_y: str
@@ -28,11 +34,14 @@ tables: list[str] = []
 template_products: TemplateProductsT = dict()
 template_products_unavailable: TemplateProductsT = dict()
 num_template_products: int = 0
+persistence: bool = False
 
 
 def load_config():
-    with open("config.json", "r") as f:
-        config_data = json.load(f)
+    log_info("Loading configuration...")
+    with open("config.json", "r") as afile:
+        global config_data
+        config_data = json.load(afile)
 
         Order.auto_close = config_data["order"]["auto_close"]
         Order.show_completed = config_data["order"]["show_completed"]  # zero = don't show
@@ -47,7 +56,35 @@ def load_config():
         global template_products, template_products_unavailable, num_template_products
         template_products = dict(enumerate([(p[0], p[1]) for p in config_data["products"]], start=1))
         num_template_products = len(template_products)
+
+        global persistence
+        persistence = config_data["persistence"]
 # endregion config
+
+
+# region persistence
+def persist_data() -> None:
+    log_info("Persisting data...")
+    with open(DATABASE_FILE, "wb") as afile:
+        pickle.dump((config_data, orders, completed_orders, Order.counter, Product.counter), afile)
+
+
+def restore_data() -> None:
+    with open(DATABASE_FILE, "rb") as afile:
+        _config_data, _orders, _completed_orders, _order_counter, _product_counter = pickle.load(afile)
+
+        global orders, completed_orders, config_data
+        if _config_data != config_data:
+            log_warn("Config data changed between invocations. Skipping restore!")
+            return
+
+        log_info("Restoring data...")
+        orders, completed_orders, Order.counter, Product.counter = \
+            _orders, _completed_orders, _order_counter, _product_counter
+
+        log_info(f"Order counter: {str(Order.counter)}")
+        log_info(f"Product counter: {str(Product.counter)}")
+# endregion persistence
 
 
 # region helper
@@ -123,7 +160,9 @@ class Product:
         return self._completed
 
     def complete(self) -> None:
-        self._completed = True
+        if not self._completed:
+            self._completed = True
+            log_info(f"Completed product {str(self._num)}")
 
 
 def handle_product_completed_event(completed_data: str, order_data: str):
@@ -144,7 +183,6 @@ def handle_product_completed_event(completed_data: str, order_data: str):
         return
 
     product.complete()
-    log_info(f"Completed product {str(product.num)}")
 
     if Order.auto_close:
         if all([p.completed for p in order.products]):
@@ -222,19 +260,26 @@ class Order:
     def add_products(self, *products: Product):
         for product in products:
             self._products.append(product)
+            log_info(f"Added product {str(product.num)}")
 
     def add(self):
         orders.append(self)
+        log_info(f"Added order {str(self._num)}")
+        if persistence:
+            persist_data()
 
     def complete(self) -> None:
-        completed_orders.append(self)
-        orders.remove(self)
-
         for product in self._products:
             product.complete()
 
         self._completed_at = datetime.now()
+
+        completed_orders.append(self)
+        orders.remove(self)
+
         log_info(f"Completed order {str(self._num)}")
+        if persistence:
+            persist_data()
 
     def get_product_by_num(self, num) -> Optional[Product]:
         return next((p for p in self.products if num == p.num), None)
@@ -281,8 +326,17 @@ class Orders:
 orders = Orders()
 completed_orders = Orders()
 
+if not os.path.isfile(CONFIG_FILE):
+    log_error("No config file found. Abort execution")
+    exit(1)
 load_config()  # must be after class and function definitions to prevent type error
 
+if persistence and not os.path.isfile(DATABASE_FILE):
+    log_info("No database file found. Skipping data restore")
+elif persistence:
+    restore_data()
+else:
+    log_info("Persistence disabled")
 
 # region flask
 app: Flask = Flask(__name__)
