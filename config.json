@@ -42,8 +42,8 @@
 		],
 	"order":
 		{
-			"autoclose": true,
-			"showcompleted": 5,
+			"auto_close": true,
+			"show_completed": 5,
 			"timeout": [ 120, 600 ]
 		},
 	"tables":

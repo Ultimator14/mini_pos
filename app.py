@@ -118,7 +118,8 @@ def handle_product_completed_event(completed_data: str, order_data: str):
         log_error("POST in /bar but no matching Order found")
         return
 
-    product: Union[Product, None] = next((p for p in order.products if int(request.form["product-completed"]) == p.num), None)
+    product: Union[Product, None] = next((p for p in order.products if int(request.form["product-completed"]) == p.num),
+                                         None)
 
     if product is None:
         log_error("POST in /bar but no matching Product for order found")
@@ -127,9 +128,9 @@ def handle_product_completed_event(completed_data: str, order_data: str):
     product.complete()
     log_info(f"Completed product {str(product.num)}")
 
-    if Order.autoclose:
+    if Order.auto_close:
         if all([p.completed for p in order.products]):
-            log_info("Last Product completed. Attempting autoclose")
+            log_info("Last Product completed. Attempting auto_close")
             order.complete()
 # endregion products
 
@@ -138,8 +139,8 @@ def handle_product_completed_event(completed_data: str, order_data: str):
 class Order:
     counter: int = 1
 
-    autoclose: bool = config_data["order"]["autoclose"]
-    showcompleted: int = config_data["order"]["showcompleted"]  # zero = don't show
+    auto_close: bool = config_data["order"]["auto_close"]
+    show_completed: int = config_data["order"]["show_completed"]  # zero = don't show
     timeout_warn: int = config_data["order"]["timeout"][0]
     timeout_crit: int = config_data["order"]["timeout"][1]
 
@@ -214,9 +215,6 @@ class Order:
             self._products.append(product)
             self._product_counter += 1
 
-    def copy_empty(self) -> Order:
-        return Order(self._table, self._num)
-
     def add(self):
         orders.append(self)
 
@@ -268,8 +266,9 @@ def home():
 
 @app.route("/bar")
 def bar():
-    return render_template("bar.html", orders=orders, completed_orders=completed_orders[:-(Order.showcompleted + 1):-1],
-                           showcompleted=bool(Order.showcompleted))
+    return render_template("bar.html", orders=orders,
+                           completed_orders=completed_orders[:-(Order.show_completed + 1):-1],
+                           show_completed=bool(Order.show_completed))
 
 
 @app.route("/bar", methods=["POST"])
@@ -307,7 +306,8 @@ def service_table(table):
                                     (f" ({p.comment})" if p.comment else "")
                                     for p in o.products if not p.completed]
                                    for o in orders if o.table == table],
-                           template_products=[(p, template_products[p][0], template_products[p][1]) for p in template_products])
+                           template_products=[(p, template_products[p][0], template_products[p][1])
+                                              for p in template_products])
 
 
 @app.route("/service/<table>", methods=["POST"])
