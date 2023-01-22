@@ -2,7 +2,7 @@
 
 # region includes
 from __future__ import annotations  # required for type hinting of classes in itself
-from typing import Union
+from typing import Optional
 
 from flask import Flask, render_template, request, redirect, url_for
 import json
@@ -131,14 +131,13 @@ def handle_product_completed_event(completed_data: str, order_data: str):
         log_error("POST in /bar but filetype not convertible to integer")
         return
 
-    order: Union[Order, None] = next((order for order in orders if int(request.form["order"]) == order.num), None)
+    order = orders.get_order_by_num(int(request.form["order"]))
 
     if order is None:
         log_error("POST in /bar but no matching Order found")
         return
 
-    product: Union[Product, None] = next((p for p in order.products if int(request.form["product-completed"]) == p.num),
-                                         None)
+    product = order.get_product_by_num(int(request.form["product-completed"]))
 
     if product is None:
         log_error("POST in /bar but no matching Product for order found")
@@ -171,22 +170,12 @@ class Order:
 
         return next_num
 
-    def __init__(self, table: str, num=None, date=None):
+    def __init__(self, table: str):
+        self._num: int = Order.next_order_num()
         self._table: str = table
         self._products: list[Product] = []
-        self._product_counter: int = 0
-
-        if num is not None:
-            self._num: int = num
-        else:
-            self._num: int = Order.next_order_num()
-
-        if date is not None:
-            self._date: datetime = date
-        else:
-            self._date: datetime = datetime.now()
-
-        self._completed_at: Union[datetime, None] = None
+        self._date: datetime = datetime.now()
+        self._completed_at: Optional[datetime] = None
 
     @property
     def num(self) -> int:
@@ -233,7 +222,6 @@ class Order:
     def add_products(self, *products: Product):
         for product in products:
             self._products.append(product)
-            self._product_counter += 1
 
     def add(self):
         orders.append(self)
@@ -248,9 +236,8 @@ class Order:
         self._completed_at = datetime.now()
         log_info(f"Completed order {str(self._num)}")
 
-
-orders: list[Order] = []
-completed_orders: list[Order] = []
+    def get_product_by_num(self, num) -> Optional[Product]:
+        return next((p for p in self.products if num == p.num), None)
 
 
 def handle_order_completed_event(completed_data: str) -> None:
@@ -258,18 +245,46 @@ def handle_order_completed_event(completed_data: str) -> None:
         log_error("POST in /bar but filetype not convertible to integer")
         return
 
-    order: Union[Order, None] = next((o for o in orders if int(request.form["order-completed"]) == o.num), None)
+    order = orders.get_order_by_num(int(request.form["order-completed"]))
 
     if order is None:
         log_error("POST in /bar but no matching Order to complete")
         return
 
     order.complete()
+
+
+class Orders:
+    def __init__(self):
+        self._order_list: list[Order] = []
+
+    def __iter__(self):
+        return iter(self._order_list)  # for order in orders
+
+    def __getitem__(self, item):
+        return self._order_list.__getitem__(item)  # x = order[0]
+
+    def __setitem__(self, key, value):
+        return self._order_list.__setitem__(key, value)  # order[0] = x
+
+    def append(self, order: Order):
+        self._order_list.append(order)
+
+    def remove(self, order: Order):
+        self._order_list.remove(order)
+
+    def get_order_by_num(self, num) -> Optional[Order]:
+        return next((o for o in self._order_list if num == o.num), None)
 # endregion orders
 
 
-# region flask
+orders = Orders()
+completed_orders = Orders()
+
 load_config()  # must be after class and function definitions to prevent type error
+
+
+# region flask
 app: Flask = Flask(__name__)
 
 
