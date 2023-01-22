@@ -17,7 +17,7 @@ TemplateProductsT = dict[int, tuple[str, float]]
 
 # region config
 CONFIG_FILE: str = "config.json"
-DEFAULT_AUTOCLOSE: bool = True
+DEFAULT_AUTO_CLOSE: bool = True
 DEFAULT_SHOW_COMPLETED: int = 5
 DEFAULT_TIMEOUT_WARN: int = 120
 DEFAULT_TIMEOUT_CRIT: int = 300
@@ -158,7 +158,7 @@ class Order:
     counter: int = 1
 
     # set defaults
-    auto_close: bool = DEFAULT_AUTOCLOSE
+    auto_close: bool = DEFAULT_AUTO_CLOSE
     show_completed: int = DEFAULT_SHOW_COMPLETED
     timeout_warn: int = DEFAULT_TIMEOUT_WARN
     timeout_crit: int = DEFAULT_TIMEOUT_CRIT
@@ -267,10 +267,10 @@ class Orders:
     def __setitem__(self, key, value):
         return self._order_list.__setitem__(key, value)  # order[0] = x
 
-    def append(self, order: Order):
+    def append(self, order: Order) -> None:
         self._order_list.append(order)
 
-    def remove(self, order: Order):
+    def remove(self, order: Order) -> None:
         self._order_list.remove(order)
 
     def get_order_by_num(self, num) -> Optional[Order]:
@@ -331,10 +331,8 @@ def service_table(table):
         return "Error! Invalid table"
 
     return render_template("service_table.html", table=table,
-                           orders=[[f"{p.amount}x {p.name}" +
-                                    (f" ({p.comment})" if p.comment else "")
-                                    for p in o.products if not p.completed]
-                                   for o in orders if o.table == table],
+                           orders=[[f"{p.amount}x {p.name}" + (f" ({p.comment})" if p.comment else "")
+                                    for p in o.products if not p.completed] for o in orders if o.table == table],
                            template_products=[(p, template_products[p][0], template_products[p][1])
                                               for p in template_products])
 
