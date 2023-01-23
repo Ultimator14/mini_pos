@@ -2,6 +2,9 @@
 Service page
 */
 
+/*Disable double tap to zoom*/
+* { touch-action: manipulation; }
+
 table {
     width: 100%;
 }
