@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/service_table.css') }}">
     <script src="{{ url_for('static', filename='js/service_table.js') }}"></script>
 </head>
-<body>
+<body onload="updateValues()">
 <div>
     <form class="inline" action="{{ url_for ('service') }}" method="get">
         <button class="back-button" type="submit">&#x2715;</button>
