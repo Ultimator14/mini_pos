@@ -2,12 +2,10 @@
 
 # region includes
 from __future__ import annotations  # required for type hinting of classes in itself
-
-import os.path
 from typing import Optional
-
 from flask import Flask, render_template, request, redirect, url_for
 from datetime import datetime, timedelta
+import os.path
 import json
 import pickle
 # endregion includes
@@ -415,6 +413,8 @@ def service_table_submit(table):
 
 if __name__ == "__main__":
     # for production run
-    # gunicorn --bind 0.0.0.0:5000 app:app
+    # sysctl -w net.ipv4.ip_unprivileged_port_start=80
+    # gunicorn --bind 0.0.0.0:80 app:app
+    # sysctl -w net.ipv4.ip_unprivileged_port_start=1024
     #
     app.run()
