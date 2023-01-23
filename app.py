@@ -26,21 +26,17 @@ DEFAULT_SHOW_COMPLETED: int = 5
 DEFAULT_TIMEOUT_WARN: int = 120
 DEFAULT_TIMEOUT_CRIT: int = 300
 
-config_data = None
-
 tables_x: str
 tables_y: str
 tables: list[str] = []
 template_products: TemplateProductsT = dict()
 template_products_unavailable: TemplateProductsT = dict()
-num_template_products: int = 0
 persistence: bool = False
 
 
 def load_config():
     log_info("Loading configuration...")
     with open("config.json", "r") as afile:
-        global config_data
         config_data = json.load(afile)
 
         Order.auto_close = config_data["order"]["auto_close"]
@@ -53,9 +49,8 @@ def load_config():
         tables_y = config_data["tables"][1]
         tables = [f"{x}{y}" for x in tables_x for y in tables_y]  # tables 1A-9F
 
-        global template_products, template_products_unavailable, num_template_products
+        global template_products, template_products_unavailable
         template_products = dict(enumerate([(p[0], p[1]) for p in config_data["products"]], start=1))
-        num_template_products = len(template_products)
 
         global persistence
         persistence = config_data["persistence"]
@@ -66,21 +61,14 @@ def load_config():
 def persist_data() -> None:
     log_info("Persisting data...")
     with open(DATABASE_FILE, "wb") as afile:
-        pickle.dump((config_data, orders, completed_orders, Order.counter, Product.counter), afile)
+        pickle.dump((orders, completed_orders, Order.counter, Product.counter), afile)
 
 
 def restore_data() -> None:
+    log_info("Restoring data...")
     with open(DATABASE_FILE, "rb") as afile:
-        _config_data, _orders, _completed_orders, _order_counter, _product_counter = pickle.load(afile)
-
-        global orders, completed_orders, config_data
-        if _config_data != config_data:
-            log_warn("Config data changed between invocations. Skipping restore!")
-            return
-
-        log_info("Restoring data...")
-        orders, completed_orders, Order.counter, Product.counter = \
-            _orders, _completed_orders, _order_counter, _product_counter
+        global orders, completed_orders
+        orders, completed_orders, Order.counter, Product.counter = pickle.load(afile)
 
         log_info(f"Order counter: {str(Order.counter)}")
         log_info(f"Product counter: {str(Product.counter)}")
@@ -124,13 +112,11 @@ class Product:
 
         return next_num
 
-    def __init__(self, template_product: int, amount: int, comment="", num=None):
-        if num:
-            self._num: int = num
-        else:
-            self._num: int = Product.next_product_num()
+    def __init__(self, name: str, price: float, amount: int, comment=""):
+        self._num: int = Product.next_product_num()
 
-        self._template_product: int = template_product
+        self._name = name
+        self._price = price
         self._amount: int = amount
         self._comment: str = comment
 
@@ -142,10 +128,7 @@ class Product:
 
     @property
     def name(self) -> str:
-        if self._template_product != 0:
-            return template_products[self._template_product][0]
-        else:
-            return "Invalid"
+        return self._name
 
     @property
     def amount(self) -> int:
@@ -399,7 +382,7 @@ def service_table_submit(table):
 
     new_order = Order(table)
 
-    for template_product in range(1, num_template_products + 1):
+    for template_product in range(1, len(template_products) + 1):
         if f"amount-{template_product}" not in request.form:
             log_warn(f"POST in /service/<table> but missing amount-{template_product} event. Skipping...")
             continue
@@ -417,7 +400,8 @@ def service_table_submit(table):
             comment = request.form[f"comment-{template_product}"]
 
         if amount > 0:
-            product = Product(template_product, amount, comment)
+            name, price = template_products[template_product]
+            product = Product(name, price, amount, comment)
             new_order.add_products(product)
 
     if not new_order.products:
