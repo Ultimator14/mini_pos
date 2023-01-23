@@ -19,10 +19,6 @@ TemplateProductsT = dict[int, tuple[str, float]]
 # region config
 CONFIG_FILE: str = "config.json"
 DATABASE_FILE: str = "data.pkl"
-DEFAULT_AUTO_CLOSE: bool = True
-DEFAULT_SHOW_COMPLETED: int = 5
-DEFAULT_TIMEOUT_WARN: int = 120
-DEFAULT_TIMEOUT_CRIT: int = 300
 
 tables_x: str
 tables_y: str
@@ -177,10 +173,11 @@ class Order:
     counter: int = 1
 
     # set defaults
-    auto_close: bool = DEFAULT_AUTO_CLOSE
-    show_completed: int = DEFAULT_SHOW_COMPLETED
-    timeout_warn: int = DEFAULT_TIMEOUT_WARN
-    timeout_crit: int = DEFAULT_TIMEOUT_CRIT
+    auto_close: bool
+    overview: bool
+    show_completed: int
+    timeout_warn: int
+    timeout_crit: int
 
     @staticmethod
     def next_order_num() -> int:
