@@ -77,6 +77,12 @@ table tr.colorized-row {
     cursor: pointer;
 }
 
+/*Overview*/
+#overview-h2 {
+    font-size: 6vmin;
+    text-align: left;
+}
+
 /*Total price*/
 #total-cost-p {
     font-size: 7vmin;

@@ -39,7 +39,7 @@
                 {% for pid, pname, pprice in template_products -%}
                 <tr id="template-product-row-{{pid}}" class="template-product-row">
                     <td><button type="button" id="customize-button-{{pid}}" class="customize-button" onclick="showPopup({{pid}})">&#9881;</button></td>
-                    <td>{{pname}}</td>
+                    <td id="template-product-name-{{pid}}" class="template-product-name">{{pname}}</td>
                     <td><button type="button" class="amount-button" onclick="modifyAmount({{pid}}, -1)">&minus;</button></td>
                     <td><input type="text" id="amount-{{pid}}" class="amount-box" name="amount-{{pid}}" value="0" onchange="updateValues()"/></td>
                     <td><button type="button" class="amount-button" onclick="modifyAmount({{pid}}, +1)">&plus;</button></td>
@@ -47,6 +47,10 @@
                 {%- endfor %}
             </tbody>
         </table>
+        <h2 id="overview-h2">Übersicht</h2>
+        <hr style="background-color: darkorange;">
+        <ul id="overview"></ul>
+        <hr style="background-color: cornflowerblue;">
         <p id="total-cost-p">Gesamtpreis <span id="total-cost">0.00</span> €</p>
         <button type="submit" id="submit-button">Bestellen</button>
         {%  for pid, pname, pprice in template_products %}
