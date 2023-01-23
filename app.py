@@ -325,7 +325,7 @@ def home():
     return render_template("index.html")
 
 
-@app.route("/bar")
+@app.route("/bar", strict_slashes=False)
 def bar():
     return render_template("bar.html", orders=orders,
                            completed_orders=completed_orders[:-(Order.show_completed + 1):-1],
@@ -350,7 +350,7 @@ def bar_submit():
     return redirect(url_for("bar"))
 
 
-@app.route("/service")
+@app.route("/service", strict_slashes=False)
 def service():
     return render_template("service.html", tables_x=tables_x, tables_y=tables_y,
                            active_tables={order.table for order in orders})
@@ -407,7 +407,7 @@ def service_table_submit(table):
     return redirect(url_for("service"))
 
 
-@app.route("/admin")
+@app.route("/admin", strict_slashes=False)
 def admin():
     return render_template("admin.html")
 
