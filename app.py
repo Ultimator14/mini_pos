@@ -405,6 +405,22 @@ def service_table_submit(table):
         new_order.add()
 
     return redirect(url_for("service"))
+
+
+@app.route("/admin")
+def admin():
+    return render_template("admin.html")
+
+
+@app.route("/admin", methods=["POST"])
+def admin_submit():
+    if "reload_config" in request.form:
+        log_info("Reloading config...")
+        load_config()
+    else:
+        log_warn("POST in /admin but nothing to do")
+
+    return redirect(url_for("admin"))
 # endregion flask
 
 
