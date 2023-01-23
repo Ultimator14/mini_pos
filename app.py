@@ -109,8 +109,8 @@ class Product:
     def __init__(self, name: str, price: float, amount: int, comment=""):
         self._num: int = Product.next_product_num()
 
-        self._name = name
-        self._price = price
+        self._name: str = name
+        self._price: float = price
         self._amount: int = amount
         self._comment: str = comment
 
@@ -142,7 +142,7 @@ class Product:
             log_info(f"Completed product {str(self._num)}")
 
 
-def handle_product_completed_event(completed_data: str, order_data: str):
+def handle_product_completed_event(completed_data: str, order_data: str) -> None:
     if not completed_data.isdigit() or not order_data.isdigit():
         log_error("POST in /bar but filetype not convertible to integer")
         return
@@ -235,12 +235,12 @@ class Order:
 
         return self._completed_at.strftime("%Y-%m-%d %H:%M:%S")
 
-    def add_products(self, *products: Product):
+    def add_products(self, *products: Product) -> None:
         for product in products:
             self._products.append(product)
             log_info(f"Added product {str(product.num)}")
 
-    def add(self):
+    def add(self) -> None:
         orders.append(self)
         log_info(f"Added order {str(self._num)}")
         if persistence:
