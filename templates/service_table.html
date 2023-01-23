@@ -37,7 +37,7 @@
                     <th colspan="3">Menge</th>
                 </tr>
                 {% for pid, pname, pprice in template_products -%}
-                <tr>
+                <tr id="template-product-row-{{pid}}" class="template-product-row">
                     <td><button type="button" id="customize-button-{{pid}}" class="customize-button" onclick="showPopup({{pid}})">&#9881;</button></td>
                     <td>{{pname}}</td>
                     <td><button type="button" class="amount-button" onclick="modifyAmount({{pid}}, -1)">&minus;</button></td>

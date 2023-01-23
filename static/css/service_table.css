@@ -51,6 +51,11 @@ td, th {
 }
 table tr:nth-child(odd){background-color: #dbd9d9}
 
+/*Table colors on amount > 0*/
+table tr.colorized-row {
+    background-color: #4CAF50;
+}
+
 /*Buttons*/
 .amount-button, .amount-box, .customize-button {
     width: 10vw;

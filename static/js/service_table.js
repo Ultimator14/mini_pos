@@ -19,39 +19,6 @@ function hidePopup(pid) {
     document.getElementById("customize-popup-" + pid).style.display = "none";
 }
 
-function updateValues() {
-    let prices = Array.from(document.getElementsByClassName("price-text"));
-    let amounts = Array.from(document.getElementsByClassName("amount-box"));
-    let costs = Array.from(document.getElementsByClassName("cost-text"));
-    let amounts2 = Array.from(document.getElementsByClassName("amount2-text"));
-
-    prices.sort(compare_ids);
-    amounts.sort(compare_ids);
-    costs.sort(compare_ids);
-    amounts2.sort(compare_ids);
-
-    let sum = 0
-
-    for(let i=0; i<prices.length; i++) {
-        let price = prices[i].innerHTML;
-        let amount = amounts[i].value;
-
-        //Compute per product cose and accumulation
-        let current_cost = parseFloat(price) * parseFloat(amount);
-        sum += current_cost;
-
-        //Set cost field
-        costs[i].innerHTML = current_cost.toFixed(2).toString();
-
-        //Sync second amount field
-        amounts2[i].innerHTML = amount;
-    }
-
-    //Recompute total value
-    let total = document.getElementById("total-cost");
-    total.innerHTML = sum.toFixed(2).toString();
-}
-
 function compare_ids(a, b) {
     if (a.id < b.id) {
         return -1;
@@ -60,6 +27,50 @@ function compare_ids(a, b) {
         return 1;
     }
     return 0;
+}
+
+function updateValues() {
+    let prices = Array.from(document.getElementsByClassName("price-text"));
+    let amounts = Array.from(document.getElementsByClassName("amount-box"));
+    let costs = Array.from(document.getElementsByClassName("cost-text"));
+    let amounts2 = Array.from(document.getElementsByClassName("amount2-text"));
+    let rows = Array.from(document.getElementsByClassName("template-product-row"));
+
+    prices.sort(compare_ids);
+    amounts.sort(compare_ids);
+    costs.sort(compare_ids);
+    amounts2.sort(compare_ids);
+    rows.sort(compare_ids);
+
+    let sum = 0;
+
+    for(let i=0; i<prices.length; i++) {
+        let price = parseFloat(prices[i].innerHTML);
+        let amount = parseFloat(amounts[i].value);
+
+        //Compute per product cose and accumulation
+        let current_cost = price * amount;
+        sum += current_cost;
+
+        //Set cost field
+        costs[i].innerHTML = current_cost.toFixed(2).toString();
+
+        //Sync second amount field
+        amounts2[i].innerHTML = amount.toString();
+
+        //Colorize table row if amount is > 0
+        let row = rows[i];
+        if (amount > 0) {
+            row.classList.add("colorized-row");
+        }
+        else {
+            row.classList.remove("colorized-row");
+        }
+    }
+
+    //Recompute total value
+    let total = document.getElementById("total-cost");
+    total.innerHTML = sum.toFixed(2).toString();
 }
 
 function modifyAmount(pid, value) {
