@@ -12,7 +12,7 @@ import pickle
 
 
 # region types
-TemplateProductsT = dict[int, tuple[str, float]]
+AvailableProductsT = dict[int, tuple[str, float]]
 # endregion types
 
 
@@ -23,8 +23,7 @@ DATABASE_FILE: str = "data.pkl"
 tables_x: str
 tables_y: str
 tables: list[str] = []
-template_products: TemplateProductsT = dict()
-template_products_unavailable: TemplateProductsT = dict()
+available_products: AvailableProductsT = dict()
 persistence: bool = False
 
 
@@ -43,8 +42,8 @@ def load_config():
         tables_y = config_data["tables"][1]
         tables = [f"{x}{y}" for x in tables_x for y in tables_y]  # tables 1A-9F
 
-        global template_products, template_products_unavailable
-        template_products = dict(enumerate([(p[0], p[1]) for p in config_data["products"]], start=1))
+        global available_products
+        available_products = dict(enumerate([(p[0], p[1]) for p in config_data["products"]], start=1))
 
         global persistence
         persistence = config_data["persistence"]
@@ -365,8 +364,8 @@ def service_table(table):
     return render_template("service_table.html", table=table,
                            orders=[[f"{p.amount}x {p.name}" + (f" ({p.comment})" if p.comment else "")
                                     for p in o.products if not p.completed] for o in orders if o.table == table],
-                           template_products=[(p, template_products[p][0], template_products[p][1])
-                                              for p in template_products])
+                           available_products=[(p, available_products[p][0], available_products[p][1])
+                                              for p in available_products])
 
 
 @app.route("/service/<table>", methods=["POST"])
@@ -377,25 +376,25 @@ def service_table_submit(table):
 
     new_order = Order(table)
 
-    for template_product in range(1, len(template_products) + 1):
-        if f"amount-{template_product}" not in request.form:
-            log_warn(f"POST in /service/<table> but missing amount-{template_product} event. Skipping...")
+    for available_product in range(1, len(available_products) + 1):
+        if f"amount-{available_product}" not in request.form:
+            log_warn(f"POST in /service/<table> but missing amount-{available_product} event. Skipping...")
             continue
 
-        if not request.form[f"amount-{template_product}"].isdigit():
+        if not request.form[f"amount-{available_product}"].isdigit():
             log_warn("POST in /service/<table> with filetype not convertible to integer. Skipping...")
             continue
 
-        amount = int(request.form[f"amount-{template_product}"])
+        amount = int(request.form[f"amount-{available_product}"])
 
-        if f"comment-{template_product}" not in request.form:
-            log_warn(f"POST in /service/<table> but missing comment-{template_product} event")
+        if f"comment-{available_product}" not in request.form:
+            log_warn(f"POST in /service/<table> but missing comment-{available_product} event")
             comment = ""
         else:
-            comment = request.form[f"comment-{template_product}"]
+            comment = request.form[f"comment-{available_product}"]
 
         if amount > 0:
-            name, price = template_products[template_product]
+            name, price = available_products[available_product]
             product = Product(name, price, amount, comment)
             new_order.add_products(product)
 

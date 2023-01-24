@@ -13,9 +13,9 @@ function updateValues() {
     let amounts2 = Array.from(document.getElementsByClassName("amount2-text"));
     let comments = Array.from(document.getElementsByClassName("comment-box"));
     let costs = Array.from(document.getElementsByClassName("cost-text"));
-    let names = Array.from(document.getElementsByClassName("template-product-name"));
+    let names = Array.from(document.getElementsByClassName("available-product-name"));
     let prices = Array.from(document.getElementsByClassName("price-text"));
-    let rows = Array.from(document.getElementsByClassName("template-product-row"));
+    let rows = Array.from(document.getElementsByClassName("available-product-row"));
 
     amounts.sort(compare_ids);
     amounts2.sort(compare_ids);
