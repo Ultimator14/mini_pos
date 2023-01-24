@@ -49,7 +49,14 @@ td, th {
     padding: 3px;
     border-bottom: 1px solid black;
 }
-table tr:nth-child(odd){background-color: #dbd9d9}
+
+/*Very light colorization based on category*/
+table tr.category-1 { background-color: #f3f3ff;}
+table tr.category-2 { background-color: #f2f9fd;}
+table tr.category-3 { background-color: #f1fef3;}
+table tr.category-4 { background-color: #fffeea;}
+table tr.category-5 { background-color: #fef2ea;}
+table tr.category-6 { background-color: #fee8e8;}
 
 /*Table colors on amount > 0*/
 table tr.colorized-row {

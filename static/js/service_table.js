@@ -56,7 +56,7 @@ function updateValues() {
             let entry_text = amount + "x " + name
 
             if (comment !== "") {
-                entry_text += " (" + comment + ")"
+                entry_text += " (" + comment + ")";
             }
 
             entry.appendChild(document.createTextNode(entry_text));
@@ -92,7 +92,7 @@ function hidePopup(pid) {
     /*Hide popup*/
     document.getElementById("customize-popup-" + pid).style.display = "none";
 
-    updateValues()
+    updateValues();
 }
 
 function modifyAmount(pid, value) {

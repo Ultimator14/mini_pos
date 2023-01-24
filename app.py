@@ -12,7 +12,7 @@ import pickle
 
 
 # region types
-AvailableProductsT = dict[int, tuple[str, float]]
+AvailableProductsT = dict[int, tuple[str, float, int]]
 # endregion types
 
 
@@ -24,6 +24,7 @@ tables_x: str
 tables_y: str
 tables: list[str] = []
 available_products: AvailableProductsT = dict()
+category_map: dict[int, str] = dict()
 persistence: bool = False
 
 
@@ -32,18 +33,21 @@ def load_config():
     with open("config.json", "r") as afile:
         config_data = json.load(afile)
 
-        Order.auto_close = config_data["order"]["auto_close"]
-        Order.show_completed = config_data["order"]["show_completed"]  # zero = don't show
-        Order.timeout_warn = config_data["order"]["timeout"][0]
-        Order.timeout_crit = config_data["order"]["timeout"][1]
+        Order.auto_close = config_data["ui"]["auto_close"]
+        Order.show_completed = config_data["ui"]["show_completed"]  # zero = don't show
+        Order.timeout_warn = config_data["ui"]["timeout"][0]
+        Order.timeout_crit = config_data["ui"]["timeout"][1]
 
         global tables_x, tables_y, tables
-        tables_x = config_data["tables"][0]
-        tables_y = config_data["tables"][1]
+        tables_x = config_data["table"][0]
+        tables_y = config_data["table"][1]
         tables = [f"{x}{y}" for x in tables_x for y in tables_y]  # tables 1A-9F
 
-        global available_products
-        available_products = dict(enumerate([(p[0], p[1]) for p in config_data["products"]], start=1))
+        global available_products, category_map
+        available_products = dict(enumerate(
+            [tuple(product) for product in config_data["product"]["available"]]
+            , start=1))
+        category_map = {index: name for index, name in config_data["product"]["categories"]}
 
         global persistence
         persistence = config_data["persistence"]
@@ -364,8 +368,8 @@ def service_table(table):
     return render_template("service_table.html", table=table,
                            orders=[[f"{p.amount}x {p.name}" + (f" ({p.comment})" if p.comment else "")
                                     for p in o.products if not p.completed] for o in orders if o.table == table],
-                           available_products=[(p, available_products[p][0], available_products[p][1])
-                                              for p in available_products])
+                           available_products=[(p, available_products[p][0], available_products[p][1],
+                                                available_products[p][2]) for p in available_products])
 
 
 @app.route("/service/<table>", methods=["POST"])
@@ -394,7 +398,7 @@ def service_table_submit(table):
             comment = request.form[f"comment-{available_product}"]
 
         if amount > 0:
-            name, price = available_products[available_product]
+            name, price, _ = available_products[available_product]
             product = Product(name, price, amount, comment)
             new_order.add_products(product)
 

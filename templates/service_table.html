@@ -36,8 +36,8 @@
                     <th colspan="2">Produkt</th>
                     <th colspan="3">Menge</th>
                 </tr>
-                {% for pid, pname, pprice in available_products -%}
-                <tr id="available-product-row-{{pid}}" class="available-product-row">
+                {% for pid, pname, pprice, pcat in available_products -%}
+                <tr id="available-product-row-{{pid}}" class="available-product-row category-{{pcat}}">
                     <td><button type="button" id="customize-button-{{pid}}" class="customize-button" onclick="showPopup({{pid}})">&#9881;</button></td>
                     <td id="available-product-name-{{pid}}" class="available-product-name">{{pname}}</td>
                     <td><button type="button" class="amount-button" onclick="modifyAmount({{pid}}, -1)">&minus;</button></td>
@@ -53,7 +53,7 @@
         <hr style="background-color: cornflowerblue;">
         <p id="total-cost-p">Gesamtpreis <span id="total-cost">0.00</span> €</p>
         <button type="submit" id="submit-button">Bestellen</button>
-        {%  for pid, pname, pprice in available_products %}
+        {%  for pid, pname, pprice, pcat in available_products %}
         <div id="customize-popup-{{pid}}" class="popup">
             <div class="popup-inner">
                 <h2>{{ pname }}</h2>
