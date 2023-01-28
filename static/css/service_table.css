@@ -70,9 +70,15 @@ table tr.category-3.colorized-row { background-color: hsl(210, 90%, 60%);}
 table tr.category-4.colorized-row { background-color: hsl(135, 90%, 60%);}
 table tr.category-5.colorized-row { background-color: hsl(45, 90%, 60%);}
 table tr.category-6.colorized-row { background-color: hsl(15, 90%, 60%);}
-table tr.category-7.colorized-row { background-color: hsl(0, 90%, 60%)}
+table tr.category-7.colorized-row { background-color: hsl(0, 90%, 60%);}
 
-
+table tr.category-8.colorized-row { background-color: hsl(330, 90%, 93%);}
+table tr.category-9.colorized-row { background-color: hsl(260, 90%, 93%);}
+table tr.category-10.colorized-row { background-color: hsl(210, 90%, 93%);}
+table tr.category-11.colorized-row { background-color: hsl(135, 90%, 93%);}
+table tr.category-12.colorized-row { background-color: hsl(45, 90%, 93%);}
+table tr.category-13.colorized-row { background-color: hsl(15, 90%, 93%);}
+table tr.category-14.colorized-row { background-color: hsl(0, 90%, 93%);}
 
 /*Buttons*/
 .amount-button, .amount-box, .customize-button {
