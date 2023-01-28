@@ -36,11 +36,18 @@
                     <th colspan="2">Produkt</th>
                     <th colspan="3">Menge</th>
                 </tr>
-                {% set curcat = namespace(value=split_categories_init) -%}
+                {% if show_category_names -%}
+                    {%- set curcat = namespace(value=split_categories_init + 1) -%}
+                {%- else -%}
+                    {%- set curcat = namespace(value=split_categories_init) -%}
+                {%- endif -%}
 
                 {%- for pid, pname, pprice, pcat in available_products -%}
 
-                {%- if pcat != curcat.value and split_categories_init != 0 %}
+                {%- if show_category_names and pcat != curcat.value %}
+                <tr><td colspan="5">{{ category_map[pcat] }}</td></tr>
+                {% set curcat.value = pcat -%}
+                {%- elif split_categories and pcat != curcat.value %}
                 <tr><td colspan="5"><br/></td></tr>
                 {% set curcat.value = pcat -%}
                 {%- endif -%}
