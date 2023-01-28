@@ -45,7 +45,7 @@
                 {%- for pid, pname, pprice, pcat in available_products -%}
 
                 {%- if show_category_names and pcat != curcat.value %}
-                <tr><td colspan="5">{{ category_map[pcat] }}</td></tr>
+                <tr><td colspan="5" class="category-name-{{pcat}}">{{ category_map[pcat] }}</td></tr>
                 {% set curcat.value = pcat -%}
                 {%- elif split_categories and pcat != curcat.value %}
                 <tr><td colspan="5"><br/></td></tr>

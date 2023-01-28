@@ -80,6 +80,14 @@ table tr.category-12.colorized-row { background-color: hsl(45, 90%, 93%);}
 table tr.category-13.colorized-row { background-color: hsl(15, 90%, 93%);}
 table tr.category-14.colorized-row { background-color: hsl(0, 90%, 93%);}
 
+.category-name-8 { background-color: hsl(330, 90%, 60%); }
+.category-name-9 { background-color: hsl(260, 90%, 60%); }
+.category-name-10 { background-color: hsl(210, 90%, 60%); }
+.category-name-11 { background-color: hsl(135, 90%, 60%); }
+.category-name-12 { background-color: hsl(45, 90%, 60%); }
+.category-name-13 { background-color: hsl(15, 90%, 60%); }
+.category-name-14 { background-color: hsl(0, 90%, 60%); }
+
 /*Buttons*/
 .amount-button, .amount-box, .customize-button {
     width: 10vw;
