@@ -25,6 +25,8 @@ tables_y: str
 tables: list[str] = []
 available_products: AvailableProductsT = dict()
 category_map: dict[int, str] = dict()
+
+split_categories: bool = False
 persistence: bool = False
 
 
@@ -48,6 +50,8 @@ def load_config():
             [tuple(product) for product in config_data["product"]["available"]]
             , start=1))
         category_map = {index: name for index, name in config_data["product"]["categories"]}
+        global split_categories
+        split_categories = config_data["ui"]["split_categories"]
 
         global persistence
         persistence = config_data["persistence"]
@@ -369,7 +373,8 @@ def service_table(table):
                            orders=[[f"{p.amount}x {p.name}" + (f" ({p.comment})" if p.comment else "")
                                     for p in o.products if not p.completed] for o in orders if o.table == table],
                            available_products=[(p, available_products[p][0], available_products[p][1],
-                                                available_products[p][2]) for p in available_products])
+                                                available_products[p][2]) for p in available_products],
+                           split_categories_init=available_products[1][2] if split_categories and len(available_products) > 0 else 0)
 
 
 @app.route("/service/<table>", methods=["POST"])

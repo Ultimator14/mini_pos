@@ -36,7 +36,15 @@
                     <th colspan="2">Produkt</th>
                     <th colspan="3">Menge</th>
                 </tr>
-                {% for pid, pname, pprice, pcat in available_products -%}
+                {% set curcat = namespace(value=split_categories_init) -%}
+
+                {%- for pid, pname, pprice, pcat in available_products -%}
+
+                {%- if pcat != curcat.value and split_categories_init != 0 %}
+                <tr><td colspan="5"><br/></td></tr>
+                {% set curcat.value = pcat -%}
+                {%- endif -%}
+
                 <tr id="available-product-row-{{pid}}" class="available-product-row category-{{pcat}}">
                     <td><button type="button" id="customize-button-{{pid}}" class="customize-button" onclick="showPopup({{pid}})">&#9881;</button></td>
                     <td id="available-product-name-{{pid}}" class="available-product-name">{{pname}}</td>

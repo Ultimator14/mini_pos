@@ -60,6 +60,7 @@
 	"ui": {
 		"auto_close": true,
 		"show_completed": 5,
+		"split_categories": true,
 		"timeout": [ 120, 600 ]
 	},
 	"persistence": true
