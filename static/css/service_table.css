@@ -51,7 +51,7 @@ td, th {
 }
 
 /*Very light colorization based on category*/
-table tr.category-0 { background-color: hsl(0, 0%, 100%);}
+table tr { background-color: hsl(0, 0%, 100%);}
 
 table tr.category-1 { background-color: hsl(330, 90%, 93%);}
 table tr.category-2 { background-color: hsl(260, 90%, 93%);}
@@ -62,6 +62,8 @@ table tr.category-6 { background-color: hsl(15, 90%, 93%);}
 table tr.category-7 { background-color: hsl(0, 90%, 93%);}
 
 /*Table colors on amount > 0*/
+table tr.colorized-row { background-color: #4CAF50;}
+
 table tr.category-1.colorized-row { background-color: hsl(330, 90%, 60%);}
 table tr.category-2.colorized-row { background-color: hsl(260, 90%, 60%)}
 table tr.category-3.colorized-row { background-color: hsl(210, 90%, 60%);}
