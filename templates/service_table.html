@@ -11,7 +11,7 @@
     <form class="inline" action="{{ url_for ('service') }}" method="get">
         <button class="back-button" type="submit">&#x2715;</button>
     </form>
-    <h2 class="inline">Service Tisch {{table}}</h2>
+    <h2 class="inline">Service {{table}}</h2>
     <hr style="background-color: darkorange;">
     <ul>
         {% for products in orders -%}

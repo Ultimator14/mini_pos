@@ -13,6 +13,8 @@ import pickle
 
 # region types
 AvailableProductsT = dict[int, tuple[str, float, int]]
+TablesGridTupleT = tuple[bool, Optional[int], Optional[int], Optional[str]]
+TablesGridT = list[list[Optional[TablesGridTupleT]]]
 # endregion types
 
 
@@ -20,9 +22,9 @@ AvailableProductsT = dict[int, tuple[str, float, int]]
 CONFIG_FILE: str = "config.json"
 DATABASE_FILE: str = "data.pkl"
 
-tables_x: str
-tables_y: str
-tables: list[str] = []
+tables_size: tuple[int, int]
+tables_grid: TablesGridT = []
+tables: list[str]
 available_products: AvailableProductsT = dict()
 category_map: dict[int, str] = dict()
 
@@ -41,10 +43,28 @@ def load_config():
         Order.timeout_warn = config_data["ui"]["timeout"][0]
         Order.timeout_crit = config_data["ui"]["timeout"][1]
 
-        global tables_x, tables_y, tables
-        tables_x = config_data["table"][0]
-        tables_y = config_data["table"][1]
-        tables = [f"{x}{y}" for x in tables_x for y in tables_y]  # tables 1A-9F
+        global tables_size, tables_grid, tables
+        tables_size = tuple(config_data["table"]["grid"])
+
+        # parse tables
+        grid: TablesGridT = [[None for x in range(tables_size[0])] for y in range(tables_size[1])]
+
+        for x, y, xlen, ylen, name in config_data["table"]["names"]:
+            if xlen < 1 or ylen < 1:
+                log_error("Invalid config option. Table can't have length < 1")
+                exit(1)
+
+            for i in range(y, y + ylen):
+                for j in range(x, x + xlen):
+                    if grid[i][j] is not None:
+                        log_warn(f"Duplicate table position {str(i)}/{str(j)}. Check your config")
+                    grid[i][j] = (False, None, None, None)
+
+            grid[y][x] = (True, xlen, ylen, name)
+
+        tables_grid = grid
+
+        tables = [name for _, _, _, _, name in config_data["table"]["names"]]
 
         global available_products, category_map
         available_products = dict(enumerate(
@@ -362,7 +382,7 @@ def bar_submit():
 
 @app.route("/service", strict_slashes=False)
 def service():
-    return render_template("service.html", tables_x=tables_x, tables_y=tables_y,
+    return render_template("service.html", tables_size=tables_size, tables_grid=tables_grid,
                            active_tables={order.table for order in orders})
 
 

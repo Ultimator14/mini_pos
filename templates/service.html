@@ -5,23 +5,40 @@
     <title>Service</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/service.css') }}">
     <meta http-equiv="refresh" content="5" />
+    <style>
+        {% set td_width = 95 / tables_size[0] -%}
+        {%- set td_height = 95 / tables_size[1] -%}
+
+        td {
+            width: {{ td_width }}vw;
+            height: {{ td_height }}vh;
+        }
+    </style>
 </head>
 <body>
 <div>
     <table>
         <tbody>
-            {% for table_y in tables_y -%}
+            {%- for y in range(tables_size[1]) %}
             <tr>
-                {% for table_x in tables_x -%}
+            {%- for x in range(tables_size[0]) -%}
+            {%- if tables_grid[y][x] is none %}
                 <td>
-                    {% set table = table_x + table_y -%}
-                    <form action="{{ url_for ('service_table', table=table) }}" method="get">
-                        <button id="{{table}}" type="submit" class="{{ 'active-order' if table in active_tables else 'no-order'}}">{{table}}</button>
+                    <button type="button" class="no-table" disabled></button>
+                </td>
+            {% else -%}
+            {%- set main, xlen, ylen, name = tables_grid[y][x] -%}
+            {%- if main %}
+                <td colspan="{{ xlen }}" rowspan="{{ ylen }}" style="width: {{ td_width * xlen }}vw; height: {{ td_height * ylen }}vh;">
+                    <form action="{{ url_for ('service_table', table=name) }}" method="get">
+                        <button id="{{name}}" type="submit" class="{{ 'active-order' if name in active_tables else 'no-order'}}">{{name}}</button>
                     </form>
                 </td>
-                {%- endfor %}
+            {%- endif -%}
+            {%- endif -%}
+            {%- endfor %}
             </tr>
-            {% endfor -%}
+            {%- endfor %}
         </tbody>
     </table>
 </div>
