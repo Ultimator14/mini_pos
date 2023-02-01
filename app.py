@@ -44,7 +44,7 @@ def load_config():
         Order.timeout_crit = config_data["ui"]["timeout"][1]
 
         global tables_size, tables_grid, tables
-        tables_size = tuple(config_data["table"]["grid"])
+        tables_size = tuple(config_data["table"]["size"])
 
         # parse tables
         grid: TablesGridT = [[None for x in range(tables_size[0])] for y in range(tables_size[1])]
