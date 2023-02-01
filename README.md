@@ -46,7 +46,7 @@ In contrast to the traditional service, the delay between ordering and passing t
 - Waiters can connect to the server with their smartphones via `http://<ip>/service`
 - The kitchen can connect to the server with a desktop computer via `http://<ip>/bar`
 
-### Requirements
+## Requirements
 
 - `>=python3.10`
 - A desktop computer or tablet with large screen for the kitchen
@@ -54,17 +54,38 @@ In contrast to the traditional service, the delay between ordering and passing t
 - A device where the server can run on (can be the same as for the kitchen)
 - Some kind of network to connect everything
 
-### Configuration
+## Configuration
 
 Configuration is done in the `config.json` file. The file is mandatory. The software does not start without it.  
 Some configuration options are
 
-| Config option         | Description                                                               | Format                                        |
-|-----------------------|:-------------------------------------------------------------------------:|----------------------------------------------:|
-| product/available     | List of available products                                                | `List[str Name, float price, int category]`   |
-| product/categories    | Category names, no effect yet                                             | `List[int category, str name]`                |
-| table                 | X/Y values for tables                                                     | `str x_values, str y_values`                  |
-| ui/auto_close         | Automatically complete an order when all products are marked as completed | `bool true/false`                             |
-| ui/show_completed     | Show the last n completed orders in /bar                                  | `int n`                                       |
-| ui/timeout            | Timeout in seconds to mark orders yellow/red                              | `int timeout_warn, int timeout_crit`          |
-| persistence           | Persist data between invocations (stored in `data.pkl` file)              | `bool true/false`                             |
+| Config option         | Description                                                               | Format                                             |
+|-----------------------|:-------------------------------------------------------------------------:|---------------------------------------------------:|
+| product/available     | List of available products (name, price, category)                        | `List[str Name, float price, int category]`        |
+| product/categories    | Category names                                                            | `List[int category, str name]`                     |
+| table/size            | Size for the table grid in service                                        | `int x, int y`                                     |
+| table/names           | Table positions, sizes and names                                          | `List[int x, int y, int xlen, int ylen, str name]` |
+| ui/auto_close         | Automatically complete an order when all products are marked as completed | `bool true/false`                                  |
+| ui/show_completed     | Show the last n completed orders in /bar                                  | `int n`                                            |
+| ui/show_category_names|Show category names between products of different category in service      | `bool true/false`                                  |
+| ui/split_categories   | Make a space between different categories in service (always true if `show_category_names` is set) | `bool true/false`         |
+| ui/timeout            | Timeout in seconds to mark orders yellow/red                              | `int timeout_warn, int timeout_crit`               |
+| persistence           | Persist data between invocations (stored in `data.pkl` file)              | `bool true/false`                                  |
+
+### Categories
+
+Categories only have an effect if either `show_category_names` or `split_categories` are enabled. An additional space is then added between adjacent products with different category in service.
+
+Categories 0-14 have a distinct color scheme
+
+- Products in category 1-7 have a light colored background per default and become heavily colored upon selection. The category separators are not colored
+- Products in category 8-14 have a white background per default and become light colored upon selection. The category separators are colored heavily
+- All other products have a white background per default and are colored green upon selection. The category separators are not colored
+
+Colors can be added or edited directly in [service_table.css](static/css/service_table.css)
+
+### Tables
+
+Table positions can be customized. Tables must have a start position `x,y`, a horizontal and vertical length `xlen, ylen` and a name.  
+Overlapping tables are not supported and will produce a warning.  
+Tables outside the grid are not supported and will produce an error.
