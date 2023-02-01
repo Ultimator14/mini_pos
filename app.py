@@ -53,6 +53,9 @@ def load_config():
             if xlen < 1 or ylen < 1:
                 log_error("Invalid config option. Table can't have length < 1")
                 exit(1)
+            if x + xlen > tables_size[0] or y + ylen > tables_size[1]:
+                log_error("Table can't be placed outside the grid")
+                exit(1)
 
             for i in range(y, y + ylen):
                 for j in range(x, x + xlen):
