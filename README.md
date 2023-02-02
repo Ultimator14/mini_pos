@@ -48,7 +48,7 @@ In contrast to the traditional service, the delay between ordering and passing t
 
 ## Requirements
 
-- `>=python3.10`
+- `>=python3.9`
 - A desktop computer or tablet with large screen for the kitchen
 - A smartphone for each cashier
 - A device where the server can run on (can be the same as for the kitchen)
@@ -89,3 +89,16 @@ Colors can be added or edited directly in [service_table.css](static/css/service
 Table positions can be customized. Tables must have a start position `x,y`, a horizontal and vertical length `xlen, ylen` and a name.  
 Overlapping tables are not supported and will produce a warning.  
 Tables outside the grid are not supported and will produce an error.
+
+## Images
+
+### Bar
+
+![Bar](https://user-images.githubusercontent.com/30043959/216357579-82770021-f14c-482a-803e-2a987cd3657c.png)
+
+### Service
+
+![Service 1](https://user-images.githubusercontent.com/30043959/216357655-df288558-f601-43fe-b45d-9dd3e7e85db5.png)
+![Service 2](https://user-images.githubusercontent.com/30043959/216357709-668a4354-eb63-42cb-9b32-4790a8375497.png)
+![Service 3](https://user-images.githubusercontent.com/30043959/216357756-f21db042-17cc-40e4-bbd3-5419ee8bebaa.png)
+![Service 4](https://user-images.githubusercontent.com/30043959/216357819-45f2a6fc-65fb-46f2-88f0-a92e139871ac.png)
