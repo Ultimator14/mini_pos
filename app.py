@@ -323,6 +323,9 @@ class Orders:
     def __setitem__(self, key, value):
         return self._order_list.__setitem__(key, value)  # order[0] = x
 
+    def __len__(self):
+        return self._order_list.__len__()
+
     def append(self, order: Order) -> None:
         self._order_list.append(order)
 
