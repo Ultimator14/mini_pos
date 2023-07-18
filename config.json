@@ -29,8 +29,9 @@
 				["Rieslingschorle sauer", 3.00, 12],
 				["Rotweinschorle süß", 3.00, 12],
 				["Rotweinschorle sauer", 3.00, 12],
-				["Glas Sekt", 3.00, 12],
-				["Flasche Sekt", 20.00, 12],
+				["Glas Sekt", 2.50, 12],
+				["Glas Sekt Orange", 2.50, 12],
+				["Flasche Sekt", 17.00, 12],
 
 				["Gedopter", 3.00, 10],
 				["Gin Tonic", 4.50, 10],
