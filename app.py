@@ -7,6 +7,7 @@ import os.path
 import pickle
 import sys
 from datetime import datetime, timedelta
+from random import randint
 
 from flask import Flask, redirect, render_template, request, url_for
 
@@ -207,12 +208,17 @@ class Order:
 
         return next_num
 
-    def __init__(self, table: str):
+    def __init__(self, table: str, nonce: int):
+        self._nonce = nonce
         self._num: int = Order.next_order_num()
         self._table: str = table
         self._products: list[Product] = []
         self._date: datetime = datetime.now()
         self._completed_at: datetime | None = None
+
+    @property
+    def nonce(self) -> int:
+        return self._nonce
 
     @property
     def num(self) -> int:
@@ -390,6 +396,9 @@ def service_table(table):
         log_error("GET in /service/<table> but invalid table. Skipping...")
         return "Error! Invalid table"
 
+    # Generate random number per order to prevent duplicate orders
+    nonce = randint(0, 2**32 - 1)  # 32 bit random number
+
     return render_template(
         "service_table.html",
         table=table,
@@ -398,14 +407,12 @@ def service_table(table):
             for o in orders
             if o.table == table
         ],
-        available_products=[
-            (p, pval[0], pval[1], pval[2])
-            for p, pval in available_products.items()
-        ],
+        available_products=[(p, pval[0], pval[1], pval[2]) for p, pval in available_products.items()],
         category_map=category_map,
         split_categories=split_categories,
         show_category_names=show_category_names,
         split_categories_init=available_products[1][2] if len(available_products) > 0 else 0,
+        nonce=nonce,
     )
 
 
@@ -415,7 +422,15 @@ def service_table_submit(table):
         log_error("POST in /service/<table> but invalid table. Skipping...")
         return "Error! Invalid table"
 
-    new_order = Order(table)
+    if not (nonce := request.form["nonce"]):
+        log_warn("POST in /service/<table> but missing nonce. Skipping...")
+        return "Error! Missing nonce"
+
+    if any(o.nonce == nonce for o in orders):
+        log_warn(f"Catched duplicate order by nonce {nonce}")
+        return redirect(url_for("service"))
+
+    new_order = Order(table, nonce)
 
     for available_product in range(1, len(available_products) + 1):
         if f"amount-{available_product}" not in request.form:
