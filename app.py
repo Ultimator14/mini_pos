@@ -2,19 +2,22 @@
 
 # region includes
 from __future__ import annotations  # required for type hinting of classes in itself
-from typing import Optional
-from flask import Flask, render_template, request, redirect, url_for
-from datetime import datetime, timedelta
-import os.path
+
+import sys
 import json
+import os.path
 import pickle
+from datetime import datetime, timedelta
+
+from flask import Flask, redirect, render_template, request, url_for
+
 # endregion includes
 
 
 # region types
 AvailableProductsT = dict[int, tuple[str, float, int]]
-TablesGridTupleT = tuple[bool, Optional[int], Optional[int], Optional[str]]
-TablesGridT = list[list[Optional[TablesGridTupleT]]]
+TablesGridTupleT = tuple[bool, int | None, int | None, str | None]
+TablesGridT = list[list[TablesGridTupleT | None]]
 # endregion types
 
 
@@ -25,8 +28,8 @@ DATABASE_FILE: str = "data.pkl"
 tables_size: tuple[int, int]
 tables_grid: TablesGridT = []
 tables: list[str]
-available_products: AvailableProductsT = dict()
-category_map: dict[int, str] = dict()
+available_products: AvailableProductsT = {}
+category_map: dict[int, str] = {}
 
 show_category_names: bool = False
 split_categories: bool = False
@@ -35,7 +38,7 @@ persistence: bool = False
 
 def load_config():
     log_info("Loading configuration...")
-    with open("config.json", "r") as afile:
+    with open("config.json", encoding="utf-8") as afile:
         config_data = json.load(afile)
 
         Order.auto_close = config_data["ui"]["auto_close"]
@@ -52,15 +55,15 @@ def load_config():
         for x, y, xlen, ylen, name in config_data["table"]["names"]:
             if xlen < 1 or ylen < 1:
                 log_error("Invalid config option. Table can't have length < 1")
-                exit(1)
+                sys.exit(1)
             if x + xlen > tables_size[0] or y + ylen > tables_size[1]:
                 log_error("Table can't be placed outside the grid")
-                exit(1)
+                sys.exit(1)
 
             for i in range(y, y + ylen):
                 for j in range(x, x + xlen):
                     if grid[i][j] is not None:
-                        log_warn(f"Duplicate table position {str(i)}/{str(j)}. Check your config")
+                        log_warn(f"Duplicate table position {i!s}/{j!s}. Check your config")
                     grid[i][j] = (False, None, None, None)
 
             grid[y][x] = (True, xlen, ylen, name)
@@ -70,10 +73,10 @@ def load_config():
         tables = [name for _, _, _, _, name in config_data["table"]["names"]]
 
         global available_products, category_map
-        available_products = dict(enumerate(
-            [tuple(product) for product in config_data["product"]["available"]]
-            , start=1))
-        category_map = {index: name for index, name in config_data["product"]["categories"]}
+        available_products = dict(
+            enumerate([tuple(product) for product in config_data["product"]["available"]], start=1)
+        )
+        category_map = dict(config_data["product"]["categories"])
 
         global split_categories, show_category_names
         split_categories = config_data["ui"]["split_categories"]
@@ -81,6 +84,8 @@ def load_config():
 
         global persistence
         persistence = config_data["persistence"]
+
+
 # endregion config
 
 
@@ -97,8 +102,10 @@ def restore_data() -> None:
         global orders, completed_orders
         orders, completed_orders, Order.counter, Product.counter = pickle.load(afile)
 
-        log_info(f"Order counter: {str(Order.counter)}")
-        log_info(f"Product counter: {str(Product.counter)}")
+        log_info(f"Order counter: {Order.counter!s}")
+        log_info(f"Product counter: {Product.counter!s}")
+
+
 # endregion persistence
 
 
@@ -125,6 +132,8 @@ def log_warn(msg: str) -> None:
 
 def log_error(msg: str) -> None:
     print(_red(f"*** Error! ***: {msg}"))
+
+
 # endregion helper
 
 
@@ -172,7 +181,7 @@ class Product:
     def complete(self) -> None:
         if not self._completed:
             self._completed = True
-            log_info(f"Completed product {str(self._num)}")
+            log_info(f"Completed product {self._num!s}")
 
 
 def handle_product_completed_event(completed_data: str, order_data: str) -> None:
@@ -194,10 +203,11 @@ def handle_product_completed_event(completed_data: str, order_data: str) -> None
 
     product.complete()
 
-    if Order.auto_close:
-        if all([p.completed for p in order.products]):
-            log_info("Last Product completed. Attempting auto_close")
-            order.complete()
+    if Order.auto_close and all(p.completed for p in order.products):
+        log_info("Last Product completed. Attempting auto_close")
+        order.complete()
+
+
 # endregion products
 
 
@@ -224,7 +234,7 @@ class Order:
         self._table: str = table
         self._products: list[Product] = []
         self._date: datetime = datetime.now()
-        self._completed_at: Optional[datetime] = None
+        self._completed_at: datetime | None = None
 
     @property
     def num(self) -> int:
@@ -245,8 +255,8 @@ class Order:
             return ">60min"
 
         seconds_aligned = timediff.seconds // 5 * 5  # align by 5 seconds (easy way to circumvent javascript timers)
-        seconds = str(seconds_aligned % 60).rjust(2, '0')
-        minutes = str(seconds_aligned // 60).rjust(2, '0')
+        seconds = str(seconds_aligned % 60).rjust(2, "0")
+        minutes = str(seconds_aligned // 60).rjust(2, "0")
 
         return f"{minutes}:{seconds}"
 
@@ -255,15 +265,14 @@ class Order:
         timediff = datetime.now() - self._date
         if timediff > timedelta(seconds=Order.timeout_crit):
             return "timeout_crit"
-        elif timediff > timedelta(seconds=Order.timeout_warn):
+        if timediff > timedelta(seconds=Order.timeout_warn):
             return "timeout_warn"
-        else:
-            return "timeout_ok"
+        return "timeout_ok"
 
     @property
     def completed_at(self) -> str:
         if self._completed_at is None:
-            log_warn(f"completed_at for order {str(self._num)} called but order is not completed")
+            log_warn(f"completed_at for order {self._num!s} called but order is not completed")
             return ""
 
         return self._completed_at.strftime("%Y-%m-%d %H:%M:%S")
@@ -271,11 +280,11 @@ class Order:
     def add_products(self, *products: Product) -> None:
         for product in products:
             self._products.append(product)
-            log_info(f"Added product {str(product.num)}")
+            log_info(f"Added product {product.num!s}")
 
     def add(self) -> None:
         orders.append(self)
-        log_info(f"Added order {str(self._num)}")
+        log_info(f"Added order {self._num!s}")
         if persistence:
             persist_data()
 
@@ -288,11 +297,11 @@ class Order:
         completed_orders.append(self)
         orders.remove(self)
 
-        log_info(f"Completed order {str(self._num)}")
+        log_info(f"Completed order {self._num!s}")
         if persistence:
             persist_data()
 
-    def get_product_by_num(self, num) -> Optional[Product]:
+    def get_product_by_num(self, num) -> Product | None:
         return next((p for p in self.products if num == p.num), None)
 
 
@@ -332,8 +341,10 @@ class Orders:
     def remove(self, order: Order) -> None:
         self._order_list.remove(order)
 
-    def get_order_by_num(self, num) -> Optional[Order]:
+    def get_order_by_num(self, num) -> Order | None:
         return next((o for o in self._order_list if num == o.num), None)
+
+
 # endregion orders
 
 
@@ -342,7 +353,7 @@ completed_orders = Orders()
 
 if not os.path.isfile(CONFIG_FILE):
     log_error("No config file found. Abort execution")
-    exit(1)
+    sys.exit(1)
 load_config()  # must be after class and function definitions to prevent type error
 
 if persistence and not os.path.isfile(DATABASE_FILE):
@@ -363,9 +374,12 @@ def home():
 
 @app.route("/bar", strict_slashes=False)
 def bar():
-    return render_template("bar.html", orders=orders,
-                           completed_orders=completed_orders[:-(Order.show_completed + 1):-1],
-                           show_completed=bool(Order.show_completed))
+    return render_template(
+        "bar.html",
+        orders=orders,
+        completed_orders=completed_orders[: -(Order.show_completed + 1) : -1],
+        show_completed=bool(Order.show_completed),
+    )
 
 
 @app.route("/bar", methods=["POST"])
@@ -388,8 +402,12 @@ def bar_submit():
 
 @app.route("/service", strict_slashes=False)
 def service():
-    return render_template("service.html", tables_size=tables_size, tables_grid=tables_grid,
-                           active_tables={order.table for order in orders})
+    return render_template(
+        "service.html",
+        tables_size=tables_size,
+        tables_grid=tables_grid,
+        active_tables={order.table for order in orders},
+    )
 
 
 @app.route("/service/<table>")
@@ -398,16 +416,23 @@ def service_table(table):
         log_error("GET in /service/<table> but invalid table. Skipping...")
         return "Error! Invalid table"
 
-    return render_template("service_table.html", table=table,
-                           orders=[[f"{p.amount}x {p.name}" + (f" ({p.comment})" if p.comment else "")
-                                    for p in o.products if not p.completed] for o in orders if o.table == table],
-                           available_products=[(p, available_products[p][0], available_products[p][1],
-                                                available_products[p][2]) for p in available_products],
-                           category_map=category_map,
-                           split_categories=split_categories,
-                           show_category_names=show_category_names,
-                           split_categories_init=available_products[1][2] if len(available_products) > 0 else 0
-                           )
+    return render_template(
+        "service_table.html",
+        table=table,
+        orders=[
+            [f"{p.amount}x {p.name}" + (f" ({p.comment})" if p.comment else "") for p in o.products if not p.completed]
+            for o in orders
+            if o.table == table
+        ],
+        available_products=[
+            (p, available_products[p][0], available_products[p][1], available_products[p][2])
+            for p in available_products
+        ],
+        category_map=category_map,
+        split_categories=split_categories,
+        show_category_names=show_category_names,
+        split_categories_init=available_products[1][2] if len(available_products) > 0 else 0,
+    )
 
 
 @app.route("/service/<table>", methods=["POST"])
@@ -462,6 +487,8 @@ def admin_submit():
         log_warn("POST in /admin but nothing to do")
 
     return redirect(url_for("admin"))
+
+
 # endregion flask
 
 
