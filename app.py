@@ -1,4 +1,4 @@
-#!/usr/bin/python3.10
+#!/usr/bin/python3.11
 
 from __future__ import annotations  # required for type hinting of classes in itself
 
