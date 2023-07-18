@@ -35,6 +35,22 @@ th, td {
     background-color: cornflowerblue;
     color: white;
 }
+/*Align columns of inner tables*/
+.inner-table {
+	table-layout: fixed;
+}
+.icol-1 {
+	width: 35%;
+}
+.icol-2 {
+	width: 10%;
+}
+.icol-3 {
+	width: 40%;
+}
+.icol-4 {
+	width: 15%;
+}
 
 /*Every 2nd row grey in inner table*/
 table table tr:nth-child(odd){background-color: #dbd9d9}
