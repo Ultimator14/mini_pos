@@ -1,27 +1,20 @@
 #!/usr/bin/python3.10
 
-# region includes
 from __future__ import annotations  # required for type hinting of classes in itself
 
-import sys
 import json
 import os.path
 import pickle
+import sys
 from datetime import datetime, timedelta
 
 from flask import Flask, redirect, render_template, request, url_for
 
-# endregion includes
-
-
-# region types
 AvailableProductsT = dict[int, tuple[str, float, int]]
 TablesGridTupleT = tuple[bool, int | None, int | None, str | None]
 TablesGridT = list[list[TablesGridTupleT | None]]
-# endregion types
 
 
-# region config
 CONFIG_FILE: str = "config.json"
 DATABASE_FILE: str = "data.pkl"
 
@@ -86,10 +79,6 @@ def load_config():
         persistence = config_data["persistence"]
 
 
-# endregion config
-
-
-# region persistence
 def persist_data() -> None:
     log_info("Persisting data...")
     with open(DATABASE_FILE, "wb") as afile:
@@ -106,10 +95,6 @@ def restore_data() -> None:
         log_info(f"Product counter: {Product.counter!s}")
 
 
-# endregion persistence
-
-
-# region helper
 def _green(prompt: str) -> str:
     return f"\033[32;1m{prompt}\033[0m"
 
@@ -134,10 +119,6 @@ def log_error(msg: str) -> None:
     print(_red(f"*** Error! ***: {msg}"))
 
 
-# endregion helper
-
-
-# region products
 class Product:
     counter: int = 1
 
@@ -208,10 +189,6 @@ def handle_product_completed_event(completed_data: str, order_data: str) -> None
         order.complete()
 
 
-# endregion products
-
-
-# region orders
 class Order:
     counter: int = 1
 
@@ -345,9 +322,6 @@ class Orders:
         return next((o for o in self._order_list if num == o.num), None)
 
 
-# endregion orders
-
-
 orders = Orders()
 completed_orders = Orders()
 
@@ -363,7 +337,6 @@ elif persistence:
 else:
     log_info("Persistence disabled")
 
-# region flask
 app: Flask = Flask(__name__)
 
 
@@ -487,9 +460,6 @@ def admin_submit():
         log_warn("POST in /admin but nothing to do")
 
     return redirect(url_for("admin"))
-
-
-# endregion flask
 
 
 if __name__ == "__main__":
