@@ -88,7 +88,7 @@ Colors can be added or edited directly in [service_table.css](static/css/service
 
 Table positions can be customized. Tables must have a start position `x,y`, a horizontal and vertical length `xlen, ylen` and a name.  
 Overlapping tables are not supported and will produce a warning.  
-Tables outside the grid are not supported and will produce an error.
+Tables outside the grid are not supported and will produce a warning. The table size will be adjusted accordingly.
 
 ## Images
 
