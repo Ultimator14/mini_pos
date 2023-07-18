@@ -10,11 +10,11 @@ app.log_info(f"Completed orders: {str(len(app.completed_orders))}")
 app.log_info("----------------------------------------")
 
 
-products = dict()
+products = {}
 
 for order in app.completed_orders:
     for product in order.products:
-        if product.name in products.keys():
+        if product.name in products:
             products[product.name] += product.amount
         else:
             products[product.name] = product.amount
