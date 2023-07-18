@@ -399,8 +399,8 @@ def service_table(table):
             if o.table == table
         ],
         available_products=[
-            (p, available_products[p][0], available_products[p][1], available_products[p][2])
-            for p in available_products
+            (p, pval[0], pval[1], pval[2])
+            for p, pval in available_products.items()
         ],
         category_map=category_map,
         split_categories=split_categories,
