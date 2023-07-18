@@ -48,7 +48,7 @@ In contrast to the traditional service, the delay between ordering and passing t
 
 ## Requirements
 
-- `>=python3.9`
+- `>=python3.10`
 - A desktop computer or tablet with large screen for the kitchen
 - A smartphone for each cashier
 - A device where the server can run on (can be the same as for the kitchen)
