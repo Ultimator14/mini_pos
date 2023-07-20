@@ -98,27 +98,27 @@ def restore_data() -> None:
 
 
 def _green(prompt: str) -> str:
-    return f"\033[32;1m{prompt}\033[0m"
+    return f"\033[32;1m{prompt}\033[0m"  # ]]
 
 
 def _yellow(prompt: str) -> str:
-    return f"\033[33;1m{prompt}\033[0m"
+    return f"\033[33;1m{prompt}\033[0m"  # ]]
 
 
 def _red(prompt: str) -> str:
-    return f"\033[31;1m{prompt}\033[0m"
+    return f"\033[31;1m{prompt}\033[0m"  # ]]
 
 
 def log_info(msg: str) -> None:
-    print(_green(f"*** Info ***: {msg}"))
+    print(_green(f"*** Info ***: {msg}"))  # ]]
 
 
 def log_warn(msg: str) -> None:
-    print(_yellow(f"*** Warning! ***: {msg}"))
+    print(_yellow(f"*** Warning! ***: {msg}"))  # ]]
 
 
 def log_error(msg: str) -> None:
-    print(_red(f"*** Error! ***: {msg}"))
+    print(_red(f"*** Error! ***: {msg}"))  # ]]
 
 
 class Product:
