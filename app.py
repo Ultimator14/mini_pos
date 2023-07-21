@@ -167,18 +167,14 @@ class Product:
             log_info(f"Completed product {self._num!s}")
 
 
-def handle_product_completed_event(completed_data: str, order_data: str) -> None:
-    if not completed_data.isdigit() or not order_data.isdigit():
-        log_error("POST in /bar but filetype not convertible to integer")
-        return
-
-    order = orders.get_order_by_num(int(request.form["order"]))
+def handle_product_completed_event(product_id: int, order_id: int) -> None:
+    order = orders.get_order_by_num(order_id)
 
     if order is None:
         log_error("POST in /bar but no matching Order found")
         return
 
-    product = order.get_product_by_num(int(request.form["product-completed"]))
+    product = order.get_product_by_num(product_id)
 
     if product is None:
         log_error("POST in /bar but no matching Product for order found")
@@ -289,12 +285,8 @@ class Order:
         return next((p for p in self.products if num == p.num), None)
 
 
-def handle_order_completed_event(completed_data: str) -> None:
-    if not completed_data.isdigit():
-        log_error("POST in /bar but filetype not convertible to integer")
-        return
-
-    order = orders.get_order_by_num(int(request.form["order-completed"]))
+def handle_order_completed_event(order_id: int) -> None:
+    order = orders.get_order_by_num(order_id)
 
     if order is None:
         log_error("POST in /bar but no matching Order to complete")
@@ -368,14 +360,23 @@ def bar_submit():
         log_info("POST in /bar with order and product completion data. Using order...")
 
     if "order-completed" in request.form:
-        handle_order_completed_event(request.form["order-completed"])
+        if not (order_id := request.form["order-completed"]).isdigit():
+            log_error("POST in /bar but filetype not convertible to integer")
+        else:
+            handle_order_completed_event(int(order_id))
+
     elif "product-completed" in request.form:
         if "order" in request.form:
-            handle_product_completed_event(request.form["product-completed"], request.form["order"])
+            if not (product_id := request.form["product-completed"]).isdigit() \
+            or not (order_id := request.form["order"]).isdigit():
+                log_error("POST in /bar but filetype not convertible to integer")
+            else:
+                handle_product_completed_event(int(product_id), int(order_id))
         else:
             log_error("POST in /bar but missing order data for completed product")
+
     else:
-        log_error("POST in /bar but missing completion data")
+        log_error("POST in /bar but missing neither order nor product specified")
 
     return redirect(url_for("bar"))
 
@@ -437,11 +438,11 @@ def service_table_submit(table):
             log_warn(f"POST in /service/<table> but missing amount-{available_product} event. Skipping...")
             continue
 
-        if not request.form[f"amount-{available_product}"].isdigit():
+        if not (amount_param := request.form[f"amount-{available_product}"]).isdigit():
             log_warn("POST in /service/<table> with filetype not convertible to integer. Skipping...")
             continue
 
-        amount = int(request.form[f"amount-{available_product}"])
+        amount = int(amount_param)
 
         if f"comment-{available_product}" not in request.form:
             log_warn(f"POST in /service/<table> but missing comment-{available_product} event")
