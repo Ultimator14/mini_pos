@@ -4,90 +4,9 @@
     <meta charset="UTF-8">
     <title>Bar</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bar.css') }}">
-    <meta http-equiv="refresh" content="5" />
+    <script src="{{ url_for('static', filename='js/bar.js') }}"></script>
 </head>
 <body>
-    <table class="outer-table">
-        <tbody>
-              <tr>
-                  <th>Dauer</th>
-                  <th>Tisch</th>
-                  <th>Produkte</th>
-                  <th>Erledigt</th>
-            </tr>
-            {%for order in orders-%}
-            <tr>
-                <td><span class="{{order.active_since_timeout_class}}">{{order.active_since}}</span></td>
-                <td>{{order.table}}</td>
-                <td>
-                    <table class="inner-table">
-                        <tr>
-                            <th class="icol-1">Produkt</th>
-                            <th class="icol-2">Menge</th>
-                            <th class="icol-3">Sonstiges</th>
-                            <th class="icol-4">Erledigt</th>
-                        </tr>
-                        {% for product in order.products -%}
-                        <tr>
-                            <td>{{product.name}}</td>
-                            <td>{{product.amount}}</td>
-                            <td>{{product.comment}}</td>
-                            {%- if not product.completed %}
-                            <td><form action="{{ url_for ('bar_submit') }}" method="post">
-                                <button id="{{order.num}}" type="submit" name="product-completed" value="{{product.num}}">&#x2713;</button>
-                                <input type="hidden" name="order" value="{{order.num}}"/>
-                            </form></td>
-                            {% else -%}
-                            <td><button class="no-click" type="button">&#x2713;</button></td>
-                            {%- endif -%}
-                        </tr>
-                        {%- endfor %}
-                    </table>
-                </td>
-                <td>
-                    <form action="{{ url_for ('bar_submit') }}" method="post">
-                        <button id="{{order.num}}" type="submit" name="order-completed" value="{{order.num}}">&#x2713;</button>
-                    </form>
-                </td>
-            </tr>
-            {%endfor%}
-        </tbody>
-    </table>
-    {% if show_completed -%}
-    <br/><br/>
-    <table class="completed-outer-table">
-        <tbody>
-              <tr>
-                  <th>Abgeschlossen</th>
-                  <th>Tisch</th>
-                  <th>Produkte</th>
-            </tr>
-            {%for completed_order in completed_orders-%}
-            <tr>
-                <td>{{completed_order.completed_at}}</td>
-                <td>{{completed_order.table}}</td>
-                <td>
-                    <table>
-                        <tr>
-                            <th>Produkt</th>
-                            <th>Menge</th>
-                            <th>Sonstiges</th>
-                        </tr>
-                        {% for product in completed_order.products -%}
-                            {%- if product.completed %}
-                                <tr>
-                                    <td>{{product.name}}</td>
-                                    <td>{{product.amount}}</td>
-                                    <td>{{product.comment}}</td>
-                                </tr>
-                            {%- endif -%}
-                        {%- endfor %}
-                    </table>
-                </td>
-            </tr>
-            {%endfor%}
-        </tbody>
-    </table>
-    {%- endif %}
+	{% include 'bar_body.html' %}
 </body>
 </html>

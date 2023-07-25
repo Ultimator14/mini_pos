@@ -358,6 +358,16 @@ def bar():
     )
 
 
+@app.route("/fetch/bar", strict_slashes=False)
+def fetch_bar():
+    return render_template(
+        "bar_body.html",
+        orders=orders,
+        completed_orders=completed_orders[: -(Order.show_completed + 1) : -1],
+        show_completed=bool(Order.show_completed),
+    )
+
+
 @app.route("/bar", methods=["POST"])
 def bar_submit():
     if "order-completed" in request.form and "product-completed" in request.form:
