@@ -138,6 +138,7 @@ table tr.category-14.colorized-row { background-color: hsl(0, 90%, 93%);}
     width: 100%;
     height: 100%;
     padding-top: 10vh;
+    padding-botton: 10vh;
 
     background-color: rgba(0,0,0,0.4);
 
@@ -156,6 +157,14 @@ table tr.category-14.colorized-row { background-color: hsl(0, 90%, 93%);}
     font-size: 4vmin;
 
     background-color: white;
+
+    animation-name: popup-animation;
+    animation-timing-function: ease-in-out;
+    animation-duration: 0.2s;
+}
+@keyframes popup-animation {
+    from { transform: scale(0, 0); }
+    to { transform: scale(1, 1); }
 }
 .popup-inner table {
     font-size: 4vmin;
