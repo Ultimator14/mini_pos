@@ -24,7 +24,7 @@ async function updateActiveTables() {
 
     //Set active tables to active
     for(let i=0; i<added_tables.length; i++) {
-        added_tables.classList.remove("no-order");
-        added_tables.classList.add("active-order");
+        added_tables[i].classList.remove("no-order");
+        added_tables[i].classList.add("active-order");
     }
 }
