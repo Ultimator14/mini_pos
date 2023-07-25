@@ -9,7 +9,7 @@ import sys
 from datetime import datetime, timedelta
 from random import randint
 
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, redirect, render_template, request, url_for, jsonify
 
 AvailableProductsT = dict[int, tuple[str, float, int]]
 TablesGridTupleT = tuple[bool, int | None, int | None, str | None]
@@ -393,6 +393,13 @@ def service():
         tables_grid=tables_grid,
         active_tables={order.table for order in orders},
     )
+
+
+@app.route("/fetch/service", strict_slashes=False)
+def fetch_service():
+    active_tables = [order.table for order in orders]
+
+    return jsonify(active_tables)
 
 
 @app.route("/service/<table>")
