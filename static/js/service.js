@@ -1,4 +1,4 @@
-let myTimer = setInterval(updateActiveTables, 1000);
+let myTimer = setInterval(updateActiveTables, 3000);
 
 async function updateActiveTables() {
     //Request new tables
