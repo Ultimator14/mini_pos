@@ -2,6 +2,9 @@
 Bar page
 */
 
+/*Set sans-serif as default font*/
+* { font-family: sans-serif; }
+
 /*Table style*/
 table {
     width: 100%;

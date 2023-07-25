@@ -2,6 +2,9 @@
 Service page
 */
 
+/*Set sans-serif as default font*/
+* { font-family: sans-serif; }
+
 /*Fix color not working on hr tags
 (see https://stackoverflow.com/questions/6382023/changing-the-color-of-an-hr-element) */
 hr { height: 1px; border: 0; }

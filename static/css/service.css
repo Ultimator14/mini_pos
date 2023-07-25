@@ -2,6 +2,9 @@
 Service page
 */
 
+/*Set sans-serif as default font*/
+* { font-family: sans-serif; }
+
 /*Disable double tap to zoom*/
 * { touch-action: manipulation; }
 
