@@ -75,6 +75,18 @@ th, td {
 .icol-4 {
 	width: 15%;
 }
+.inner-table-completed {
+	table-layout: fixed;
+}
+.icolc-1 {
+	width: 40%;
+}
+.icolc-2 {
+	width: 10%;
+}
+.icolc-3 {
+	width: 50%;
+}
 
 /*Every 2nd row grey in inner table*/
 table table tr:nth-child(odd){background-color: #dbd9d9}

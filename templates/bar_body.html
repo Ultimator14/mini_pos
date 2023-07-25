@@ -60,11 +60,11 @@
                 <td>{{completed_at_date}}</br>{{completed_at_time}}</td>
                 <td>{{completed_order.table}}</td>
                 <td>
-                    <table>
+                    <table class="inner-table-completed">
                         <tr>
-                            <th>Produkt</th>
-                            <th>Menge</th>
-                            <th>Sonstiges</th>
+                            <th class="icolc-1">Produkt</th>
+                            <th class="icolc-2">Menge</th>
+                            <th class="icolc-3">Sonstiges</th>
                         </tr>
                         {% for product in completed_order.products -%}
                             {%- if product.completed %}
