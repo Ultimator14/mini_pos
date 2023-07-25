@@ -55,8 +55,9 @@
                   <th>Produkte</th>
             </tr>
             {%for completed_order in completed_orders-%}
+            {%- set completed_at_date, completed_at_time = completed_order.completed_at.split(" ") -%}
             <tr>
-                <td>{{completed_order.completed_at}}</td>
+                <td>{{completed_at_date}}</br>{{completed_at_time}}</td>
                 <td>{{completed_order.table}}</td>
                 <td>
                     <table>
