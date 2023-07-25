@@ -67,6 +67,10 @@ def load_config():
 
         tables = [name for _, _, _, _, name in config_data["table"]["names"]]
 
+        if len(set(tables)) != len(tables):
+            log_error("Duplicate table name found. Tables names must be unique")
+            sys.exit(1)
+
         global available_products, category_map
         available_products = dict(
             enumerate([tuple(product) for product in config_data["product"]["available"]], start=1)
