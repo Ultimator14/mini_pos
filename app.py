@@ -329,7 +329,7 @@ def bar_submit():
             log_error("POST in /bar but missing order data for completed product")
 
     else:
-        log_error("POST in /bar but missing neither order nor product specified")
+        log_error("POST in /bar but neither order nor product specified")
 
     return redirect(url_for("bar"))
 
