@@ -70,7 +70,6 @@ Some configuration options are
 | ui/show_category_names|Show category names between products of different category in service      | `bool true/false`                                  |
 | ui/split_categories   | Make a space between different categories in service (always true if `show_category_names` is set) | `bool true/false`         |
 | ui/timeout            | Timeout in seconds to mark orders yellow/red                              | `int timeout_warn, int timeout_crit`               |
-| persistence           | Persist data between invocations (stored in `data.pkl` file)              | `bool true/false`                                  |
 
 ### Categories
 

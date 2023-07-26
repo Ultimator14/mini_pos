@@ -118,6 +118,5 @@
 		"show_category_names": true,
 		"split_categories": true,
 		"timeout": [ 120, 600 ]
-	},
-	"persistence": true
+	}
 }

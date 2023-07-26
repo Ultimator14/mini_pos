@@ -32,7 +32,6 @@ class Config:
     timeout_crit: int
     split_categories: bool = False
     show_category_names: bool = False
-    persistence: bool = False
 
 
 app: Flask = Flask(__name__)
@@ -75,7 +74,6 @@ def load_config():
         Config.timeout_crit = config_data["ui"]["timeout"][1]
         Config.split_categories = config_data["ui"]["split_categories"]
         Config.show_category_names = config_data["ui"]["show_category_names"]
-        Config.persistence = config_data["persistence"]
 
         global tables_size, tables_grid, tables
         tables_size = tuple(config_data["table"]["size"])
