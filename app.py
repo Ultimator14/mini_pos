@@ -193,9 +193,8 @@ class Product(db.Model):
             log_info(f"Completed product {self.id!s}")
 
 
-def get_orders() -> list[Order]:
+def get_open_orders() -> list[Order]:
     return list(db.session.execute(db.select(Order).filter_by(completed_at=None)).scalars())
-
 
 def get_order_by_id(order_id: int) -> Order | None:
     return db.session.execute(db.select(Order).filter_by(id=order_id)).scalar_one_or_none()
@@ -290,7 +289,7 @@ def home():
 def bar():
     return render_template(
         "bar.html",
-        orders=get_orders(),
+        orders=get_open_orders(),
         completed_orders=get_last_completed_orders(),
         show_completed=bool(Config.show_completed),
     )
@@ -300,7 +299,7 @@ def bar():
 def fetch_bar():
     return render_template(
         "bar_body.html",
-        orders=get_orders(),
+        orders=get_open_orders(),
         completed_orders=get_last_completed_orders(),
         show_completed=bool(Config.show_completed),
     )
