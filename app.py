@@ -383,7 +383,7 @@ def service_table_submit(table):
         log_warn("POST in /service/<table> but missing nonce. Skipping...")
         return "Error! Missing nonce"
 
-    if nonce in get_open_order_nonces():
+    if int(nonce) in get_open_order_nonces():
         log_warn(f"Catched duplicate order by nonce {nonce}")
         return redirect(url_for("service"))
 
