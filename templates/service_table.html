@@ -14,7 +14,7 @@
     <h2 class="inline">Service {{table}}</h2>
     <hr style="background-color: darkorange;">
     <ul>
-        {% for products in orders -%}
+        {% for products in open_product_lists -%}
         <li>
             {{ products|join('<br/>')|safe}}
         </li>

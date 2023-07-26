@@ -4,20 +4,19 @@ from __future__ import annotations  # required for type hinting of classes in it
 
 import json
 import os.path
-import pickle
 import sys
 from datetime import datetime, timedelta
 from random import randint
 
-from flask import Flask, redirect, render_template, request, url_for, jsonify
+from flask import Flask, jsonify, redirect, render_template, request, url_for
+from flask_sqlalchemy import SQLAlchemy
 
 AvailableProductsT = dict[int, tuple[str, float, int]]
 TablesGridTupleT = tuple[bool, int | None, int | None, str | None]
 TablesGridT = list[list[TablesGridTupleT | None]]
 
-
 CONFIG_FILE: str = "config.json"
-DATABASE_FILE: str = "data.pkl"
+DATABASE_FILE: str = "data.db"
 
 tables_size: tuple[int, int]
 tables_grid: TablesGridT = []
@@ -25,9 +24,21 @@ tables: list[str]
 available_products: AvailableProductsT = {}
 category_map: dict[int, str] = {}
 
-show_category_names: bool = False
-split_categories: bool = False
-persistence: bool = False
+
+class Config:
+    auto_close: bool
+    show_completed: int
+    timeout_warn: int
+    timeout_crit: int
+    split_categories: bool = False
+    show_category_names: bool = False
+    persistence: bool = False
+
+
+app: Flask = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DATABASE_FILE}"
+db = SQLAlchemy(app)
+
 
 def _green(prompt: str) -> str:
     return f"\033[32;1m{prompt}\033[0m"  # ]]
@@ -58,10 +69,13 @@ def load_config():
     with open("config.json", encoding="utf-8") as afile:
         config_data = json.load(afile)
 
-        Order.auto_close = config_data["ui"]["auto_close"]
-        Order.show_completed = config_data["ui"]["show_completed"]  # zero = don't show
-        Order.timeout_warn = config_data["ui"]["timeout"][0]
-        Order.timeout_crit = config_data["ui"]["timeout"][1]
+        Config.auto_close = config_data["ui"]["auto_close"]
+        Config.show_completed = config_data["ui"]["show_completed"]  # zero = don't show
+        Config.timeout_warn = config_data["ui"]["timeout"][0]
+        Config.timeout_crit = config_data["ui"]["timeout"][1]
+        Config.split_categories = config_data["ui"]["split_categories"]
+        Config.show_category_names = config_data["ui"]["show_category_names"]
+        Config.persistence = config_data["persistence"]
 
         global tables_size, tables_grid, tables
         tables_size = tuple(config_data["table"]["size"])
@@ -100,141 +114,27 @@ def load_config():
         )
         category_map = dict(config_data["product"]["categories"])
 
-        global split_categories, show_category_names
-        split_categories = config_data["ui"]["split_categories"]
-        show_category_names = config_data["ui"]["show_category_names"]
 
-        global persistence
-        persistence = config_data["persistence"]
+class Order(db.Model):
+    __tablename__ = "orders"
 
+    id = db.Column(db.Integer, primary_key=True)
+    nonce = db.Column(db.Integer)
+    table = db.Column(db.String)
+    date = db.Column(db.DateTime)
+    completed_at = db.Column(db.DateTime)
 
-def persist_data() -> None:
-    log_info("Persisting data...")
-    with open(DATABASE_FILE, "wb") as afile:
-        pickle.dump((orders, completed_orders, Order.counter, Product.counter), afile)
-
-
-def restore_data() -> None:
-    log_info("Restoring data...")
-    with open(DATABASE_FILE, "rb") as afile:
-        global orders, completed_orders
-        orders, completed_orders, Order.counter, Product.counter = pickle.load(afile)
-
-        log_info(f"Order counter: {Order.counter!s}")
-        log_info(f"Product counter: {Product.counter!s}")
-
-
-
-class Product:
-    counter: int = 1
-
-    @staticmethod
-    def next_product_num() -> int:
-        next_num = Product.counter
-        Product.counter += 1
-
-        return next_num
-
-    def __init__(self, name: str, price: float, amount: int, comment=""):
-        self._num: int = Product.next_product_num()
-
-        self._name: str = name
-        self._price: float = price
-        self._amount: int = amount
-        self._comment: str = comment
-
-        self._completed: bool = False
-
-    @property
-    def num(self) -> int:
-        return self._num
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def amount(self) -> int:
-        return self._amount
-
-    @property
-    def comment(self) -> str:
-        return self._comment
-
-    @property
-    def completed(self) -> bool:
-        return self._completed
-
-    def complete(self) -> None:
-        if not self._completed:
-            self._completed = True
-            log_info(f"Completed product {self._num!s}")
-
-
-def handle_product_completed_event(product_id: int, order_id: int) -> None:
-    order = get_order_by_num(order_id)
-
-    if order is None:
-        log_error("POST in /bar but no matching Order found")
-        return
-
-    product = order.get_product_by_num(product_id)
-
-    if product is None:
-        log_error("POST in /bar but no matching Product for order found")
-        return
-
-    product.complete()
-
-    if Order.auto_close and all(p.completed for p in order.products):
-        log_info("Last Product completed. Attempting auto_close")
-        order.complete()
-
-
-class Order:
-    counter: int = 1
-
-    # set defaults
-    auto_close: bool
-    overview: bool
-    show_completed: int
-    timeout_warn: int
-    timeout_crit: int
-
-    @staticmethod
-    def next_order_num() -> int:
-        next_num = Order.counter
-        Order.counter += 1
-
-        return next_num
-
-    def __init__(self, table: str, nonce: int):
-        self._nonce = nonce
-        self._num: int = Order.next_order_num()
-        self._table: str = table
-        self._products: list[Product] = []
-        self._date: datetime = datetime.now()
-        self._completed_at: datetime | None = None
-
-    @property
-    def nonce(self) -> int:
-        return self._nonce
-
-    @property
-    def num(self) -> int:
-        return self._num
-
-    @property
-    def table(self) -> str:
-        return self._table
+    @classmethod
+    def create(cls, table: str, nonce: int):
+        return cls(table=table, nonce=nonce, date=datetime.now(), completed_at=None)
 
     @property
     def products(self) -> list[Product]:
-        return self._products
+        return list(db.session.execute(db.select(Product).filter_by(order_id=self.id)).scalars())
 
     @property
     def active_since(self) -> str:
-        timediff = datetime.now() - self._date
+        timediff = datetime.now() - self.date
         if timediff > timedelta(minutes=60):
             return ">60min"
 
@@ -246,51 +146,124 @@ class Order:
 
     @property
     def active_since_timeout_class(self) -> str:
-        timediff = datetime.now() - self._date
-        if timediff > timedelta(seconds=Order.timeout_crit):
+        timediff = datetime.now() - self.date
+        if timediff > timedelta(seconds=Config.timeout_crit):
             return "timeout_crit"
-        if timediff > timedelta(seconds=Order.timeout_warn):
+        if timediff > timedelta(seconds=Config.timeout_warn):
             return "timeout_warn"
         return "timeout_ok"
 
     @property
-    def completed_at(self) -> str:
-        if self._completed_at is None:
-            log_warn(f"completed_at for order {self._num!s} called but order is not completed")
-            return ""
+    def completed_timestamp(self) -> str:
+        if self.completed_at is None:
+            log_warn(f"completed_at for order {self.id!s} called but order is not completed")
+            return " "
 
-        return self._completed_at.strftime("%Y-%m-%d %H:%M:%S")
-
-    def add_products(self, *products: Product) -> None:
-        for product in products:
-            self._products.append(product)
-            log_info(f"Added product {product.num!s}")
-
-    def add(self) -> None:
-        orders.append(self)
-        log_info(f"Added order {self._num!s}")
-        if persistence:
-            persist_data()
+        return self.completed_at.strftime("%Y-%m-%d %H:%M:%S")
 
     def complete(self) -> None:
-        for product in self._products:
+        products = db.session.execute(db.select(Product).filter_by(order_id=self.id,completed=False)).scalars()
+        for product in products:
             product.complete()
 
-        self._completed_at = datetime.now()
+        self.completed_at = datetime.now()
 
-        completed_orders.append(self)
-        orders.remove(self)
+        db.session.commit()
 
-        log_info(f"Completed order {self._num!s}")
-        if persistence:
-            persist_data()
+        log_info(f"Completed order {self.id!s}")
 
-    def get_product_by_num(self, num) -> Product | None:
-        return next((p for p in self.products if num == p.num), None)
+
+class Product(db.Model):
+    __tablename__ = "products"
+
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey(Order.id))
+    name = db.Column(db.String)
+    price = db.Column(db.Float)
+    amount = db.Column(db.Integer)
+    comment = db.Column(db.String)
+    completed = db.Column(db.Boolean)
+
+    @classmethod
+    def create(cls, order_id: int, name: str, price: float, amount: int, comment=""):
+        return cls(order_id=order_id, name=name, price=price, amount=amount, comment=comment, completed=False)
+
+    def complete(self) -> None:
+        if not self.completed:
+            self.completed = True
+            db.session.commit()
+            log_info(f"Completed product {self.id!s}")
+
+
+def get_orders():
+    return list(db.session.execute(db.select(Order).filter_by(completed_at=None)).scalars())
+
+
+def get_order_by_id(order_id: int) -> Order | None:
+    return db.session.execute(db.select(Order).filter_by(id=order_id)).scalar_one_or_none()
+
+
+def get_open_orders_by_table(table: str) -> list[Order]:
+    return list(db.session.execute(db.select(Order).filter_by(table=table, completed_at=None)).scalars())
+
+
+def get_open_order_nonces() -> list[int]:
+    return list(db.session.execute(db.select(Order.nonce).filter_by(completed_at=None)).scalars())
+
+
+def get_active_tables() -> list[str]:
+    return list(db.session.execute(db.select(Order.table).filter_by(completed_at=None).distinct()).scalars())
+
+
+def get_last_completed_orders() -> list[Order]:
+    return list(db.session.execute(
+        db.select(Order)
+        .filter(Order.completed_at != None)  # this must be != and not 'is not'
+        .order_by(Order.completed_at)  # TODO order_by descending?
+        .limit(Config.show_completed)
+    ).scalars())
+
+
+def get_product_by_id(product_id: int) -> Product | None:
+    return db.session.execute(db.select(Product).filter_by(id=product_id)).scalar_one_or_none()
+
+
+def get_open_products_by_order_id(order_id: int) -> list[Product]:
+    return list(db.session.execute(db.select(Product).filter_by(completed=False, order_id=order_id)).scalars())
+
+
+def get_open_product_lists_by_table(table: str) -> list[list[str]]:
+    return [
+        [
+            f"{p.amount}x {p.name}" + (f" ({p.comment})" if p.comment else "")
+            for p in get_open_products_by_order_id(o.id)
+        ]
+        for o in get_open_orders_by_table(table)
+    ]
+
+
+def handle_product_completed_event(product_id: int, order_id: int) -> None:
+    order = get_order_by_id(order_id)
+
+    if order is None:
+        log_error("POST in /bar but no matching Order found")
+        return
+
+    product = get_product_by_id(product_id)
+
+    if product is None:
+        log_error("POST in /bar but no matching Product for order found")
+        return
+
+    product.complete()
+
+    if Config.auto_close and len(get_open_products_by_order_id(order.id)) == 0:
+        log_info("Last Product completed. Attempting auto_close")
+        order.complete()
 
 
 def handle_order_completed_event(order_id: int) -> None:
-    order = get_order_by_num(order_id)
+    order = get_order_by_id(order_id)
 
     if order is None:
         log_error("POST in /bar but no matching Order to complete")
@@ -299,27 +272,15 @@ def handle_order_completed_event(order_id: int) -> None:
     order.complete()
 
 
-orders: list[Order] = []
-completed_orders: list[Order] = []
-
-
-def get_order_by_num(order_id: int) -> Order | None:
-    return next((o for o in orders if order_id == o.num), None)
-
-
 if not os.path.isfile(CONFIG_FILE):
     log_error("No config file found. Abort execution")
     sys.exit(1)
 load_config()  # must be after class and function definitions to prevent type error
 
-if persistence and not os.path.isfile(DATABASE_FILE):
-    log_info("No database file found. Skipping data restore")
-elif persistence:
-    restore_data()
-else:
-    log_info("Persistence disabled")
-
-app: Flask = Flask(__name__)
+if not os.path.isfile(f"instance/{DATABASE_FILE}"):
+    log_info("No database file found. Creating database.")
+    with app.app_context():
+        db.create_all()
 
 
 @app.route("/")
@@ -331,9 +292,9 @@ def home():
 def bar():
     return render_template(
         "bar.html",
-        orders=orders,
-        completed_orders=completed_orders[: -(Order.show_completed + 1) : -1],
-        show_completed=bool(Order.show_completed),
+        orders=get_orders(),
+        completed_orders=get_last_completed_orders(),
+        show_completed=bool(Config.show_completed),
     )
 
 
@@ -341,9 +302,9 @@ def bar():
 def fetch_bar():
     return render_template(
         "bar_body.html",
-        orders=orders,
-        completed_orders=completed_orders[: -(Order.show_completed + 1) : -1],
-        show_completed=bool(Order.show_completed),
+        orders=get_orders(),
+        completed_orders=get_last_completed_orders(),
+        show_completed=bool(Config.show_completed),
     )
 
 
@@ -360,8 +321,10 @@ def bar_submit():
 
     elif "product-completed" in request.form:
         if "order" in request.form:
-            if not (product_id := request.form["product-completed"]).isdigit() \
-            or not (order_id := request.form["order"]).isdigit():
+            if (
+                not (product_id := request.form["product-completed"]).isdigit()
+                or not (order_id := request.form["order"]).isdigit()
+            ):
                 log_error("POST in /bar but filetype not convertible to integer")
             else:
                 handle_product_completed_event(int(product_id), int(order_id))
@@ -380,13 +343,13 @@ def service():
         "service.html",
         tables_size=tables_size,
         tables_grid=tables_grid,
-        active_tables={order.table for order in orders},
+        active_tables=get_active_tables(),
     )
 
 
 @app.route("/fetch/service", strict_slashes=False)
 def fetch_service():
-    active_tables = [order.table for order in orders]
+    active_tables = get_active_tables()
 
     return jsonify(active_tables)
 
@@ -403,15 +366,11 @@ def service_table(table):
     return render_template(
         "service_table.html",
         table=table,
-        orders=[
-            [f"{p.amount}x {p.name}" + (f" ({p.comment})" if p.comment else "") for p in o.products if not p.completed]
-            for o in orders
-            if o.table == table
-        ],
+        open_product_lists=get_open_product_lists_by_table(table),
         available_products=[(p, pval[0], pval[1], pval[2]) for p, pval in available_products.items()],
         category_map=category_map,
-        split_categories=split_categories,
-        show_category_names=show_category_names,
+        split_categories=Config.split_categories,
+        show_category_names=Config.show_category_names,
         split_categories_init=available_products[1][2] if len(available_products) > 0 else 0,
         nonce=nonce,
     )
@@ -427,11 +386,14 @@ def service_table_submit(table):
         log_warn("POST in /service/<table> but missing nonce. Skipping...")
         return "Error! Missing nonce"
 
-    if any(o.nonce == nonce for o in orders):
+    if nonce in get_open_order_nonces():
         log_warn(f"Catched duplicate order by nonce {nonce}")
         return redirect(url_for("service"))
 
-    new_order = Order(table, nonce)
+    new_order = Order.create(table, nonce)
+    db.session.add(new_order)
+    db.session.flush()  # enforce creation of id, required to assign order_id to product
+    product_added = False
 
     for available_product in range(1, len(available_products) + 1):
         if f"amount-{available_product}" not in request.form:
@@ -452,13 +414,17 @@ def service_table_submit(table):
 
         if amount > 0:
             name, price, _ = available_products[available_product]
-            product = Product(name, price, amount, comment)
-            new_order.add_products(product)
+            product = Product.create(new_order.id, name, price, amount, comment)
+            db.session.add(product)
+            db.session.flush()  # enforce creation of id, required for log
+            product_added = True
+            log_info(f"Queued product {product.id!s} for order {new_order.id!s}")
 
-    if not new_order.products:
+    if not product_added:
         log_warn("POST in /service/<table> but order does not contain any product. Skipping...")
     else:
-        new_order.add()
+        db.session.commit()
+        log_info(f"Added order {new_order.id!s}")
 
     return redirect(url_for("service"))
 
@@ -482,7 +448,7 @@ def admin_submit():
 if __name__ == "__main__":
     # for production run
     # sysctl -w net.ipv4.ip_unprivileged_port_start=80
-    # gunicorn --bind 0.0.0.0:80 app:app
+    # gunicorn --bind 0.0.0.0:80 --workers=4 app:app
     # sysctl -w net.ipv4.ip_unprivileged_port_start=1024
     #
     app.run()
