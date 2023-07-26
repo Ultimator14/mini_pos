@@ -29,6 +29,29 @@ show_category_names: bool = False
 split_categories: bool = False
 persistence: bool = False
 
+def _green(prompt: str) -> str:
+    return f"\033[32;1m{prompt}\033[0m"  # ]]
+
+
+def _yellow(prompt: str) -> str:
+    return f"\033[33;1m{prompt}\033[0m"  # ]]
+
+
+def _red(prompt: str) -> str:
+    return f"\033[31;1m{prompt}\033[0m"  # ]]
+
+
+def log_info(msg: str) -> None:
+    print(_green(f"*** Info ***: {msg}"))  # ]]
+
+
+def log_warn(msg: str) -> None:
+    print(_yellow(f"*** Warning! ***: {msg}"))  # ]]
+
+
+def log_error(msg: str) -> None:
+    print(_red(f"*** Error! ***: {msg}"))  # ]]
+
 
 def load_config():
     log_info("Loading configuration...")
@@ -100,29 +123,6 @@ def restore_data() -> None:
         log_info(f"Order counter: {Order.counter!s}")
         log_info(f"Product counter: {Product.counter!s}")
 
-
-def _green(prompt: str) -> str:
-    return f"\033[32;1m{prompt}\033[0m"  # ]]
-
-
-def _yellow(prompt: str) -> str:
-    return f"\033[33;1m{prompt}\033[0m"  # ]]
-
-
-def _red(prompt: str) -> str:
-    return f"\033[31;1m{prompt}\033[0m"  # ]]
-
-
-def log_info(msg: str) -> None:
-    print(_green(f"*** Info ***: {msg}"))  # ]]
-
-
-def log_warn(msg: str) -> None:
-    print(_yellow(f"*** Warning! ***: {msg}"))  # ]]
-
-
-def log_error(msg: str) -> None:
-    print(_red(f"*** Error! ***: {msg}"))  # ]]
 
 
 class Product:
