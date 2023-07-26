@@ -379,9 +379,13 @@ def service_table_submit(table):
         log_error("POST in /service/<table> but invalid table. Skipping...")
         return "Error! Invalid table"
 
-    if not (nonce := request.form["nonce"]):
-        log_warn("POST in /service/<table> but missing nonce. Skipping...")
+    if "nonce" not in request.form:
+        log_error("POST in /service/<table> but missing nonce. Skipping...")
         return "Error! Missing nonce"
+
+    if not (nonce := request.form["nonce"]).isdigit():
+        log_error("POST in /service/<table> but nonce not convertible to integer. Skipping...")
+        return "Error! Nonce is not int"
 
     if int(nonce) in get_open_order_nonces():
         log_warn(f"Catched duplicate order by nonce {nonce}")
