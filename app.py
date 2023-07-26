@@ -63,7 +63,7 @@ def log_error(msg: str) -> None:
     print(_red(f"*** Error! ***: {msg}"))  # ]]
 
 
-def load_config():
+def load_config() -> None:
     log_info("Loading configuration...")
     with open("config.json", encoding="utf-8") as afile:
         config_data = json.load(afile)
@@ -123,7 +123,7 @@ class Order(db.Model):
     completed_at = db.Column(db.DateTime)
 
     @classmethod
-    def create(cls, table: str, nonce: int):
+    def create(cls, table: str, nonce: int) -> Order:
         return cls(table=table, nonce=nonce, date=datetime.now(), completed_at=None)
 
     @property
@@ -183,7 +183,7 @@ class Product(db.Model):
     completed = db.Column(db.Boolean)
 
     @classmethod
-    def create(cls, order_id: int, name: str, price: float, amount: int, comment=""):
+    def create(cls, order_id: int, name: str, price: float, amount: int, comment="") -> Product:
         return cls(order_id=order_id, name=name, price=price, amount=amount, comment=comment, completed=False)
 
     def complete(self) -> None:
@@ -193,7 +193,7 @@ class Product(db.Model):
             log_info(f"Completed product {self.id!s}")
 
 
-def get_orders():
+def get_orders() -> list[Order]:
     return list(db.session.execute(db.select(Order).filter_by(completed_at=None)).scalars())
 
 
