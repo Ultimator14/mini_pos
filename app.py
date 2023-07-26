@@ -172,7 +172,7 @@ class Product:
 
 
 def handle_product_completed_event(product_id: int, order_id: int) -> None:
-    order = orders.get_order_by_num(order_id)
+    order = next((o for o in orders if order_id == o.num), None)
 
     if order is None:
         log_error("POST in /bar but no matching Order found")
@@ -290,7 +290,7 @@ class Order:
 
 
 def handle_order_completed_event(order_id: int) -> None:
-    order = orders.get_order_by_num(order_id)
+    order = next((o for o in orders if order_id == o.num), None)
 
     if order is None:
         log_error("POST in /bar but no matching Order to complete")
@@ -299,34 +299,8 @@ def handle_order_completed_event(order_id: int) -> None:
     order.complete()
 
 
-class Orders:
-    def __init__(self):
-        self._order_list: list[Order] = []
-
-    def __iter__(self):
-        return iter(self._order_list)  # for order in orders
-
-    def __getitem__(self, item):
-        return self._order_list.__getitem__(item)  # x = order[0]
-
-    def __setitem__(self, key, value):
-        return self._order_list.__setitem__(key, value)  # order[0] = x
-
-    def __len__(self):
-        return self._order_list.__len__()
-
-    def append(self, order: Order) -> None:
-        self._order_list.append(order)
-
-    def remove(self, order: Order) -> None:
-        self._order_list.remove(order)
-
-    def get_order_by_num(self, num) -> Order | None:
-        return next((o for o in self._order_list if num == o.num), None)
-
-
-orders = Orders()
-completed_orders = Orders()
+orders: list[Order] = []
+completed_orders: list[Order] = []
 
 if not os.path.isfile(CONFIG_FILE):
     log_error("No config file found. Abort execution")
