@@ -217,7 +217,7 @@ def get_last_completed_orders() -> list[Order]:
     return list(db.session.execute(
         db.select(Order)
         .filter(Order.completed_at != None)  # this must be != and not 'is not'
-        .order_by(Order.completed_at)  # TODO order_by descending?
+        .order_by(Order.completed_at.desc())
         .limit(Config.show_completed)
     ).scalars())
 
