@@ -172,7 +172,7 @@ class Product:
 
 
 def handle_product_completed_event(product_id: int, order_id: int) -> None:
-    order = next((o for o in orders if order_id == o.num), None)
+    order = get_order_by_num(order_id)
 
     if order is None:
         log_error("POST in /bar but no matching Order found")
@@ -290,7 +290,7 @@ class Order:
 
 
 def handle_order_completed_event(order_id: int) -> None:
-    order = next((o for o in orders if order_id == o.num), None)
+    order = get_order_by_num(order_id)
 
     if order is None:
         log_error("POST in /bar but no matching Order to complete")
@@ -301,6 +301,11 @@ def handle_order_completed_event(order_id: int) -> None:
 
 orders: list[Order] = []
 completed_orders: list[Order] = []
+
+
+def get_order_by_num(order_id: int) -> Order | None:
+    return next((o for o in orders if order_id == o.num), None)
+
 
 if not os.path.isfile(CONFIG_FILE):
     log_error("No config file found. Abort execution")
