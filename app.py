@@ -19,15 +19,84 @@ TablesGridT = list[list[TablesGridTupleT | None]]
 CONFIG_FILE: str = "config.json"
 DATABASE_FILE: str = "data.db"
 
-tables_size: tuple[int, int]
-tables_grid: TablesGridT = []
-tables: list[str]
-available_products: AvailableProductsT = {}
-category_map: dict[int, str] = {}
-
 
 class Config:
     debug: bool = False
+
+    class Product:
+        available: AvailableProductsT = {}
+        category_map: dict[int, str] = {}
+
+        @classmethod
+        def set_options(cls, product):
+            available_config = product.get("available")
+
+            if available_config is None:
+                log_error_exit("prouct->available missing in config file")
+            elif len(available_config) == 0:
+                log_error_exit("config option product->available must be of length >0")
+            else:
+                cls.available = dict(
+                    enumerate([tuple(product) for product in available_config], start=1)
+                )
+
+            categories_config = product.get("categories")
+            if categories_config is None:
+                log_error_exit("prouct->categories missing in config file")
+            elif len(categories_config ) == 0:
+                log_error_exit("config option product->categories must be of length >0")
+            else:
+                cls.category_map = dict(categories_config)
+
+    class Table:
+        size: tuple[int, int]
+        grid: TablesGridT = []
+        names: list[str]
+
+        @classmethod
+        def populate_grid(cls, names) -> None:
+            grid: TablesGridT = [[None for x in range(cls.size[0])] for y in range(cls.size[1])]
+
+            # parse tables
+            for x, y, xlen, ylen, name in names:
+                if xlen < 1 or ylen < 1:
+                    log_error_exit("Invalid config option. Table can't have length < 1")
+                if x + xlen > cls.size[0] or y + ylen > cls.size[1]:
+                    log_error_exit("Table can't be placed outside the grid")
+
+                for i in range(y, y + ylen):
+                    for j in range(x, x + xlen):
+                        if grid[i][j] is not None:
+                            log_warn(f"Duplicate table position {i!s}/{j!s}. Check your config")
+                        grid[i][j] = (False, None, None, None)
+
+                grid[y][x] = (True, xlen, ylen, name)
+
+            cls.grid = grid
+
+
+        @classmethod
+        def set_options(cls, table) -> None:
+            size_config = table.get("size")
+
+            if size_config is None:
+                log_error_exit("table->size missing in config file")
+            elif len(size_config) != 2:
+                log_error_exit("config option table->size must be exactly of length 2")
+            else:
+                cls.size = tuple(size_config)
+
+            names_config = table.get("names")
+
+            if names_config is None:
+                log_error_exit("table->names missing in config file")
+            elif len(names_config) == 0:
+                log_error_exit("config option table->names must be of length >0")
+            else:
+                cls.names = [name for _, _, _, _, name in names_config]
+                if len(set(cls.names)) != len(cls.names):
+                    log_error_exit("Duplicate table name found. Tables names must be unique")
+                cls.populate_grid(names_config)
 
     class UI:
         auto_close: bool = True
@@ -49,12 +118,23 @@ class Config:
     def set_options(cls, config_data) -> None:
         cls.debug = config_data.get("debug", cls.debug)
 
+        product = config_data.get("product")
+        if product is None:
+            log_error_exit("product section missing in config file.")
+        else:
+            cls.Product.set_options(product)
+
+        table = config_data.get("table")
+        if table is None:
+            log_error_exit("table section missing in config file.")
+        else:
+            cls.Table.set_options(table)
+
         ui = config_data.get("ui")
         if ui is None:
             log_warn("ui section is missing in config file. Using defaults.")
         else:
             cls.UI.set_options(ui)
-
 
 
 app: Flask = Flask(__name__)
@@ -106,39 +186,6 @@ def load_config() -> None:
         config_data = json.load(afile)
 
         Config.set_options(config_data)
-
-        global tables_size, tables_grid, tables
-        tables_size = tuple(config_data["table"]["size"])
-
-        # parse tables
-        grid: TablesGridT = [[None for x in range(tables_size[0])] for y in range(tables_size[1])]
-
-        for x, y, xlen, ylen, name in config_data["table"]["names"]:
-            if xlen < 1 or ylen < 1:
-                log_error_exit("Invalid config option. Table can't have length < 1")
-            if x + xlen > tables_size[0] or y + ylen > tables_size[1]:
-                log_error_exit("Table can't be placed outside the grid")
-
-            for i in range(y, y + ylen):
-                for j in range(x, x + xlen):
-                    if grid[i][j] is not None:
-                        log_warn(f"Duplicate table position {i!s}/{j!s}. Check your config")
-                    grid[i][j] = (False, None, None, None)
-
-            grid[y][x] = (True, xlen, ylen, name)
-
-        tables_grid = grid
-
-        tables = [name for _, _, _, _, name in config_data["table"]["names"]]
-
-        if len(set(tables)) != len(tables):
-            log_error_exit("Duplicate table name found. Tables names must be unique")
-
-        global available_products, category_map
-        available_products = dict(
-            enumerate([tuple(product) for product in config_data["product"]["available"]], start=1)
-        )
-        category_map = dict(config_data["product"]["categories"])
 
 
 class Order(db.Model):
@@ -373,8 +420,8 @@ def service():
     log_debug("GET /service")
     return render_template(
         "service.html",
-        tables_size=tables_size,
-        tables_grid=tables_grid,
+        tables_size=Config.Table.size,
+        tables_grid=Config.Table.grid,
         active_tables=get_active_tables(),
     )
 
@@ -390,7 +437,7 @@ def fetch_service():
 @app.route("/service/<table>")
 def service_table(table):
     log_debug("GET /service/<table>")
-    if table not in tables:
+    if table not in Config.Table.names:
         log_error("GET in /service/<table> but invalid table. Skipping...")
         return "Error! Invalid table"
 
@@ -401,11 +448,11 @@ def service_table(table):
         "service_table.html",
         table=table,
         open_product_lists=get_open_product_lists_by_table(table),
-        available_products=[(p, pval[0], pval[1], pval[2]) for p, pval in available_products.items()],
-        category_map=category_map,
+        available_products=[(p, pval[0], pval[1], pval[2]) for p, pval in Config.Product.available.items()],
+        category_map=Config.Product.category_map,
         split_categories=Config.UI.split_categories,
         show_category_names=Config.UI.show_category_names,
-        split_categories_init=available_products[1][2] if len(available_products) > 0 else 0,
+        split_categories_init=Config.Product.available[1][2] if len(Config.Product.available) > 0 else 0,
         nonce=nonce,
     )
 
@@ -413,7 +460,7 @@ def service_table(table):
 @app.route("/service/<table>", methods=["POST"])
 def service_table_submit(table):
     log_debug("POST /service/<table>")
-    if table not in tables:
+    if table not in Config.Table.names:
         log_error("POST in /service/<table> but invalid table. Skipping...")
         return "Error! Invalid table"
 
@@ -434,7 +481,7 @@ def service_table_submit(table):
     db.session.flush()  # enforce creation of id, required to assign order_id to product
     product_added = False
 
-    for available_product in range(1, len(available_products) + 1):
+    for available_product in range(1, len(Config.Product.available) + 1):
         if f"amount-{available_product}" not in request.form:
             log_warn(f"POST in /service/<table> but missing amount-{available_product} event. Skipping...")
             continue
@@ -452,7 +499,7 @@ def service_table_submit(table):
             comment = request.form[f"comment-{available_product}"]
 
         if amount > 0:
-            name, price, _ = available_products[available_product]
+            name, price, _ = Config.Product.available[available_product]
             product = Product.create(new_order.id, name, price, amount, comment)
             db.session.add(product)
             db.session.flush()  # enforce creation of id, required for log
