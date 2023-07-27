@@ -174,7 +174,7 @@ def load_config() -> None:
             config_data = json.load(afile)
             Config.set_options(config_data)
         except json.decoder.JSONDecodeError as e:
-            log_error_exit(f"Broken configuration file: {repr(e)}")
+            log_error_exit(f"Broken configuration file: {repr(e)!s}")
 
 
 class Order(db.Model):
