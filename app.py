@@ -27,6 +27,8 @@ category_map: dict[int, str] = {}
 
 
 class Config:
+    debug: bool = False
+
     auto_close: bool = True
     show_completed: int = 5
     timeout_warn: int = 120
@@ -36,6 +38,8 @@ class Config:
 
     @classmethod
     def set_options(cls, config_data) -> None:
+        cls.debug = config_data.get("debug", cls.debug)
+
         ui = config_data.get("ui")
 
         if ui is None:
@@ -54,6 +58,10 @@ app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DATABASE_FILE}"
 db = SQLAlchemy(app)
 
 
+def _cyan(prompt: str) -> str:
+    return f"\033[36;1m{prompt}\033[0m"  # ]]
+
+
 def _green(prompt: str) -> str:
     return f"\033[32;1m{prompt}\033[0m"  # ]]
 
@@ -64,6 +72,11 @@ def _yellow(prompt: str) -> str:
 
 def _red(prompt: str) -> str:
     return f"\033[31;1m{prompt}\033[0m"  # ]]
+
+
+def log_debug(msg: str) -> None:
+    if Config.debug:
+        print(_cyan(f"*** Debug ***: {msg}"))  # ]]
 
 
 def log_info(msg: str) -> None:
@@ -295,11 +308,13 @@ if not os.path.isfile(f"instance/{DATABASE_FILE}"):
 
 @app.route("/")
 def home():
+    log_debug("GET /")
     return render_template("index.html")
 
 
 @app.route("/bar", strict_slashes=False)
 def bar():
+    log_debug("GET /bar")
     return render_template(
         "bar.html",
         orders=get_open_orders(),
@@ -310,6 +325,7 @@ def bar():
 
 @app.route("/fetch/bar", strict_slashes=False)
 def fetch_bar():
+    log_debug("GET /fetch/bar")
     return render_template(
         "bar_body.html",
         orders=get_open_orders(),
@@ -320,6 +336,7 @@ def fetch_bar():
 
 @app.route("/bar", methods=["POST"])
 def bar_submit():
+    log_debug("POST /bar")
     if "order-completed" in request.form and "product-completed" in request.form:
         log_info("POST in /bar with order and product completion data. Using order...")
 
@@ -349,6 +366,7 @@ def bar_submit():
 
 @app.route("/service", strict_slashes=False)
 def service():
+    log_debug("GET /service")
     return render_template(
         "service.html",
         tables_size=tables_size,
@@ -359,6 +377,7 @@ def service():
 
 @app.route("/fetch/service", strict_slashes=False)
 def fetch_service():
+    log_debug("GET /fetch/service")
     active_tables = get_active_tables()
 
     return jsonify(active_tables)
@@ -366,6 +385,7 @@ def fetch_service():
 
 @app.route("/service/<table>")
 def service_table(table):
+    log_debug("GET /service/<table>")
     if table not in tables:
         log_error("GET in /service/<table> but invalid table. Skipping...")
         return "Error! Invalid table"
@@ -388,6 +408,7 @@ def service_table(table):
 
 @app.route("/service/<table>", methods=["POST"])
 def service_table_submit(table):
+    log_debug("POST /service/<table>")
     if table not in tables:
         log_error("POST in /service/<table> but invalid table. Skipping...")
         return "Error! Invalid table"
