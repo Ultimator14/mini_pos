@@ -418,9 +418,7 @@ def service():
 @app.route("/fetch/service", strict_slashes=False)
 def fetch_service():
     log_debug("GET /fetch/service")
-    active_tables = get_active_tables()
-
-    return jsonify(active_tables)
+    return jsonify(get_active_tables())
 
 
 @app.route("/service/<table>")
