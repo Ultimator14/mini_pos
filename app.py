@@ -26,12 +26,27 @@ category_map: dict[int, str] = {}
 
 
 class Config:
-    auto_close: bool
-    show_completed: int
-    timeout_warn: int
-    timeout_crit: int
+    auto_close: bool = True
+    show_completed: int = 5
+    timeout_warn: int = 120
+    timeout_crit: int = 600
     split_categories: bool = False
     show_category_names: bool = False
+
+
+    @classmethod
+    def set_options(cls, config_data) -> None:
+        ui = config_data.get("ui")
+
+        if ui is None:
+            log_warn("ui section is missing in config file. Using defaults.")
+            return
+
+        cls.auto_close = ui.get("auto_close", cls.auto_close)
+        cls.show_completed = ui.get("show_completed", cls.show_completed)  # zero = don't show
+        cls.timeout_warn, cls.timeout_crit = ui.get("timeout", (cls.timeout_warn, cls.timeout_crit))
+        cls.split_categories = ui.get("split_categories", cls.split_categories)
+        cls.show_category_names = ui.get("show_category_names", cls.show_category_names)
 
 
 app: Flask = Flask(__name__)
@@ -68,12 +83,7 @@ def load_config() -> None:
     with open("config.json", encoding="utf-8") as afile:
         config_data = json.load(afile)
 
-        Config.auto_close = config_data["ui"]["auto_close"]
-        Config.show_completed = config_data["ui"]["show_completed"]  # zero = don't show
-        Config.timeout_warn = config_data["ui"]["timeout"][0]
-        Config.timeout_crit = config_data["ui"]["timeout"][1]
-        Config.split_categories = config_data["ui"]["split_categories"]
-        Config.show_category_names = config_data["ui"]["show_category_names"]
+        Config.set_options(config_data)
 
         global tables_size, tables_grid, tables
         tables_size = tuple(config_data["table"]["size"])
