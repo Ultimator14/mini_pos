@@ -170,9 +170,11 @@ def log_error_exit(msg: str) -> NoReturn:
 def load_config() -> None:
     log_info("Loading configuration...")
     with open("config.json", encoding="utf-8") as afile:
-        config_data = json.load(afile)
-
-        Config.set_options(config_data)
+        try:
+            config_data = json.load(afile)
+            Config.set_options(config_data)
+        except json.decoder.JSONDecodeError as e:
+            log_error_exit(f"Broken configuration file: {repr(e)}")
 
 
 class Order(db.Model):
