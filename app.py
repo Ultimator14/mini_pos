@@ -34,7 +34,6 @@ class Config:
     split_categories: bool = False
     show_category_names: bool = False
 
-
     @classmethod
     def set_options(cls, config_data) -> None:
         ui = config_data.get("ui")
@@ -77,6 +76,7 @@ def log_warn(msg: str) -> None:
 
 def log_error(msg: str) -> None:
     print(_red(f"*** Error! ***: {msg}"))  # ]]
+
 
 def log_error_exit(msg: str) -> NoReturn:
     log_error(msg)
@@ -171,7 +171,7 @@ class Order(db.Model):
         return self.completed_at.strftime("%Y-%m-%d %H:%M:%S")
 
     def complete(self) -> None:
-        products = db.session.execute(db.select(Product).filter_by(order_id=self.id,completed=False)).scalars()
+        products = db.session.execute(db.select(Product).filter_by(order_id=self.id, completed=False)).scalars()
         for product in products:
             product.complete()
 
@@ -207,6 +207,7 @@ class Product(db.Model):
 def get_open_orders() -> list[Order]:
     return list(db.session.execute(db.select(Order).filter_by(completed_at=None)).scalars())
 
+
 def get_order_by_id(order_id: int) -> Order | None:
     return db.session.execute(db.select(Order).filter_by(id=order_id)).scalar_one_or_none()
 
@@ -224,12 +225,14 @@ def get_active_tables() -> list[str]:
 
 
 def get_last_completed_orders() -> list[Order]:
-    return list(db.session.execute(
-        db.select(Order)
-        .filter(Order.completed_at != None)  # this must be != and not 'is not'
-        .order_by(Order.completed_at.desc())
-        .limit(Config.show_completed)
-    ).scalars())
+    return list(
+        db.session.execute(
+            db.select(Order)
+            .filter(Order.completed_at != None)  # this must be != and not 'is not'
+            .order_by(Order.completed_at.desc())
+            .limit(Config.show_completed)
+        ).scalars()
+    )
 
 
 def get_product_by_id(product_id: int) -> Product | None:
