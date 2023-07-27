@@ -29,21 +29,16 @@ class Config:
 
         @classmethod
         def set_options(cls, product):
-            available_config = product.get("available")
-
-            if available_config is None:
+            if (available_config := product.get("available")) is None:
                 log_error_exit("prouct->available missing in config file")
             elif len(available_config) == 0:
                 log_error_exit("config option product->available must be of length >0")
             else:
-                cls.available = dict(
-                    enumerate([tuple(product) for product in available_config], start=1)
-                )
+                cls.available = dict(enumerate([tuple(product) for product in available_config], start=1))
 
-            categories_config = product.get("categories")
-            if categories_config is None:
+            if (categories_config := product.get("categories")) is None:
                 log_error_exit("prouct->categories missing in config file")
-            elif len(categories_config ) == 0:
+            elif len(categories_config) == 0:
                 log_error_exit("config option product->categories must be of length >0")
             else:
                 cls.category_map = dict(categories_config)
@@ -74,21 +69,16 @@ class Config:
 
             cls.grid = grid
 
-
         @classmethod
         def set_options(cls, table) -> None:
-            size_config = table.get("size")
-
-            if size_config is None:
+            if (size_config := table.get("size")) is None:
                 log_error_exit("table->size missing in config file")
             elif len(size_config) != 2:
                 log_error_exit("config option table->size must be exactly of length 2")
             else:
                 cls.size = tuple(size_config)
 
-            names_config = table.get("names")
-
-            if names_config is None:
+            if (names_config := table.get("names")) is None:
                 log_error_exit("table->names missing in config file")
             elif len(names_config) == 0:
                 log_error_exit("config option table->names must be of length >0")
@@ -118,20 +108,17 @@ class Config:
     def set_options(cls, config_data) -> None:
         cls.debug = config_data.get("debug", cls.debug)
 
-        product = config_data.get("product")
-        if product is None:
+        if (product := config_data.get("product")) is None:
             log_error_exit("product section missing in config file.")
         else:
             cls.Product.set_options(product)
 
-        table = config_data.get("table")
-        if table is None:
+        if (table := config_data.get("table")) is None:
             log_error_exit("table section missing in config file.")
         else:
             cls.Table.set_options(table)
 
-        ui = config_data.get("ui")
-        if ui is None:
+        if (ui := config_data.get("ui")) is None:
             log_warn("ui section is missing in config file. Using defaults.")
         else:
             cls.UI.set_options(ui)
