@@ -7,6 +7,7 @@ import os.path
 import sys
 from datetime import datetime, timedelta
 from random import randint
+from typing import NoReturn
 
 from flask import Flask, jsonify, redirect, render_template, request, url_for
 from flask_sqlalchemy import SQLAlchemy
@@ -77,6 +78,10 @@ def log_warn(msg: str) -> None:
 def log_error(msg: str) -> None:
     print(_red(f"*** Error! ***: {msg}"))  # ]]
 
+def log_error_exit(msg: str) -> NoReturn:
+    log_error(msg)
+    sys.exit(1)
+
 
 def load_config() -> None:
     log_info("Loading configuration...")
@@ -93,11 +98,9 @@ def load_config() -> None:
 
         for x, y, xlen, ylen, name in config_data["table"]["names"]:
             if xlen < 1 or ylen < 1:
-                log_error("Invalid config option. Table can't have length < 1")
-                sys.exit(1)
+                log_error_exit("Invalid config option. Table can't have length < 1")
             if x + xlen > tables_size[0] or y + ylen > tables_size[1]:
-                log_error("Table can't be placed outside the grid")
-                sys.exit(1)
+                log_error_exit("Table can't be placed outside the grid")
 
             for i in range(y, y + ylen):
                 for j in range(x, x + xlen):
@@ -112,8 +115,7 @@ def load_config() -> None:
         tables = [name for _, _, _, _, name in config_data["table"]["names"]]
 
         if len(set(tables)) != len(tables):
-            log_error("Duplicate table name found. Tables names must be unique")
-            sys.exit(1)
+            log_error_exit("Duplicate table name found. Tables names must be unique")
 
         global available_products, category_map
         available_products = dict(
@@ -279,8 +281,7 @@ def handle_order_completed_event(order_id: int) -> None:
 
 
 if not os.path.isfile(CONFIG_FILE):
-    log_error("No config file found. Abort execution")
-    sys.exit(1)
+    log_error_exit("No config file found. Abort execution")
 load_config()  # must be after class and function definitions to prevent type error
 
 if not os.path.isfile(f"instance/{DATABASE_FILE}"):
