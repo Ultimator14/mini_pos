@@ -29,28 +29,32 @@ category_map: dict[int, str] = {}
 class Config:
     debug: bool = False
 
-    auto_close: bool = True
-    show_completed: int = 5
-    timeout_warn: int = 120
-    timeout_crit: int = 600
-    split_categories: bool = False
-    show_category_names: bool = False
+    class UI:
+        auto_close: bool = True
+        show_completed: int = 5
+        timeout_warn: int = 120
+        timeout_crit: int = 600
+        split_categories: bool = False
+        show_category_names: bool = False
+
+        @classmethod
+        def set_options(cls, ui) -> None:
+            cls.auto_close = ui.get("auto_close", cls.auto_close)
+            cls.show_completed = ui.get("show_completed", cls.show_completed)  # zero = don't show
+            cls.timeout_warn, cls.timeout_crit = ui.get("timeout", (cls.timeout_warn, cls.timeout_crit))
+            cls.split_categories = ui.get("split_categories", cls.split_categories)
+            cls.show_category_names = ui.get("show_category_names", cls.show_category_names)
 
     @classmethod
     def set_options(cls, config_data) -> None:
         cls.debug = config_data.get("debug", cls.debug)
 
         ui = config_data.get("ui")
-
         if ui is None:
             log_warn("ui section is missing in config file. Using defaults.")
-            return
+        else:
+            cls.UI.set_options(ui)
 
-        cls.auto_close = ui.get("auto_close", cls.auto_close)
-        cls.show_completed = ui.get("show_completed", cls.show_completed)  # zero = don't show
-        cls.timeout_warn, cls.timeout_crit = ui.get("timeout", (cls.timeout_warn, cls.timeout_crit))
-        cls.split_categories = ui.get("split_categories", cls.split_categories)
-        cls.show_category_names = ui.get("show_category_names", cls.show_category_names)
 
 
 app: Flask = Flask(__name__)
@@ -169,9 +173,9 @@ class Order(db.Model):
     @property
     def active_since_timeout_class(self) -> str:
         timediff = datetime.now() - self.date
-        if timediff > timedelta(seconds=Config.timeout_crit):
+        if timediff > timedelta(seconds=Config.UI.timeout_crit):
             return "timeout_crit"
-        if timediff > timedelta(seconds=Config.timeout_warn):
+        if timediff > timedelta(seconds=Config.UI.timeout_warn):
             return "timeout_warn"
         return "timeout_ok"
 
@@ -243,7 +247,7 @@ def get_last_completed_orders() -> list[Order]:
             db.select(Order)
             .filter(Order.completed_at != None)  # this must be != and not 'is not'
             .order_by(Order.completed_at.desc())
-            .limit(Config.show_completed)
+            .limit(Config.UI.show_completed)
         ).scalars()
     )
 
@@ -281,7 +285,7 @@ def handle_product_completed_event(product_id: int, order_id: int) -> None:
 
     product.complete()
 
-    if Config.auto_close and len(get_open_products_by_order_id(order.id)) == 0:
+    if Config.UI.auto_close and len(get_open_products_by_order_id(order.id)) == 0:
         log_info("Last Product completed. Attempting auto_close")
         order.complete()
 
@@ -319,7 +323,7 @@ def bar():
         "bar.html",
         orders=get_open_orders(),
         completed_orders=get_last_completed_orders(),
-        show_completed=bool(Config.show_completed),
+        show_completed=bool(Config.UI.show_completed),
     )
 
 
@@ -330,7 +334,7 @@ def fetch_bar():
         "bar_body.html",
         orders=get_open_orders(),
         completed_orders=get_last_completed_orders(),
-        show_completed=bool(Config.show_completed),
+        show_completed=bool(Config.UI.show_completed),
     )
 
 
@@ -399,8 +403,8 @@ def service_table(table):
         open_product_lists=get_open_product_lists_by_table(table),
         available_products=[(p, pval[0], pval[1], pval[2]) for p, pval in available_products.items()],
         category_map=category_map,
-        split_categories=Config.split_categories,
-        show_category_names=Config.show_category_names,
+        split_categories=Config.UI.split_categories,
+        show_category_names=Config.UI.show_category_names,
         split_categories_init=available_products[1][2] if len(available_products) > 0 else 0,
         nonce=nonce,
     )
