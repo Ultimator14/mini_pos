@@ -76,7 +76,7 @@ class Config:
             elif len(size_config) != 2:
                 log_error_exit("config option table->size must be exactly of length 2")
             else:
-                cls.size = tuple(size_config)
+                cls.size = tuple(size_config)  # type: ignore (size_config has len 2 at this point)
 
             if (names_config := table.get("names")) is None:
                 log_error_exit("table->names missing in config file")
