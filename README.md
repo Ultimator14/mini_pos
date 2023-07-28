@@ -42,7 +42,7 @@ In contrast to the traditional service, the delay between ordering and passing t
 
 - The software does not require an internet connection an can be run on e.g. a raspberry pi
 - Both kitchen and waiter need have access to the server via network (e.g. by using a hotspot or a connecting everything to a router)
-- The server can be started with `gunicorn --bind 0.0.0.0:80 app:app`
+- The server can be started with `gunicorn --bind 0.0.0.0:80 mini_pos.app:app`
 - Waiters can connect to the server with their smartphones via `http://<ip>/service`
 - The kitchen can connect to the server with a desktop computer via `http://<ip>/bar`
 
