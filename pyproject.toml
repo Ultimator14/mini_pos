@@ -13,6 +13,59 @@ Flask = "^2.3.2"
 Flask-SQLAlchemy = "^3.0.5"
 gunicorn = "^21.2.0"
 
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.0.280"
+black = "^23.7.0"
+mypy = "^1.4.1"
+types-Flask-SQLAlchemy = "^2.5.9.4"
+types-Flask = "^1.1.6"
+
+[tool.black]
+line_length = 120
+
+[tool.ruff]
+line-length = 120
+select = [
+  "F",                        # pyflakes
+  "E", "W",                   # pycodestyle (error, warning)
+  "C90",                      # mccabe (complexty)
+  "I",                        # isort (import sorting)
+  "N",                        # pep8-naming
+  "UP",                       # pyupgrade (newer syntax)
+  "YTT",                      # sys.version misuse
+  "S",                        # bandit (security)
+  "BLE",                      # blind except
+  "FBT",                      # boolean trap
+  "B",                        # bugbear
+  "A",                        # name shadowing
+  "COM",                      # commas
+  "C4",                       # unnecessary stuff
+  "DTZ",                      # datetime
+  "DJ",                       # django
+  "EM",                       # errmsg
+  "ISC",                      # implicit string concat
+  "ICN",                      # import conventions
+  "G",                        # logging format
+  "INP",                      # implicit namespace package
+  "PIE",                      # unnecessary stuff
+  "PYI",                      # typing
+  "PT",                       # pytest
+  "Q",                        # quotes
+  "RSE",                      # unnecessary raise exception stuff
+  "RET",                      # unnecessary return stuff
+  "SLF",                      # self access
+  "SIM",                      # simplify
+  "TID",                      # tidy imports
+  "TCH",                      # type checking
+  "INT",                      # printf
+  "ARG",                      # unused arguments
+  "PD",                       # pandas code
+  "PGH",                      # pygrep hooks
+  "TRY",                      # tryceratops (exception anti pattern)
+  "NPY",                      # numpy
+  "RUF"                       # ruf rules
+]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
