@@ -1,7 +1,7 @@
 #!/usr/bin/python3.10
 
-import app
-from app import db
+import mini_pos.app as app
+from mini_pos.app import db
 
 with app.app.app_context():
     def get_completed_orders() -> list[app.Order]:
