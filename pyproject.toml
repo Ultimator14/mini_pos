@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "mini-pos"
+version = "0.1.1"
+description = "Small browser based POS system"
+authors = ["Jan Breig <git@pygos.space>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "mini_pos"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+Flask = "^2.3.2"
+Flask-SQLAlchemy = "^3.0.5"
+gunicorn = "^21.2.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
