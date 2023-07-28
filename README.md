@@ -89,6 +89,24 @@ Table positions can be customized. Tables must have a start position `x,y`, a ho
 Overlapping tables are not supported and will produce a warning.  
 Tables outside the grid are not supported and will produce an error.
 
+## Execution
+
+Development (Werkzeug server):
+
+```bash
+cd my_project_root_dir
+python mini_pos/app.py
+```
+
+Production (Gunicorn server):
+
+```bash
+cd my_project_root_dir
+sudo sysctl -w net.ipv4.ip_unprivileged_port_start=80         # allow binding to port 80 without root
+gunicorn --bind 0.0.0.0:80 --workers=4 mini_pos.app:app       # run the app
+sudo sysctl -w net.ipv4.ip_unprivileged_port_start=1024       # reset sysctl config change
+```
+
 ## Images
 
 ### Bar

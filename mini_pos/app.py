@@ -503,9 +503,4 @@ def service_table_submit(table):
 
 
 if __name__ == "__main__":
-    # for production run
-    # sysctl -w net.ipv4.ip_unprivileged_port_start=80
-    # gunicorn --bind 0.0.0.0:80 --workers=4 app:app
-    # sysctl -w net.ipv4.ip_unprivileged_port_start=1024
-    #
     app.run()
