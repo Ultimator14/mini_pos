@@ -48,11 +48,49 @@ In contrast to the traditional service, the delay between ordering and passing t
 
 ## Requirements
 
-- `>=python3.10`
 - A desktop computer or tablet with large screen for the kitchen
-- A smartphone for each cashier
-- A device where the server can run on (can be the same as for the kitchen)
+- A smartphone for each cashier with a browser installed
+- A device where the server can run on (can be the same as for the kitchen) with `>=python3.10` installed
 - Some kind of network to connect everything
+
+## Usage
+
+### Install
+
+Clone the repository:
+
+```bash
+git clone https://github.com/Ultimator14/mini_pos.git
+cd mini_pos
+```
+
+Install dependencies:
+
+```bash
+poetry install
+```
+
+Enter the poetry virtual environment:
+
+```bash
+poetry shell
+```
+
+### Run
+
+Development (Werkzeug server):
+
+```bash
+python mini_pos/app.py
+```
+
+Production (Gunicorn server):
+
+```bash
+sudo sysctl -w net.ipv4.ip_unprivileged_port_start=80    # allow binding to port 80 without root
+gunicorn --bind 0.0.0.0:80 --workers=4 mini_pos.app:app  # run the app
+sudo sysctl -w net.ipv4.ip_unprivileged_port_start=1024  # reset sysctl config change
+```
 
 ## Configuration
 
@@ -88,24 +126,6 @@ Colors can be added or edited directly in [service_table.css](static/css/service
 Table positions can be customized. Tables must have a start position `x,y`, a horizontal and vertical length `xlen, ylen` and a name.  
 Overlapping tables are not supported and will produce a warning.  
 Tables outside the grid are not supported and will produce an error.
-
-## Execution
-
-Development (Werkzeug server):
-
-```bash
-cd my_project_root_dir
-python mini_pos/app.py
-```
-
-Production (Gunicorn server):
-
-```bash
-cd my_project_root_dir
-sudo sysctl -w net.ipv4.ip_unprivileged_port_start=80         # allow binding to port 80 without root
-gunicorn --bind 0.0.0.0:80 --workers=4 mini_pos.app:app       # run the app
-sudo sysctl -w net.ipv4.ip_unprivileged_port_start=1024       # reset sysctl config change
-```
 
 ## Images
 
