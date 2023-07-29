@@ -1,13 +1,8 @@
 #!/usr/bin/python3.11
 
-from __future__ import annotations  # required for type hinting of classes in itself
-
 import json
 import os.path
-import sys
-from datetime import datetime, timedelta
 from random import randint
-from typing import NoReturn
 
 from flask import Flask, jsonify, redirect, render_template, request, url_for
 from flask_sqlalchemy import SQLAlchemy
@@ -124,47 +119,18 @@ class Config:
             cls.UI.set_options(ui)
 
 
+ # must be after Config class to avoid circular import
+from .helpers import (
+    log_debug,
+    log_error,
+    log_error_exit,
+    log_info,
+    log_warn,
+)
+
 app: Flask = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DATABASE_FILE}"
 db = SQLAlchemy(app)
-
-
-def _cyan(prompt: str) -> str:
-    return f"\033[36;1m{prompt}\033[0m"  # ]]
-
-
-def _green(prompt: str) -> str:
-    return f"\033[32;1m{prompt}\033[0m"  # ]]
-
-
-def _yellow(prompt: str) -> str:
-    return f"\033[33;1m{prompt}\033[0m"  # ]]
-
-
-def _red(prompt: str) -> str:
-    return f"\033[31;1m{prompt}\033[0m"  # ]]
-
-
-def log_debug(msg: str) -> None:
-    if Config.debug:
-        print(_cyan(f"*** Debug ***: {msg}"))  # ]]
-
-
-def log_info(msg: str) -> None:
-    print(_green(f"*** Info ***: {msg}"))  # ]]
-
-
-def log_warn(msg: str) -> None:
-    print(_yellow(f"*** Warning! ***: {msg}"))  # ]]
-
-
-def log_error(msg: str) -> None:
-    print(_red(f"*** Error! ***: {msg}"))  # ]]
-
-
-def log_error_exit(msg: str) -> NoReturn:
-    log_error(msg)
-    sys.exit(1)
 
 
 def load_config() -> None:
@@ -177,84 +143,7 @@ def load_config() -> None:
             log_error_exit(f"Broken configuration file: {repr(e)!s}")
 
 
-class Order(db.Model):
-    __tablename__ = "orders"
-
-    id = db.Column(db.Integer, primary_key=True)
-    nonce = db.Column(db.Integer)
-    table = db.Column(db.String)
-    date = db.Column(db.DateTime)
-    completed_at = db.Column(db.DateTime)
-
-    @classmethod
-    def create(cls, table: str, nonce: int) -> Order:
-        return cls(table=table, nonce=nonce, date=datetime.now(), completed_at=None)
-
-    @property
-    def products(self) -> list[Product]:
-        return list(db.session.execute(db.select(Product).filter_by(order_id=self.id)).scalars())
-
-    @property
-    def active_since(self) -> str:
-        timediff = datetime.now() - self.date
-        if timediff > timedelta(minutes=60):
-            return ">60min"
-
-        seconds_aligned = timediff.seconds // 5 * 5  # align by 5 seconds (easy way to circumvent javascript timers)
-        seconds = str(seconds_aligned % 60).rjust(2, "0")
-        minutes = str(seconds_aligned // 60).rjust(2, "0")
-
-        return f"{minutes}:{seconds}"
-
-    @property
-    def active_since_timeout_class(self) -> str:
-        timediff = datetime.now() - self.date
-        if timediff > timedelta(seconds=Config.UI.timeout_crit):
-            return "timeout_crit"
-        if timediff > timedelta(seconds=Config.UI.timeout_warn):
-            return "timeout_warn"
-        return "timeout_ok"
-
-    @property
-    def completed_timestamp(self) -> str:
-        if self.completed_at is None:
-            log_warn(f"completed_at for order {self.id!s} called but order is not completed")
-            return " "
-
-        return self.completed_at.strftime("%Y-%m-%d %H:%M:%S")
-
-    def complete(self) -> None:
-        products = db.session.execute(db.select(Product).filter_by(order_id=self.id, completed=False)).scalars()
-        for product in products:
-            product.complete()
-
-        self.completed_at = datetime.now()
-
-        db.session.commit()
-
-        log_info(f"Completed order {self.id!s}")
-
-
-class Product(db.Model):
-    __tablename__ = "products"
-
-    id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Integer, db.ForeignKey(Order.id))
-    name = db.Column(db.String)
-    price = db.Column(db.Float)
-    amount = db.Column(db.Integer)
-    comment = db.Column(db.String)
-    completed = db.Column(db.Boolean)
-
-    @classmethod
-    def create(cls, order_id: int, name: str, price: float, amount: int, comment="") -> Product:
-        return cls(order_id=order_id, name=name, price=price, amount=amount, comment=comment, completed=False)
-
-    def complete(self) -> None:
-        if not self.completed:
-            self.completed = True
-            db.session.commit()
-            log_info(f"Completed product {self.id!s}")
+from .models import Order, Product
 
 
 def get_open_orders() -> list[Order]:
