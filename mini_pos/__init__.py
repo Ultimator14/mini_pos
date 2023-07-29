@@ -131,26 +131,29 @@ class Config:
                 log_error_exit(f"Broken configuration file: {repr(e)!s}")
 
 
- # must be after Config class to avoid circular import
+# must be after Config class to avoid circular import
 from .helpers import (
     log_error_exit,
     log_info,
     log_warn,
 )
 
-app: Flask = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DATABASE_FILE}"
-db = SQLAlchemy(app)
-#app.register_blueprint(people, url_prefix='')
+db = SQLAlchemy()
 
-Config.load_config()  # must be after class and function definitions to prevent type error
 
-if not os.path.isfile(f"instance/{DATABASE_FILE}"):
-    log_info("No database file found. Creating database.")
+def create_app() -> Flask:
+    app: Flask = Flask(__name__)
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DATABASE_FILE}"
+    # app.config.from_object("config.Config")
+
+    Config.load_config()  # must be after class and function definitions to prevent type error
+
+    db.init_app(app)
+
     with app.app_context():
-        db.create_all()
+        if not os.path.isfile(f"instance/{DATABASE_FILE}"):
+            log_info("No database file found. Creating database.")
+            db.create_all()
+        from . import routes
 
-from .routes import *
-
-if __name__ == "__main__":
-    app.run()
+    return app

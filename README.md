@@ -42,7 +42,7 @@ In contrast to the traditional service, the delay between ordering and passing t
 
 - The software does not require an internet connection an can be run on e.g. a raspberry pi
 - Both kitchen and waiter need have access to the server via network (e.g. by using a hotspot or a connecting everything to a router)
-- The server can be started with `gunicorn --bind 0.0.0.0:80 mini_pos:app`
+- The server can be started with `gunicorn --bind 0.0.0.0:80 run:app`
 - Waiters can connect to the server with their smartphones via `http://<ip>/service`
 - The kitchen can connect to the server with a desktop computer via `http://<ip>/bar`
 
@@ -88,7 +88,7 @@ Production (Gunicorn server):
 
 ```bash
 sudo sysctl -w net.ipv4.ip_unprivileged_port_start=80    # allow binding to port 80 without root
-gunicorn --bind 0.0.0.0:80 --workers=4 mini_pos:app      # run the app
+gunicorn --bind 0.0.0.0:80 --workers=4 run:app      # run the app
 sudo sysctl -w net.ipv4.ip_unprivileged_port_start=1024  # reset sysctl config change
 ```
 

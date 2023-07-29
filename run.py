@@ -1,4 +1,6 @@
-import mini_pos
+from mini_pos import create_app
+
+app = create_app()
 
 if __name__ == "__main__":
-    mini_pos.app.run()
+    app.run()

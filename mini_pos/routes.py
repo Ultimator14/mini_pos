@@ -2,9 +2,10 @@
 
 from random import randint
 
+from flask import current_app as app
 from flask import jsonify, redirect, render_template, request, url_for
 
-from . import Config, app, db
+from . import Config, db
 from .models import Order, Product
 from .helpers import log_debug, log_info, log_warn, log_error
 from .query import (
