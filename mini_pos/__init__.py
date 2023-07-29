@@ -10,11 +10,11 @@ AvailableProductsT = dict[int, tuple[str, float, int]]
 TablesGridTupleT = tuple[bool, int | None, int | None, str | None]
 TablesGridT = list[list[TablesGridTupleT | None]]
 
-CONFIG_FILE: str = "config.json"
 DATABASE_FILE: str = "data.db"
 
 
 class Config:
+    CONFIG_FILE: str = "config.json"
     debug: bool = False
 
     class Product:
@@ -117,6 +117,19 @@ class Config:
         else:
             cls.UI.set_options(ui)
 
+    @classmethod
+    def load_config(cls) -> None:
+        if not os.path.isfile(cls.CONFIG_FILE):
+            log_error_exit("No config file found. Abort execution")
+
+        log_info("Loading configuration...")
+        with open(cls.CONFIG_FILE, encoding="utf-8") as afile:
+            try:
+                config_data = json.load(afile)
+                cls.set_options(config_data)
+            except json.decoder.JSONDecodeError as e:
+                log_error_exit(f"Broken configuration file: {repr(e)!s}")
+
 
  # must be after Config class to avoid circular import
 from .helpers import (
@@ -132,20 +145,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DATABASE_FILE}"
 db = SQLAlchemy(app)
 #app.register_blueprint(people, url_prefix='')
 
-
-def load_config() -> None:
-    log_info("Loading configuration...")
-    with open("config.json", encoding="utf-8") as afile:
-        try:
-            config_data = json.load(afile)
-            Config.set_options(config_data)
-        except json.decoder.JSONDecodeError as e:
-            log_error_exit(f"Broken configuration file: {repr(e)!s}")
-
-
-if not os.path.isfile(CONFIG_FILE):
-    log_error_exit("No config file found. Abort execution")
-load_config()  # must be after class and function definitions to prevent type error
+Config.load_config()  # must be after class and function definitions to prevent type error
 
 if not os.path.isfile(f"instance/{DATABASE_FILE}"):
     log_info("No database file found. Creating database.")
