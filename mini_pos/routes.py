@@ -6,28 +6,18 @@ from flask import current_app as app
 from flask import jsonify, redirect, render_template, request, url_for
 
 from . import Config, db
+from .helpers import log_debug, log_error, log_info, log_warn
 from .models import Order, Product
-from .helpers import log_debug, log_info, log_warn, log_error
-from .query import (
-    get_active_tables,
-    get_last_completed_orders,
-    get_open_order_nonces,
-    get_open_orders,
-    get_open_product_lists_by_table,
-    get_open_products_by_order_id,
-    get_order_by_id,
-    get_product_by_id,
-)
 
 
 def handle_product_completed_event(product_id: int, order_id: int) -> None:
-    order = get_order_by_id(order_id)
+    order = Order.get_order_by_id(order_id)
 
     if order is None:
         log_error("POST in /bar but no matching Order found")
         return
 
-    product = get_product_by_id(product_id)
+    product = Product.get_product_by_id(product_id)
 
     if product is None:
         log_error("POST in /bar but no matching Product for order found")
@@ -35,13 +25,13 @@ def handle_product_completed_event(product_id: int, order_id: int) -> None:
 
     product.complete()
 
-    if Config.UI.auto_close and len(get_open_products_by_order_id(order.id)) == 0:
+    if Config.UI.auto_close and len(Product.get_open_products_by_order_id(order.id)) == 0:
         log_info("Last Product completed. Attempting auto_close")
         order.complete()
 
 
 def handle_order_completed_event(order_id: int) -> None:
-    order = get_order_by_id(order_id)
+    order = Order.get_order_by_id(order_id)
 
     if order is None:
         log_error("POST in /bar but no matching Order to complete")
@@ -61,8 +51,8 @@ def bar():
     log_debug("GET /bar")
     return render_template(
         "bar.html",
-        orders=get_open_orders(),
-        completed_orders=get_last_completed_orders(),
+        orders=Order.get_open_orders(),
+        completed_orders=Order.get_last_completed_orders(),
         show_completed=bool(Config.UI.show_completed),
     )
 
@@ -72,8 +62,8 @@ def fetch_bar():
     log_debug("GET /fetch/bar")
     return render_template(
         "bar_body.html",
-        orders=get_open_orders(),
-        completed_orders=get_last_completed_orders(),
+        orders=Order.get_open_orders(),
+        completed_orders=Order.get_last_completed_orders(),
         show_completed=bool(Config.UI.show_completed),
     )
 
@@ -115,14 +105,14 @@ def service():
         "service.html",
         tables_size=Config.Table.size,
         tables_grid=Config.Table.grid,
-        active_tables=get_active_tables(),
+        active_tables=Order.get_active_tables(),
     )
 
 
 @app.route("/fetch/service", strict_slashes=False)
 def fetch_service():
     log_debug("GET /fetch/service")
-    return jsonify(get_active_tables())
+    return jsonify(Order.get_active_tables())
 
 
 @app.route("/service/<table>")
@@ -138,7 +128,7 @@ def service_table(table):
     return render_template(
         "service_table.html",
         table=table,
-        open_product_lists=get_open_product_lists_by_table(table),
+        open_product_lists=Product.get_open_product_lists_by_table(table),
         available_products=[(p, pval[0], pval[1], pval[2]) for p, pval in Config.Product.available.items()],
         category_map=Config.Product.category_map,
         split_categories=Config.UI.split_categories,
@@ -163,7 +153,7 @@ def service_table_submit(table):
         log_error("POST in /service/<table> but nonce not convertible to integer. Skipping...")
         return "Error! Nonce is not int"
 
-    if int(nonce) in get_open_order_nonces():
+    if int(nonce) in Order.get_open_order_nonces():
         log_warn(f"Catched duplicate order by nonce {nonce}")
         return redirect(url_for("service"))
 
