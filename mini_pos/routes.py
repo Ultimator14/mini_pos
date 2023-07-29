@@ -6,13 +6,12 @@ from flask import jsonify, redirect, render_template, request, url_for
 
 from . import Config, app, db
 from .models import Order, Product
-from .helpers import log_debug, log_info, log_warn, log_error, log_error_exit
+from .helpers import log_debug, log_info, log_warn, log_error
 from .query import (
     get_active_tables,
     get_last_completed_orders,
     get_open_order_nonces,
     get_open_orders,
-    get_open_orders_by_table,
     get_open_product_lists_by_table,
     get_open_products_by_order_id,
     get_order_by_id,

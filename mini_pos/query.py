@@ -11,7 +11,7 @@ def get_order_by_id(order_id: int) -> Order | None:
     return db.session.execute(db.select(Order).filter_by(id=order_id)).scalar_one_or_none()
 
 
-def get_open_orders_by_table(table: str) -> list[Order]:
+def _get_open_orders_by_table(table: str) -> list[Order]:
     return list(db.session.execute(db.select(Order).filter_by(table=table, completed_at=None)).scalars())
 
 
@@ -48,7 +48,7 @@ def get_open_product_lists_by_table(table: str) -> list[list[str]]:
             f"{p.amount}x {p.name}" + (f" ({p.comment})" if p.comment else "")
             for p in get_open_products_by_order_id(o.id)
         ]
-        for o in get_open_orders_by_table(table)
+        for o in _get_open_orders_by_table(table)
     ]
 
 

@@ -133,8 +133,6 @@ class Config:
 
  # must be after Config class to avoid circular import
 from .helpers import (
-    log_debug,
-    log_error,
     log_error_exit,
     log_info,
     log_warn,
