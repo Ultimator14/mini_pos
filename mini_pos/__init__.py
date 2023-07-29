@@ -1,16 +1,26 @@
 #!/usr/bin/python3.11
 
 import json
+import logging
 import os.path
+import sys
 
 from flask import Flask
+from flask import current_app as app
 from flask_sqlalchemy import SQLAlchemy
+
+from .log import init_logging
 
 AvailableProductsT = dict[int, tuple[str, float, int]]
 TablesGridTupleT = tuple[bool, int | None, int | None, str | None]
 TablesGridT = list[list[TablesGridTupleT | None]]
 
 DATABASE_FILE: str = "data.db"
+
+
+def log_error_exit(msg: str):
+    app.logger.error(msg)
+    sys.exit(1)
 
 
 class Config:
@@ -56,7 +66,7 @@ class Config:
                 for i in range(y, y + ylen):
                     for j in range(x, x + xlen):
                         if grid[i][j] is not None:
-                            log_warn(f"Duplicate table position {i!s}/{j!s}. Check your config")
+                            app.logger.warn(f"Duplicate table position {i!s}/{j!s}. Check your config")
                         grid[i][j] = (False, None, None, None)
 
                 grid[y][x] = (True, xlen, ylen, name)
@@ -113,7 +123,7 @@ class Config:
             cls.Table.set_options(table)
 
         if (ui := config_data.get("ui")) is None:
-            log_warn("ui section is missing in config file. Using defaults.")
+            app.logger.warn("ui section is missing in config file. Using defaults.")
         else:
             cls.UI.set_options(ui)
 
@@ -122,7 +132,7 @@ class Config:
         if not os.path.isfile(cls.CONFIG_FILE):
             log_error_exit("No config file found. Abort execution")
 
-        log_info("Loading configuration...")
+        # log_info("Loading configuration...")
         with open(cls.CONFIG_FILE, encoding="utf-8") as afile:
             try:
                 config_data = json.load(afile)
@@ -130,13 +140,6 @@ class Config:
             except json.decoder.JSONDecodeError as e:
                 log_error_exit(f"Broken configuration file: {repr(e)!s}")
 
-
-# must be after Config class to avoid circular import
-from .helpers import (
-    log_error_exit,
-    log_info,
-    log_warn,
-)
 
 db = SQLAlchemy()
 
@@ -152,8 +155,11 @@ def create_app() -> Flask:
 
     with app.app_context():
         if not os.path.isfile(f"instance/{DATABASE_FILE}"):
-            log_info("No database file found. Creating database.")
+            app.logger.info("No database file found. Creating database.")
             db.create_all()
         from . import routes
+
+    init_logging(app)
+    app.logger.setLevel(logging.DEBUG)
 
     return app

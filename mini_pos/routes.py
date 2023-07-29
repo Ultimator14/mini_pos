@@ -6,7 +6,6 @@ from flask import current_app as app
 from flask import jsonify, redirect, render_template, request, url_for
 
 from . import Config, db
-from .helpers import log_debug, log_error, log_info, log_warn
 from .models import Order, Product
 
 
@@ -14,19 +13,19 @@ def handle_product_completed_event(product_id: int, order_id: int) -> None:
     order = Order.get_order_by_id(order_id)
 
     if order is None:
-        log_error("POST in /bar but no matching Order found")
+        app.logger.error("POST in /bar but no matching Order found")
         return
 
     product = Product.get_product_by_id(product_id)
 
     if product is None:
-        log_error("POST in /bar but no matching Product for order found")
+        app.logger.error("POST in /bar but no matching Product for order found")
         return
 
     product.complete()
 
     if Config.UI.auto_close and len(Product.get_open_products_by_order_id(order.id)) == 0:
-        log_info("Last Product completed. Attempting auto_close")
+        app.logger.info("Last Product completed. Attempting auto_close")
         order.complete()
 
 
@@ -34,7 +33,7 @@ def handle_order_completed_event(order_id: int) -> None:
     order = Order.get_order_by_id(order_id)
 
     if order is None:
-        log_error("POST in /bar but no matching Order to complete")
+        app.logger.error("POST in /bar but no matching Order to complete")
         return
 
     order.complete()
@@ -42,13 +41,13 @@ def handle_order_completed_event(order_id: int) -> None:
 
 @app.route("/")
 def home():
-    log_debug("GET /")
+    app.logger.debug("GET /")
     return render_template("index.html")
 
 
 @app.route("/bar", strict_slashes=False)
 def bar():
-    log_debug("GET /bar")
+    app.logger.debug("GET /bar")
     return render_template(
         "bar.html",
         orders=Order.get_open_orders(),
@@ -59,7 +58,7 @@ def bar():
 
 @app.route("/fetch/bar", strict_slashes=False)
 def fetch_bar():
-    log_debug("GET /fetch/bar")
+    app.logger.debug("GET /fetch/bar")
     return render_template(
         "bar_body.html",
         orders=Order.get_open_orders(),
@@ -70,13 +69,13 @@ def fetch_bar():
 
 @app.route("/bar", methods=["POST"])
 def bar_submit():
-    log_debug("POST /bar")
+    app.logger.debug("POST /bar")
     if "order-completed" in request.form and "product-completed" in request.form:
-        log_info("POST in /bar with order and product completion data. Using order...")
+        app.logger.info("POST in /bar with order and product completion data. Using order...")
 
     if "order-completed" in request.form:
         if not (order_id := request.form["order-completed"]).isdigit():
-            log_error("POST in /bar but filetype not convertible to integer")
+            app.logger.error("POST in /bar but filetype not convertible to integer")
         else:
             handle_order_completed_event(int(order_id))
 
@@ -86,21 +85,21 @@ def bar_submit():
                 not (product_id := request.form["product-completed"]).isdigit()
                 or not (order_id := request.form["order"]).isdigit()
             ):
-                log_error("POST in /bar but filetype not convertible to integer")
+                app.logger.error("POST in /bar but filetype not convertible to integer")
             else:
                 handle_product_completed_event(int(product_id), int(order_id))
         else:
-            log_error("POST in /bar but missing order data for completed product")
+            app.logger.error("POST in /bar but missing order data for completed product")
 
     else:
-        log_error("POST in /bar but neither order nor product specified")
+        app.logger.error("POST in /bar but neither order nor product specified")
 
     return redirect(url_for("bar"))
 
 
 @app.route("/service", strict_slashes=False)
 def service():
-    log_debug("GET /service")
+    app.logger.debug("GET /service")
     return render_template(
         "service.html",
         tables_size=Config.Table.size,
@@ -111,15 +110,15 @@ def service():
 
 @app.route("/fetch/service", strict_slashes=False)
 def fetch_service():
-    log_debug("GET /fetch/service")
+    app.logger.debug("GET /fetch/service")
     return jsonify(Order.get_active_tables())
 
 
 @app.route("/service/<table>")
 def service_table(table):
-    log_debug("GET /service/<table>")
+    app.logger.debug("GET /service/<table>")
     if table not in Config.Table.names:
-        log_error("GET in /service/<table> but invalid table. Skipping...")
+        app.logger.error("GET in /service/<table> but invalid table. Skipping...")
         return "Error! Invalid table"
 
     # Generate random number per order to prevent duplicate orders
@@ -140,21 +139,21 @@ def service_table(table):
 
 @app.route("/service/<table>", methods=["POST"])
 def service_table_submit(table):
-    log_debug("POST /service/<table>")
+    app.logger.debug("POST /service/<table>")
     if table not in Config.Table.names:
-        log_error("POST in /service/<table> but invalid table. Skipping...")
+        app.logger.error("POST in /service/<table> but invalid table. Skipping...")
         return "Error! Invalid table"
 
     if "nonce" not in request.form:
-        log_error("POST in /service/<table> but missing nonce. Skipping...")
+        app.logger.error("POST in /service/<table> but missing nonce. Skipping...")
         return "Error! Missing nonce"
 
     if not (nonce := request.form["nonce"]).isdigit():
-        log_error("POST in /service/<table> but nonce not convertible to integer. Skipping...")
+        app.logger.error("POST in /service/<table> but nonce not convertible to integer. Skipping...")
         return "Error! Nonce is not int"
 
     if int(nonce) in Order.get_open_order_nonces():
-        log_warn(f"Catched duplicate order by nonce {nonce}")
+        app.logger.warning(f"Catched duplicate order by nonce {nonce}")
         return redirect(url_for("service"))
 
     new_order = Order.create(table, nonce)
@@ -164,17 +163,17 @@ def service_table_submit(table):
 
     for available_product in range(1, len(Config.Product.available) + 1):
         if f"amount-{available_product}" not in request.form:
-            log_warn(f"POST in /service/<table> but missing amount-{available_product} event. Skipping...")
+            app.logger.warning(f"POST in /service/<table> but missing amount-{available_product} event. Skipping...")
             continue
 
         if not (amount_param := request.form[f"amount-{available_product}"]).isdigit():
-            log_warn("POST in /service/<table> with filetype not convertible to integer. Skipping...")
+            app.logger.warning("POST in /service/<table> with filetype not convertible to integer. Skipping...")
             continue
 
         amount = int(amount_param)
 
         if f"comment-{available_product}" not in request.form:
-            log_warn(f"POST in /service/<table> but missing comment-{available_product} event")
+            app.logger.warning(f"POST in /service/<table> but missing comment-{available_product} event")
             comment = ""
         else:
             comment = request.form[f"comment-{available_product}"]
@@ -185,12 +184,12 @@ def service_table_submit(table):
             db.session.add(product)
             db.session.flush()  # enforce creation of id, required for log
             product_added = True
-            log_info(f"Queued product {product.id!s} for order {new_order.id!s}")
+            app.logger.info(f"Queued product {product.id!s} for order {new_order.id!s}")
 
     if not product_added:
-        log_warn("POST in /service/<table> but order does not contain any product. Skipping...")
+        app.logger.warning("POST in /service/<table> but order does not contain any product. Skipping...")
     else:
         db.session.commit()
-        log_info(f"Added order {new_order.id!s}")
+        app.logger.info(f"Added order {new_order.id!s}")
 
     return redirect(url_for("service"))

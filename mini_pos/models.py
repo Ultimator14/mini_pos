@@ -4,8 +4,9 @@ from __future__ import annotations  # required for type hinting of classes in it
 
 from datetime import datetime, timedelta
 
+from flask import current_app as app
+
 from . import Config, db
-from .helpers import log_info, log_warn
 
 
 class Order(db.Model):
@@ -49,7 +50,7 @@ class Order(db.Model):
     @property
     def completed_timestamp(self) -> str:
         if self.completed_at is None:
-            log_warn(f"completed_at for order {self.id!s} called but order is not completed")
+            app.logger.warn(f"completed_at for order {self.id!s} called but order is not completed")
             return " "
 
         return self.completed_at.strftime("%Y-%m-%d %H:%M:%S")
@@ -63,7 +64,7 @@ class Order(db.Model):
 
         db.session.commit()
 
-        log_info(f"Completed order {self.id!s}")
+        app.logger.info(f"Completed order {self.id!s}")
 
     @staticmethod
     def get_open_orders() -> list[Order]:
@@ -118,7 +119,7 @@ class Product(db.Model):
         if not self.completed:
             self.completed = True
             db.session.commit()
-            log_info(f"Completed product {self.id!s}")
+            app.logger.info(f"Completed product {self.id!s}")
 
 
     @staticmethod
