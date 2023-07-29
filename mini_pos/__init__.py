@@ -2,9 +2,8 @@
 
 import json
 import os.path
-from random import randint
 
-from flask import Flask, jsonify, redirect, render_template, request, url_for
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 AvailableProductsT = dict[int, tuple[str, float, int]]
@@ -131,6 +130,7 @@ from .helpers import (
 app: Flask = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DATABASE_FILE}"
 db = SQLAlchemy(app)
+#app.register_blueprint(people, url_prefix='')
 
 
 def load_config() -> None:
@@ -143,88 +143,6 @@ def load_config() -> None:
             log_error_exit(f"Broken configuration file: {repr(e)!s}")
 
 
-from .models import Order, Product
-
-
-def get_open_orders() -> list[Order]:
-    return list(db.session.execute(db.select(Order).filter_by(completed_at=None)).scalars())
-
-
-def get_order_by_id(order_id: int) -> Order | None:
-    return db.session.execute(db.select(Order).filter_by(id=order_id)).scalar_one_or_none()
-
-
-def get_open_orders_by_table(table: str) -> list[Order]:
-    return list(db.session.execute(db.select(Order).filter_by(table=table, completed_at=None)).scalars())
-
-
-def get_open_order_nonces() -> list[int]:
-    return list(db.session.execute(db.select(Order.nonce).filter_by(completed_at=None)).scalars())
-
-
-def get_active_tables() -> list[str]:
-    return list(db.session.execute(db.select(Order.table).filter_by(completed_at=None).distinct()).scalars())
-
-
-def get_last_completed_orders() -> list[Order]:
-    return list(
-        db.session.execute(
-            db.select(Order)
-            .filter(Order.completed_at != None)  # this must be != and not 'is not'
-            .order_by(Order.completed_at.desc())
-            .limit(Config.UI.show_completed)
-        ).scalars()
-    )
-
-
-def get_product_by_id(product_id: int) -> Product | None:
-    return db.session.execute(db.select(Product).filter_by(id=product_id)).scalar_one_or_none()
-
-
-def get_open_products_by_order_id(order_id: int) -> list[Product]:
-    return list(db.session.execute(db.select(Product).filter_by(completed=False, order_id=order_id)).scalars())
-
-
-def get_open_product_lists_by_table(table: str) -> list[list[str]]:
-    return [
-        [
-            f"{p.amount}x {p.name}" + (f" ({p.comment})" if p.comment else "")
-            for p in get_open_products_by_order_id(o.id)
-        ]
-        for o in get_open_orders_by_table(table)
-    ]
-
-
-def handle_product_completed_event(product_id: int, order_id: int) -> None:
-    order = get_order_by_id(order_id)
-
-    if order is None:
-        log_error("POST in /bar but no matching Order found")
-        return
-
-    product = get_product_by_id(product_id)
-
-    if product is None:
-        log_error("POST in /bar but no matching Product for order found")
-        return
-
-    product.complete()
-
-    if Config.UI.auto_close and len(get_open_products_by_order_id(order.id)) == 0:
-        log_info("Last Product completed. Attempting auto_close")
-        order.complete()
-
-
-def handle_order_completed_event(order_id: int) -> None:
-    order = get_order_by_id(order_id)
-
-    if order is None:
-        log_error("POST in /bar but no matching Order to complete")
-        return
-
-    order.complete()
-
-
 if not os.path.isfile(CONFIG_FILE):
     log_error_exit("No config file found. Abort execution")
 load_config()  # must be after class and function definitions to prevent type error
@@ -234,162 +152,7 @@ if not os.path.isfile(f"instance/{DATABASE_FILE}"):
     with app.app_context():
         db.create_all()
 
-
-@app.route("/")
-def home():
-    log_debug("GET /")
-    return render_template("index.html")
-
-
-@app.route("/bar", strict_slashes=False)
-def bar():
-    log_debug("GET /bar")
-    return render_template(
-        "bar.html",
-        orders=get_open_orders(),
-        completed_orders=get_last_completed_orders(),
-        show_completed=bool(Config.UI.show_completed),
-    )
-
-
-@app.route("/fetch/bar", strict_slashes=False)
-def fetch_bar():
-    log_debug("GET /fetch/bar")
-    return render_template(
-        "bar_body.html",
-        orders=get_open_orders(),
-        completed_orders=get_last_completed_orders(),
-        show_completed=bool(Config.UI.show_completed),
-    )
-
-
-@app.route("/bar", methods=["POST"])
-def bar_submit():
-    log_debug("POST /bar")
-    if "order-completed" in request.form and "product-completed" in request.form:
-        log_info("POST in /bar with order and product completion data. Using order...")
-
-    if "order-completed" in request.form:
-        if not (order_id := request.form["order-completed"]).isdigit():
-            log_error("POST in /bar but filetype not convertible to integer")
-        else:
-            handle_order_completed_event(int(order_id))
-
-    elif "product-completed" in request.form:
-        if "order" in request.form:
-            if (
-                not (product_id := request.form["product-completed"]).isdigit()
-                or not (order_id := request.form["order"]).isdigit()
-            ):
-                log_error("POST in /bar but filetype not convertible to integer")
-            else:
-                handle_product_completed_event(int(product_id), int(order_id))
-        else:
-            log_error("POST in /bar but missing order data for completed product")
-
-    else:
-        log_error("POST in /bar but neither order nor product specified")
-
-    return redirect(url_for("bar"))
-
-
-@app.route("/service", strict_slashes=False)
-def service():
-    log_debug("GET /service")
-    return render_template(
-        "service.html",
-        tables_size=Config.Table.size,
-        tables_grid=Config.Table.grid,
-        active_tables=get_active_tables(),
-    )
-
-
-@app.route("/fetch/service", strict_slashes=False)
-def fetch_service():
-    log_debug("GET /fetch/service")
-    return jsonify(get_active_tables())
-
-
-@app.route("/service/<table>")
-def service_table(table):
-    log_debug("GET /service/<table>")
-    if table not in Config.Table.names:
-        log_error("GET in /service/<table> but invalid table. Skipping...")
-        return "Error! Invalid table"
-
-    # Generate random number per order to prevent duplicate orders
-    nonce = randint(0, 2**32 - 1)  # 32 bit random number
-
-    return render_template(
-        "service_table.html",
-        table=table,
-        open_product_lists=get_open_product_lists_by_table(table),
-        available_products=[(p, pval[0], pval[1], pval[2]) for p, pval in Config.Product.available.items()],
-        category_map=Config.Product.category_map,
-        split_categories=Config.UI.split_categories,
-        show_category_names=Config.UI.show_category_names,
-        split_categories_init=Config.Product.available[1][2] if len(Config.Product.available) > 0 else 0,
-        nonce=nonce,
-    )
-
-
-@app.route("/service/<table>", methods=["POST"])
-def service_table_submit(table):
-    log_debug("POST /service/<table>")
-    if table not in Config.Table.names:
-        log_error("POST in /service/<table> but invalid table. Skipping...")
-        return "Error! Invalid table"
-
-    if "nonce" not in request.form:
-        log_error("POST in /service/<table> but missing nonce. Skipping...")
-        return "Error! Missing nonce"
-
-    if not (nonce := request.form["nonce"]).isdigit():
-        log_error("POST in /service/<table> but nonce not convertible to integer. Skipping...")
-        return "Error! Nonce is not int"
-
-    if int(nonce) in get_open_order_nonces():
-        log_warn(f"Catched duplicate order by nonce {nonce}")
-        return redirect(url_for("service"))
-
-    new_order = Order.create(table, nonce)
-    db.session.add(new_order)
-    db.session.flush()  # enforce creation of id, required to assign order_id to product
-    product_added = False
-
-    for available_product in range(1, len(Config.Product.available) + 1):
-        if f"amount-{available_product}" not in request.form:
-            log_warn(f"POST in /service/<table> but missing amount-{available_product} event. Skipping...")
-            continue
-
-        if not (amount_param := request.form[f"amount-{available_product}"]).isdigit():
-            log_warn("POST in /service/<table> with filetype not convertible to integer. Skipping...")
-            continue
-
-        amount = int(amount_param)
-
-        if f"comment-{available_product}" not in request.form:
-            log_warn(f"POST in /service/<table> but missing comment-{available_product} event")
-            comment = ""
-        else:
-            comment = request.form[f"comment-{available_product}"]
-
-        if amount > 0:
-            name, price, _ = Config.Product.available[available_product]
-            product = Product.create(new_order.id, name, price, amount, comment)
-            db.session.add(product)
-            db.session.flush()  # enforce creation of id, required for log
-            product_added = True
-            log_info(f"Queued product {product.id!s} for order {new_order.id!s}")
-
-    if not product_added:
-        log_warn("POST in /service/<table> but order does not contain any product. Skipping...")
-    else:
-        db.session.commit()
-        log_info(f"Added order {new_order.id!s}")
-
-    return redirect(url_for("service"))
-
+from .routes import *
 
 if __name__ == "__main__":
     app.run()
