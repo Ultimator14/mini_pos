@@ -105,14 +105,6 @@ class MiniPOSConfig:
         self.ui: UIConfig = UIConfig()
         self.table: TableConfig = TableConfig()
 
-        # mini_pos options
-        self.CONFIG_FILE = config_file
-        self.DATABASE_FILE: str
-
-        # Flask options
-        self.DEBUG: bool
-        self.SQLALCHEMY_DATABASE_URI: str
-
         self.load_config(config_file)
 
     def load_config(self, config_file) -> None:
@@ -129,10 +121,8 @@ class MiniPOSConfig:
                 log_error_exit(f"Broken configuration file: {repr(e)!s}")
 
     def set_options(self, config_data) -> None:
-        # Set top level config
-        self.DEBUG = config_data.get("debug", False)
-        self.DATABASE_FILE = config_data.get("db", "data.db")
-        self.SQLALCHEMY_DATABASE_URI = f"sqlite:///{self.DATABASE_FILE}"
+        # debug setting also used for flask
+        app.config["DEBUG"] = config_data.get("debug", app.config["DEBUG"])
 
         if (product := config_data.get("product")) is None:
             log_error_exit("product section missing in config file.")
@@ -154,7 +144,7 @@ def init_config():
     app.config["minipos"] = MiniPOSConfig(app.config["CONFIG_FILE"])
 
     # adapt log setting
-    if app.config["minipos"].DEBUG:
+    if app.config["DEBUG"]:
         app.logger.setLevel(logging.DEBUG)
     else:
         app.logger.setLevel(logging.INFO)
