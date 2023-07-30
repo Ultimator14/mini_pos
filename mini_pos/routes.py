@@ -5,7 +5,7 @@ from random import randint
 from flask import current_app as app
 from flask import jsonify, redirect, render_template, request, url_for
 
-from . import Config, db
+from . import db
 from .models import Order, Product
 
 
@@ -24,7 +24,7 @@ def handle_product_completed_event(product_id: int, order_id: int) -> None:
 
     product.complete()
 
-    if Config.UI.auto_close and len(Product.get_open_products_by_order_id(order.id)) == 0:
+    if app.config["minipos"].ui.auto_close and len(Product.get_open_products_by_order_id(order.id)) == 0:
         app.logger.info("Last Product completed. Attempting auto_close")
         order.complete()
 
@@ -52,7 +52,7 @@ def bar():
         "bar.html",
         orders=Order.get_open_orders(),
         completed_orders=Order.get_last_completed_orders(),
-        show_completed=bool(Config.UI.show_completed),
+        show_completed=bool(app.config["minipos"].ui.show_completed),
     )
 
 
@@ -63,7 +63,7 @@ def fetch_bar():
         "bar_body.html",
         orders=Order.get_open_orders(),
         completed_orders=Order.get_last_completed_orders(),
-        show_completed=bool(Config.UI.show_completed),
+        show_completed=bool(app.config["minipos"].ui.show_completed),
     )
 
 
@@ -102,8 +102,8 @@ def service():
     app.logger.debug("GET /service")
     return render_template(
         "service.html",
-        tables_size=Config.Table.size,
-        tables_grid=Config.Table.grid,
+        tables_size=app.config["minipos"].table.size,
+        tables_grid=app.config["minipos"].table.grid,
         active_tables=Order.get_active_tables(),
     )
 
@@ -117,7 +117,7 @@ def fetch_service():
 @app.route("/service/<table>")
 def service_table(table):
     app.logger.debug("GET /service/<table>")
-    if table not in Config.Table.names:
+    if table not in app.config["minipos"].table.names:
         app.logger.error("GET in /service/<table> but invalid table. Skipping...")
         return "Error! Invalid table"
 
@@ -128,11 +128,15 @@ def service_table(table):
         "service_table.html",
         table=table,
         open_product_lists=Product.get_open_product_lists_by_table(table),
-        available_products=[(p, pval[0], pval[1], pval[2]) for p, pval in Config.Product.available.items()],
-        category_map=Config.Product.category_map,
-        split_categories=Config.UI.split_categories,
-        show_category_names=Config.UI.show_category_names,
-        split_categories_init=Config.Product.available[1][2] if len(Config.Product.available) > 0 else 0,
+        available_products=[
+            (p, pval[0], pval[1], pval[2]) for p, pval in app.config["minipos"].product.available.items()
+        ],
+        category_map=app.config["minipos"].product.category_map,
+        split_categories=app.config["minipos"].ui.split_categories,
+        show_category_names=app.config["minipos"].ui.show_category_names,
+        split_categories_init=app.config["minipos"].product.available[1][2]
+        if len(app.config["minipos"].product.available) > 0
+        else 0,
         nonce=nonce,
     )
 
@@ -140,7 +144,7 @@ def service_table(table):
 @app.route("/service/<table>", methods=["POST"])
 def service_table_submit(table):
     app.logger.debug("POST /service/<table>")
-    if table not in Config.Table.names:
+    if table not in app.config["minipos"].table.names:
         app.logger.error("POST in /service/<table> but invalid table. Skipping...")
         return "Error! Invalid table"
 
@@ -161,7 +165,7 @@ def service_table_submit(table):
     db.session.flush()  # enforce creation of id, required to assign order_id to product
     product_added = False
 
-    for available_product in range(1, len(Config.Product.available) + 1):
+    for available_product in range(1, len(app.config["minipos"].product.available) + 1):
         if f"amount-{available_product}" not in request.form:
             app.logger.warning(f"POST in /service/<table> but missing amount-{available_product} event. Skipping...")
             continue
@@ -179,7 +183,7 @@ def service_table_submit(table):
             comment = request.form[f"comment-{available_product}"]
 
         if amount > 0:
-            name, price, _ = Config.Product.available[available_product]
+            name, price, _ = app.config["minipos"].product.available[available_product]
             product = Product.create(new_order.id, name, price, amount, comment)
             db.session.add(product)
             db.session.flush()  # enforce creation of id, required for log

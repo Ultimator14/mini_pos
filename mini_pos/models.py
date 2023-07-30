@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 from flask import current_app as app
 
-from . import Config, db
+from . import db
 
 
 class Order(db.Model):
@@ -41,9 +41,9 @@ class Order(db.Model):
     @property
     def active_since_timeout_class(self) -> str:
         timediff = datetime.now() - self.date
-        if timediff > timedelta(seconds=Config.UI.timeout_crit):
+        if timediff > timedelta(seconds=app.config["minipos"].ui.timeout_crit):
             return "timeout_crit"
-        if timediff > timedelta(seconds=Config.UI.timeout_warn):
+        if timediff > timedelta(seconds=app.config["minipos"].ui.timeout_warn):
             return "timeout_warn"
         return "timeout_ok"
 
@@ -95,7 +95,7 @@ class Order(db.Model):
                 db.select(Order)
                 .filter(Order.completed_at != None)  # this must be != and not 'is not'
                 .order_by(Order.completed_at.desc())
-                .limit(Config.UI.show_completed)
+                .limit(app.config["minipos"].ui.show_completed)
             ).scalars()
         )
 
