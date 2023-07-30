@@ -119,7 +119,7 @@ Categories 0-14 have a distinct color scheme
 - Products in category 8-14 have a white background per default and become light colored upon selection. The category separators are colored heavily
 - All other products have a white background per default and are colored green upon selection. The category separators are not colored
 
-Colors can be added or edited directly in [service_table.css](static/css/service_table.css)
+Colors can be added or edited directly in [service_table.css](mini_pos/static/css/service_table.css)
 
 ### Tables
 
