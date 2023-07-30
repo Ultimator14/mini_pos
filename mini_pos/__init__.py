@@ -26,6 +26,7 @@ def create_app() -> Flask:
         init_config()
 
         # initialize db after configuration
+        from . import models
         db.init_app(app)
 
         if not os.path.isfile(f"instance/{app.config['DATABASE_FILE']}"):
