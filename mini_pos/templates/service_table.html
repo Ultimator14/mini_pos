@@ -8,7 +8,7 @@
 </head>
 <body onload="updateValues()">
 <div>
-    <form class="inline" action="{{ url_for ('service') }}" method="get">
+    <form class="inline" action="{{ url_for ('service.service') }}" method="get">
         <button class="back-button" type="submit">&#x2715;</button>
     </form>
     <h2 class="inline">Service {{table}}</h2>
@@ -22,7 +22,7 @@
     </ul>
 
     <hr style="background-color: cornflowerblue;">
-    <form action="{{ url_for ('service_table', table=table) }}" method="post">
+    <form action="{{ url_for ('service.service_table', table=table) }}" method="post">
         <input type="hidden" id="nonce" name="nonce" value="{{nonce}}">
         <table>
             <colgroup>

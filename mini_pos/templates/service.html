@@ -30,7 +30,7 @@
             {%- set main, xlen, ylen, name = tables_grid[y][x] -%}
             {%- if main %}
                 <td colspan="{{ xlen }}" rowspan="{{ ylen }}" style="width: {{ td_width * xlen }}vw; height: {{ td_height * ylen }}vh;">
-                    <form action="{{ url_for ('service_table', table=name) }}" method="get">
+                    <form action="{{ url_for ('service.service_table', table=name) }}" method="get">
                         <button id="{{name}}" type="submit" class="{{ 'active-order' if name in active_tables else 'no-order'}}">{{name}}</button>
                     </form>
                 </td>

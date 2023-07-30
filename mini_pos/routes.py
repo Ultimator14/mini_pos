@@ -3,10 +3,16 @@
 from random import randint
 
 from flask import current_app as app
-from flask import jsonify, redirect, render_template, request, url_for
+from flask import Blueprint, jsonify, redirect, render_template, request, url_for
 
 from . import db
 from .models import Order, Product
+
+
+home_bp = Blueprint("home", __name__, template_folder="templates")
+bar_bp = Blueprint("bar", __name__, template_folder="templates")
+service_bp = Blueprint("service", __name__, template_folder="templates")
+fetch_bp = Blueprint("fetch", __name__, template_folder="templates")
 
 
 def handle_product_completed_event(product_id: int, order_id: int) -> None:
@@ -39,13 +45,13 @@ def handle_order_completed_event(order_id: int) -> None:
     order.complete()
 
 
-@app.route("/")
+@home_bp.route("/")
 def home():
     app.logger.debug("GET /")
     return render_template("index.html")
 
 
-@app.route("/bar", strict_slashes=False)
+@bar_bp.route("/bar", strict_slashes=False)
 def bar():
     app.logger.debug("GET /bar")
     return render_template(
@@ -56,7 +62,7 @@ def bar():
     )
 
 
-@app.route("/fetch/bar", strict_slashes=False)
+@fetch_bp.route("/fetch/bar", strict_slashes=False)
 def fetch_bar():
     app.logger.debug("GET /fetch/bar")
     return render_template(
@@ -67,7 +73,7 @@ def fetch_bar():
     )
 
 
-@app.route("/bar", methods=["POST"])
+@bar_bp.route("/bar", methods=["POST"])
 def bar_submit():
     app.logger.debug("POST /bar")
     if "order-completed" in request.form and "product-completed" in request.form:
@@ -94,10 +100,10 @@ def bar_submit():
     else:
         app.logger.error("POST in /bar but neither order nor product specified")
 
-    return redirect(url_for("bar"))
+    return redirect(url_for("bar.bar"))
 
 
-@app.route("/service", strict_slashes=False)
+@service_bp.route("/service", strict_slashes=False)
 def service():
     app.logger.debug("GET /service")
     return render_template(
@@ -108,13 +114,13 @@ def service():
     )
 
 
-@app.route("/fetch/service", strict_slashes=False)
+@fetch_bp.route("/fetch/service", strict_slashes=False)
 def fetch_service():
     app.logger.debug("GET /fetch/service")
     return jsonify(Order.get_active_tables())
 
 
-@app.route("/service/<table>")
+@service_bp.route("/service/<table>")
 def service_table(table):
     app.logger.debug("GET /service/<table>")
     if table not in app.config["minipos"].table.names:
@@ -141,7 +147,7 @@ def service_table(table):
     )
 
 
-@app.route("/service/<table>", methods=["POST"])
+@service_bp.route("/service/<table>", methods=["POST"])
 def service_table_submit(table):
     app.logger.debug("POST /service/<table>")
     if table not in app.config["minipos"].table.names:
@@ -158,7 +164,7 @@ def service_table_submit(table):
 
     if int(nonce) in Order.get_open_order_nonces():
         app.logger.warning(f"Catched duplicate order by nonce {nonce}")
-        return redirect(url_for("service"))
+        return redirect(url_for("service.service"))
 
     new_order = Order.create(table, nonce)
     db.session.add(new_order)
@@ -196,4 +202,4 @@ def service_table_submit(table):
         db.session.commit()
         app.logger.info(f"Added order {new_order.id!s}")
 
-    return redirect(url_for("service"))
+    return redirect(url_for("service.service"))

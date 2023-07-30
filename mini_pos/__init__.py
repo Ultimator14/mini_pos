@@ -23,10 +23,12 @@ def create_app() -> Flask:
         # configure app
         app.config.from_object("mini_pos.settings.Config")
         from .config import init_config
+
         init_config()
 
         # initialize db after configuration
         from . import models
+
         db.init_app(app)
 
         if not os.path.isfile(f"instance/{app.config['DATABASE_FILE']}"):
@@ -34,6 +36,10 @@ def create_app() -> Flask:
             db.create_all()
 
         # Add routes
-        from . import routes
+        from .routes import bar_bp, fetch_bp, home_bp, service_bp
+        app.register_blueprint(home_bp)
+        app.register_blueprint(bar_bp)
+        app.register_blueprint(service_bp)
+        app.register_blueprint(fetch_bp)
 
     return app
