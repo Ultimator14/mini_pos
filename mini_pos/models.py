@@ -93,7 +93,7 @@ class Order(db.Model):
         return list(
             db.session.execute(
                 db.select(Order)
-                .filter(Order.completed_at != None)  # this must be != and not 'is not'
+                .filter(Order.completed_at.isnot(None))
                 .order_by(Order.completed_at.desc())
                 .limit(app.config["minipos"].ui.show_completed)
             ).scalars()

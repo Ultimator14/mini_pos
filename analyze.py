@@ -9,7 +9,7 @@ with app.app_context():
     def get_completed_orders() -> list[Order]:
         return list(db.session.execute(
             db.select(Order)
-            .filter(Order.completed_at != None)  # this must be != and not 'is not'
+            .filter(Order.completed_at.isnot(None))
         ).scalars())
 
     orders = Order.get_open_orders()
