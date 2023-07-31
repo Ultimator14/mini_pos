@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import sys
+from typing import Any
 
 from flask import current_app as app
 
@@ -18,11 +19,11 @@ def log_error_exit(msg):
 
 
 class ProductConfig:
-    def __init__(self):
+    def __init__(self) -> None:
         self.available: AvailableProductsT = {}
         self.category_map: dict[int, str] = {}
 
-    def set_options(self, product):
+    def set_options(self, product: dict[str,Any]) -> None:
         if (available_config := product.get("available")) is None:
             log_error_exit("prouct->available missing in config file")
         elif len(available_config) == 0:
@@ -38,12 +39,12 @@ class ProductConfig:
 
 
 class TableConfig:
-    def __init__(self):
+    def __init__(self) -> None:
         self.size: tuple[int, int]
         self.grid: TablesGridT = []
         self.names: list[str]
 
-    def populate_grid(self, names) -> None:
+    def populate_grid(self, names: list[tuple[int,int,int,int,str]]) -> None:
         grid: TablesGridT = [[None for x in range(self.size[0])] for y in range(self.size[1])]
 
         # parse tables
@@ -63,7 +64,7 @@ class TableConfig:
 
         self.grid = grid
 
-    def set_options(self, table) -> None:
+    def set_options(self, table: dict[str,Any]) -> None:
         if (size_config := table.get("size")) is None:
             log_error_exit("table->size missing in config file")
         elif len(size_config) != 2:
@@ -92,7 +93,7 @@ class UIConfig:
         self.split_categories: bool = False
         self.show_category_names: bool = False
 
-    def set_options(self, ui) -> None:
+    def set_options(self, ui: dict[str, Any]) -> None:
         self.auto_close = ui.get("auto_close", self.auto_close)
         self.show_completed = ui.get("show_completed", self.show_completed)  # zero = don't show
         self.timeout_warn, self.timeout_crit = ui.get("timeout", (self.timeout_warn, self.timeout_crit))
@@ -108,7 +109,7 @@ class MiniPOSConfig:
 
         self.load_config(config_file)
 
-    def load_config(self, config_file) -> None:
+    def load_config(self, config_file: str) -> None:
         if not os.path.isfile(config_file):
             log_error_exit("No config file found. Abort execution")
 
@@ -121,7 +122,7 @@ class MiniPOSConfig:
             except json.decoder.JSONDecodeError as e:
                 log_error_exit(f"Broken configuration file: {repr(e)!s}")
 
-    def set_options(self, config_data) -> None:
+    def set_options(self, config_data: dict) -> None:
         # debug setting also used for flask
         app.config["DEBUG"] = config_data.get("debug", app.config["DEBUG"])
 
