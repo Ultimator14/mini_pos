@@ -8,7 +8,7 @@ from mini_pos.models import Order, Product, db
 service_bp = Blueprint("service", __name__, template_folder="templates")
 
 
-@service_bp.route("/service", strict_slashes=False)
+@service_bp.route("/", strict_slashes=False)
 def service():
     app.logger.debug("GET /service")
     return render_template(
@@ -19,7 +19,7 @@ def service():
     )
 
 
-@service_bp.route("/service/<table>")
+@service_bp.route("/<table>")
 def service_table(table):
     app.logger.debug("GET /service/<table>")
     if table not in app.config["minipos"].table.names:
@@ -46,7 +46,7 @@ def service_table(table):
     )
 
 
-@service_bp.route("/service/<table>", methods=["POST"])
+@service_bp.route("/<table>", methods=["POST"])
 def service_table_submit(table):
     app.logger.debug("POST /service/<table>")
     if table not in app.config["minipos"].table.names:

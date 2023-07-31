@@ -6,7 +6,7 @@ from mini_pos.models import Order
 fetch_bp = Blueprint("fetch", __name__, template_folder="templates")
 
 
-@fetch_bp.route("/fetch/bar", strict_slashes=False)
+@fetch_bp.route("/bar", strict_slashes=False)
 def fetch_bar():
     app.logger.debug("GET /fetch/bar")
     return render_template(
@@ -17,7 +17,7 @@ def fetch_bar():
     )
 
 
-@fetch_bp.route("/fetch/service", strict_slashes=False)
+@fetch_bp.route("/service", strict_slashes=False)
 def fetch_service():
     app.logger.debug("GET /fetch/service")
     return jsonify(Order.get_active_tables())

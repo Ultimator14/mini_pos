@@ -6,7 +6,7 @@ from mini_pos.models import Order, Product
 bar_bp = Blueprint("bar", __name__, template_folder="templates")
 
 
-@bar_bp.route("/bar", strict_slashes=False)
+@bar_bp.route("/", strict_slashes=False)
 def bar():
     app.logger.debug("GET /bar")
     return render_template(
@@ -17,7 +17,7 @@ def bar():
     )
 
 
-@bar_bp.route("/bar", methods=["POST"])
+@bar_bp.route("/", methods=["POST"])
 def bar_submit():
     app.logger.debug("POST /bar")
     if "order-completed" in request.form and "product-completed" in request.form:
