@@ -28,8 +28,10 @@ class ProductConfig:
             log_error_exit("prouct->available missing in config file")
         elif len(available_config) == 0:
             log_error_exit("config option product->available must be of length >0")
+        elif not all(tuple(type(x) for x in y) == (str, float, int) for y in available_config):
+            log_error_exit("config option product->available must be of type list(str, float, int)")
         else:
-            self.available = dict(enumerate([tuple(product) for product in available_config], start=1))
+            self.available = dict(enumerate([tuple(product) for product in available_config], start=1))  # type: ignore
         if (categories_config := product.get("categories")) is None:
             log_error_exit("prouct->categories missing in config file")
         elif len(categories_config) == 0:
@@ -69,8 +71,9 @@ class TableConfig:
             log_error_exit("table->size missing in config file")
         elif len(size_config) != 2:
             log_error_exit("config option table->size must be exactly of length 2")
+        elif tuple(type(x) for x in size_config) != (int, int):
+            log_error_exit("config option table->size must be of type (int, int)")
         else:
-            # size_config has len 2 at this
             self.size = tuple(size_config)  # type: ignore
 
         if (names_config := table.get("names")) is None:
