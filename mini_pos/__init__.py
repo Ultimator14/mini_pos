@@ -8,7 +8,7 @@ from flask import Flask
 from .config import init_config
 from .log import init_logging
 from .models import db
-from .routes import bar_bp, fetch_bp, home_bp, service_bp
+from .routes import register_blueprints
 
 
 def create_app() -> Flask:
@@ -33,9 +33,6 @@ def create_app() -> Flask:
             db.create_all()
 
         # Add routes
-        app.register_blueprint(home_bp)
-        app.register_blueprint(bar_bp, url_prefix="/bar")
-        app.register_blueprint(service_bp, url_prefix="/service")
-        app.register_blueprint(fetch_bp, url_prefix="/fetch")
+        register_blueprints(app)
 
     return app
