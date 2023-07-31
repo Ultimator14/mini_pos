@@ -36,7 +36,11 @@ def create_app() -> Flask:
             db.create_all()
 
         # Add routes
-        from .routes import bar_bp, fetch_bp, home_bp, service_bp
+        from .routes.bar import bar_bp
+        from .routes.fetch import fetch_bp
+        from .routes.home import home_bp
+        from .routes.service import service_bp
+
         app.register_blueprint(home_bp)
         app.register_blueprint(bar_bp)
         app.register_blueprint(service_bp)
