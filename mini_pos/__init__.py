@@ -8,10 +8,7 @@ from flask import Flask
 from .config import init_config
 from .log import init_logging
 from .models import db
-from .routes.bar import bar_bp
-from .routes.fetch import fetch_bp
-from .routes.home import home_bp
-from .routes.service import service_bp
+from .routes import bar_bp, fetch_bp, home_bp, service_bp
 
 
 def create_app() -> Flask:
