@@ -70,11 +70,9 @@ class Order(db.Model):
     def get_open_orders() -> list[Order]:
         return list(db.session.execute(db.select(Order).filter_by(completed_at=None)).scalars())
 
-
     @staticmethod
     def get_order_by_id(order_id: int) -> Order | None:
         return db.session.execute(db.select(Order).filter_by(id=order_id)).scalar_one_or_none()
-
 
     @staticmethod
     def get_open_orders_by_table(table: str) -> list[Order]:
@@ -121,16 +119,13 @@ class Product(db.Model):
             db.session.commit()
             app.logger.info("Completed product %s", self.id)
 
-
     @staticmethod
     def get_product_by_id(product_id: int) -> Product | None:
         return db.session.execute(db.select(Product).filter_by(id=product_id)).scalar_one_or_none()
 
-
     @staticmethod
     def get_open_products_by_order_id(order_id: int) -> list[Product]:
         return list(db.session.execute(db.select(Product).filter_by(completed=False, order_id=order_id)).scalars())
-
 
     @staticmethod
     def get_open_product_lists_by_table(table: str) -> list[list[str]]:

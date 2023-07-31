@@ -1,5 +1,6 @@
 #!/usr/bin/python3.11
 
+
 class Config:
     TESTING = False
     DEBUG = False
