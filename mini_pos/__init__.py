@@ -4,12 +4,10 @@ import logging
 import os.path
 
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 
 from .config import init_config
 from .log import init_logging
-
-db = SQLAlchemy()
+from .models import db
 
 
 def create_app() -> Flask:
@@ -27,8 +25,6 @@ def create_app() -> Flask:
         init_config()
 
         # initialize db after configuration
-        from . import models
-
         db.init_app(app)
 
         if not os.path.isfile(f"instance/{app.config['DATABASE_FILE']}"):

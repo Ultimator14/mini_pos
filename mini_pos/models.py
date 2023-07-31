@@ -5,8 +5,9 @@ from __future__ import annotations  # required for type hinting of classes in it
 from datetime import datetime, timedelta
 
 from flask import current_app as app
+from flask_sqlalchemy import SQLAlchemy
 
-from . import db
+db = SQLAlchemy()
 
 
 class Order(db.Model):

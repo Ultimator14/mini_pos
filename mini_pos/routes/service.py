@@ -3,8 +3,7 @@ from random import randint
 from flask import Blueprint, redirect, render_template, request, url_for
 from flask import current_app as app
 
-from mini_pos import db
-from mini_pos.models import Order, Product
+from mini_pos.models import Order, Product, db
 
 service_bp = Blueprint("service", __name__, template_folder="templates")
 
