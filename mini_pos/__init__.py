@@ -1,13 +1,12 @@
 #!/usr/bin/python3.11
 
 import logging
-import os.path
 
 from flask import Flask
 
 from .config import init_config
 from .log import init_logging
-from .models import db
+from .models import init_db
 from .routes import register_blueprints
 
 
@@ -23,14 +22,10 @@ def create_app() -> Flask:
         # configure app
         app.config.from_object("mini_pos.settings.Config")
 
-        init_config()
+        init_config(app)
 
         # initialize db after configuration
-        db.init_app(app)
-
-        if not os.path.isfile(f"instance/{app.config['DATABASE_FILE']}"):
-            app.logger.info("No database file found. Creating database.")
-            db.create_all()
+        init_db(app)
 
         # Add routes
         register_blueprints(app)

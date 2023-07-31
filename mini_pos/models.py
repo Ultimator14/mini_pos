@@ -2,6 +2,7 @@
 
 from __future__ import annotations  # required for type hinting of classes in itself
 
+import os.path
 from datetime import datetime, timedelta
 
 from flask import current_app as app
@@ -137,3 +138,11 @@ class Product(db.Model):
             ]
             for o in Order.get_open_orders_by_table(table)
         ]
+
+
+def init_db(app):
+    db.init_app(app)
+
+    if not os.path.isfile(f"instance/{app.config['DATABASE_FILE']}"):
+        app.logger.info("No database file found. Creating database.")
+        db.create_all()

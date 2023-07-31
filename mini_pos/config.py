@@ -141,7 +141,7 @@ class MiniPOSConfig:
             self.ui.set_options(ui)
 
 
-def init_config():
+def init_config(app):
     app.config["minipos"] = MiniPOSConfig(app.config["CONFIG_FILE"])
 
     # adapt log setting
