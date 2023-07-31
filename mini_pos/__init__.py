@@ -6,6 +6,7 @@ import os.path
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
+from .config import init_config
 from .log import init_logging
 
 db = SQLAlchemy()
@@ -22,7 +23,6 @@ def create_app() -> Flask:
     with app.app_context():
         # configure app
         app.config.from_object("mini_pos.settings.Config")
-        from .config import init_config
 
         init_config()
 
