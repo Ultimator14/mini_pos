@@ -56,7 +56,7 @@ class TableConfig:
             for i in range(y, y + ylen):
                 for j in range(x, x + xlen):
                     if grid[i][j] is not None:
-                        app.logger.warning(f"Duplicate table position {i!s}/{j!s}. Check your config")
+                        app.logger.warning("Duplicate table position %s/%s. Check your config", i, j)
                     grid[i][j] = (False, None, None, None)
 
             grid[y][x] = (True, xlen, ylen, name)

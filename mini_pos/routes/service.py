@@ -63,7 +63,7 @@ def service_table_submit(table):
         return "Error! Nonce is not int"
 
     if int(nonce) in Order.get_open_order_nonces():
-        app.logger.warning(f"Catched duplicate order by nonce {nonce}")
+        app.logger.warning("Catched duplicate order by nonce %s", nonce)
         return redirect(url_for("service.service"))
 
     new_order = Order.create(table, nonce)
@@ -73,7 +73,7 @@ def service_table_submit(table):
 
     for available_product in range(1, len(app.config["minipos"].product.available) + 1):
         if f"amount-{available_product}" not in request.form:
-            app.logger.warning(f"POST in /service/<table> but missing amount-{available_product} event. Skipping...")
+            app.logger.warning("POST in /service/<table> but missing amount-%s event. Skipping...", available_product)
             continue
 
         if not (amount_param := request.form[f"amount-{available_product}"]).isdigit():
@@ -83,7 +83,7 @@ def service_table_submit(table):
         amount = int(amount_param)
 
         if f"comment-{available_product}" not in request.form:
-            app.logger.warning(f"POST in /service/<table> but missing comment-{available_product} event")
+            app.logger.warning("POST in /service/<table> but missing comment-%s event", available_product)
             comment = ""
         else:
             comment = request.form[f"comment-{available_product}"]
@@ -94,12 +94,12 @@ def service_table_submit(table):
             db.session.add(product)
             db.session.flush()  # enforce creation of id, required for log
             product_added = True
-            app.logger.info(f"Queued product {product.id!s} for order {new_order.id!s}")
+            app.logger.info("Queued product %s for order %s", product.id, new_order.id)
 
     if not product_added:
         app.logger.warning("POST in /service/<table> but order does not contain any product. Skipping...")
     else:
         db.session.commit()
-        app.logger.info(f"Added order {new_order.id!s}")
+        app.logger.info("Added order %s", new_order.id)
 
     return redirect(url_for("service.service"))

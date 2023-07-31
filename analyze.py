@@ -18,8 +18,8 @@ with app.app_context():
     app.logger.info("----------------------------------------")
     app.logger.info("Starting analysis")
     app.logger.info("----------------------------------------")
-    app.logger.info(f"Active orders: {str(len(orders))}")
-    app.logger.info(f"Completed orders: {str(len(completed_orders))}")
+    app.logger.info("Active orders: %s", str(len(orders)))
+    app.logger.info("Completed orders: %s", str(len(completed_orders)))
     app.logger.info("----------------------------------------")
 
 
@@ -35,5 +35,5 @@ with app.app_context():
     app.logger.info("Sold units")
     app.logger.info("----------")
     for product in sorted(products, key=products.get, reverse=True):
-        app.logger.info(f"{product}: {str(products[product])}")
+        app.logger.info("%s: %s", product, str(products[product]))
     app.logger.info("----------------------------------------")

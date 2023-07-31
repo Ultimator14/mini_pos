@@ -50,7 +50,7 @@ class Order(db.Model):
     @property
     def completed_timestamp(self) -> str:
         if self.completed_at is None:
-            app.logger.warn(f"completed_at for order {self.id!s} called but order is not completed")
+            app.logger.warning("completed_at for order %s called but order is not completed", self.id)
             return " "
 
         return self.completed_at.strftime("%Y-%m-%d %H:%M:%S")
@@ -64,7 +64,7 @@ class Order(db.Model):
 
         db.session.commit()
 
-        app.logger.info(f"Completed order {self.id!s}")
+        app.logger.info("Completed order %s", self.id)
 
     @staticmethod
     def get_open_orders() -> list[Order]:
@@ -119,7 +119,7 @@ class Product(db.Model):
         if not self.completed:
             self.completed = True
             db.session.commit()
-            app.logger.info(f"Completed product {self.id!s}")
+            app.logger.info("Completed product %s", self.id)
 
 
     @staticmethod
