@@ -1,7 +1,7 @@
 #!/usr/bin/python3.10
 
 from mini_pos import create_app, db
-from mini_pos.models import Order, Product
+from mini_pos.models import Order
 
 app = create_app()
 
