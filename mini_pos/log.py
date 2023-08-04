@@ -28,10 +28,32 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
 
 
+class LogCount(logging.Handler):
+    """Counts critical logs. Counter is reset on access."""
+    def __init__(self):
+        super().__init__()
+        self._count = 0
+
+    @property
+    def count(self):
+        count = self._count
+        self._count = 0
+        return count
+
+    def emit(self, record):
+        self._count += 1
+
+
 def init_logging(app) -> None:
     handler = logging.StreamHandler()
     handler.setFormatter(CustomFormatter())
     handler.setLevel(logging.DEBUG)
+    handler.name = "StreamHandler"
 
-    app.logger.addHandler(handler)
+    counter = LogCount()
+    counter.setLevel(logging.CRITICAL)
+    counter.name = "CritLogCountHandler"
+
     app.logger.removeHandler(default_handler)
+    app.logger.addHandler(handler)
+    app.logger.addHandler(counter)
