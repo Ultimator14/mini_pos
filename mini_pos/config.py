@@ -103,14 +103,12 @@ class UIConfig:
 
 
 class MiniPOSConfig:
-    def __init__(self, config_file: str) -> None:
+    def __init__(self) -> None:
         self.product: ProductConfig = ProductConfig()
         self.ui: UIConfig = UIConfig()
         self.table: TableConfig = TableConfig()
 
-        self.load_config(config_file)
-
-    def load_config(self, config_file: str) -> None:
+    def load_file(self, config_file: str) -> None:
         if not os.path.isfile(config_file):
             app.logger.critical("No config file found. Abort execution")
 
@@ -150,7 +148,9 @@ def init_config(app):
 
     _ = crit_log_count_handler.count  # reset counter
 
-    app.config["minipos"] = MiniPOSConfig(app.config["CONFIG_FILE"])
+    mp = MiniPOSConfig()
+    mp.load_file(app.config["CONFIG_FILE"])
+    app.config["minipos"] = mp
 
     if crit_log_count_handler.count != 0:
         sys.exit(1)
