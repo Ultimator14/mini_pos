@@ -126,28 +126,23 @@ def check_config(data: Any, typing_dict: dict, mandatory_dict: dict | None, path
 
 
 class ProductConfig:
-    procuct_type: type = list[list[tuple[str, str]]]
-
-    def __init__(self) -> None:
-        self.available: AvailableProductsT = {}
-        self.category_map: dict[int, str] = {}
-
-    def set_options(self, product: dict[str, Any]) -> None:
-        self.available = dict(enumerate([tuple(product) for product in product["available"]], start=1))  # type: ignore
-
-        if (categories_config := product.get("categories")) is None:
-            app.logger.critical("prouct->categories missing in config file")
-        elif len(categories_config) == 0:
-            app.logger.critical("config option product->categories must be of length >0")
-        else:
-            self.category_map = dict(categories_config)
+    def __init__(self, product: dict[str, Any]) -> None:
+        self.available: AvailableProductsT = dict(enumerate([tuple(product) for product in product["available"]], start=1))  # type: ignore
+        self.category_map: dict[int, str] = dict(product["categories"])
 
 
 class TableConfig:
-    def __init__(self) -> None:
-        self.size: tuple[int, int]
+    def __init__(self, table: dict[str, Any]) -> None:
+        self.size: tuple[int, int] = tuple(table["size"])  # type: ignore
+
+        names_config = table["names"]
+        self.names: list[str] = [name for _, _, _, _, name in names_config]
+
+        if len(set(self.names)) != len(self.names):
+            app.logger.critical("Duplicate table name found. Tables names must be unique")
+
         self.grid: TablesGridT = []
-        self.names: list[str]
+        self.populate_grid(names_config)
 
     def populate_grid(self, names: list[tuple[int, int, int, int, str]]) -> None:
         grid: TablesGridT = [[None for x in range(self.size[0])] for y in range(self.size[1])]
@@ -169,46 +164,24 @@ class TableConfig:
 
         self.grid = grid
 
-    def set_options(self, table: dict[str, Any]) -> None:
-        self.size = tuple(table["size"])  # type: ignore
-
-        names_config = table["names"]
-        self.names = [name for _, _, _, _, name in names_config]
-        if len(set(self.names)) != len(self.names):
-            app.logger.critical("Duplicate table name found. Tables names must be unique")
-        self.populate_grid(names_config)
-
 
 class UIConfig:
-    def __init__(self) -> None:
-        self.auto_close: bool = True
-        self.show_completed: int = 5
-        self.timeout_warn: int = 120
-        self.timeout_crit: int = 600
-        self.split_categories: bool = False
-        self.show_category_names: bool = False
-
-    def set_options(self, ui: dict[str, Any]) -> None:
-        self.auto_close = ui.get("auto_close", self.auto_close)
-        self.show_completed = ui.get("show_completed", self.show_completed)  # zero = don't show
-        self.timeout_warn, self.timeout_crit = ui.get("timeout", (self.timeout_warn, self.timeout_crit))
-        self.split_categories = ui.get("split_categories", self.split_categories)
-        self.show_category_names = ui.get("show_category_names", self.show_category_names)
+    def __init__(self, ui: dict[str, Any]) -> None:
+        self.auto_close = ui.get("auto_close", True)
+        self.show_completed = ui.get("show_completed", 5)  # zero = don't show
+        self.timeout_warn, self.timeout_crit = ui.get("timeout", (120, 600))
+        self.split_categories = ui.get("split_categories", False)
+        self.show_category_names = ui.get("show_category_names", False)
 
 
 class MiniPOSConfig:
-    def __init__(self) -> None:
-        self.product: ProductConfig = ProductConfig()
-        self.table: TableConfig = TableConfig()
-        self.ui: UIConfig = UIConfig()
-
-    def set_options(self, config_data: dict) -> None:
+    def __init__(self, config_data: dict) -> None:
         # debug setting also used for flask
         app.config["DEBUG"] = config_data.get("debug", app.config["DEBUG"])  # optional
 
-        self.product.set_options(config_data["product"])  # required
-        self.table.set_options(config_data["table"])  # required
-        self.ui.set_options(config_data.get("ui", {}))  # optional
+        self.product: ProductConfig = ProductConfig(config_data["product"])
+        self.table: TableConfig = TableConfig(config_data["table"])
+        self.ui: UIConfig = UIConfig(config_data.get("ui", {}))
 
 
 def load_file(config_file: str) -> dict | None:
@@ -242,9 +215,7 @@ def init_config(app):
     # Initialize config object from json
     _ = crit_log_count_handler.count  # reset counter
 
-    mp = MiniPOSConfig()
-    mp.set_options(config_data)
-    app.config["minipos"] = mp
+    app.config["minipos"] = MiniPOSConfig(config_data)
 
     if crit_log_count_handler.count != 0:
         sys.exit(1)
