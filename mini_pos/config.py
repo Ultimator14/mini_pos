@@ -1,5 +1,3 @@
-#!/usr/bin/python3.11
-
 import json
 import logging
 import os

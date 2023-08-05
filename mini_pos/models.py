@@ -1,5 +1,3 @@
-#!/usr/bin/python3.11
-
 from __future__ import annotations  # required for type hinting of classes in itself
 
 import os.path

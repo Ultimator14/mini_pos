@@ -1,5 +1,3 @@
-#!/usr/bin/python3.11
-
 import logging
 
 from flask import Flask
