@@ -9,5 +9,5 @@ class TestConfig:
     TESTING = True
     DEBUG = True
     CONFIG_FILE = "config.json"
-    DATABASE_FILE = "test.db"  # todo in memory
-    SQLALCHEMY_DATABASE_URI = f"sqlite:///{DATABASE_FILE}"
+    DATABASE_FILE = "nonexistent.db"
+    SQLALCHEMY_DATABASE_URI = "sqlite://"
