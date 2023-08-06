@@ -8,7 +8,7 @@ from .models import init_db
 from .routes import register_blueprints
 
 
-def create_app() -> Flask:
+def create_app(config=None) -> Flask:
     app: Flask = Flask(__name__)
 
     # initialize logging first because other modules depend on it
@@ -18,7 +18,10 @@ def create_app() -> Flask:
 
     with app.app_context():
         # configure app
-        app.config.from_object("mini_pos.settings.Config")
+        if config is None:
+            config = "mini_pos.settings.Config"
+
+        app.config.from_object(config)
 
         init_config(app)
 
