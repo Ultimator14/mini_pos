@@ -204,7 +204,7 @@ def init_config(app):
 
     # Check if config conforms to correct structure
     if not check_config(config_data, TYPING_DICT, MANDATORY_DICT):
-        sys.exit(1)
+        sys.exit(2)
 
     # Get the crit log count handler to use
     crit_log_count_handler = next((x for x in app.logger.handlers if x.name == "CritLogCountHandler"), None)
@@ -216,7 +216,7 @@ def init_config(app):
     app.config["minipos"] = MiniPOSConfig(config_data)
 
     if crit_log_count_handler.count != 0:
-        sys.exit(1)
+        sys.exit(3)
 
     # adapt log setting
     if app.config["DEBUG"]:
