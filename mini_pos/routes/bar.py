@@ -17,7 +17,7 @@ def bar():
     )
 
 
-@bar_bp.route("/", methods=["POST"])
+@bar_bp.route("/", methods=["POST"], strict_slashes=False)
 def bar_submit():
     app.logger.debug("POST /bar")
     if "order-completed" in request.form and "product-completed" in request.form:

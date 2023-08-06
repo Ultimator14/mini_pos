@@ -19,7 +19,7 @@ def service():
     )
 
 
-@service_bp.route("/<table>")
+@service_bp.route("/<table>", strict_slashes=False)
 def service_table(table):
     app.logger.debug("GET /service/<table>")
     if table not in app.config["minipos"].table.names:
@@ -46,7 +46,7 @@ def service_table(table):
     )
 
 
-@service_bp.route("/<table>", methods=["POST"])
+@service_bp.route("/<table>", methods=["POST"], strict_slashes=False)
 def service_table_submit(table):
     app.logger.debug("POST /service/<table>")
     if table not in app.config["minipos"].table.names:
