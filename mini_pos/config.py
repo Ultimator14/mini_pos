@@ -151,6 +151,7 @@ class TableConfig:
                 app.logger.critical("Invalid config option. Table can't have length < 1")
             if x + xlen > self.size[0] or y + ylen > self.size[1]:
                 app.logger.critical("Table can't be placed outside the grid")
+                return  # tables outside the grid will cause a crash in the next block
 
             for i in range(y, y + ylen):
                 for j in range(x, x + xlen):
