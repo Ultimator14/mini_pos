@@ -4,6 +4,12 @@
 
 - Add pytest
 - Add testing config and basic tests
+- Use different exit codes
+
+### Bugfixes
+
+- Fix crash if table is placed outside the grid
+- Fix inconsistent redirect behavior
 
 # MiniPOS 0.1.5
 
