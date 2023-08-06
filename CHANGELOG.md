@@ -2,6 +2,8 @@
 
 ### Features
 
+- Add pytest
+- Add testing config and basic tests
 
 # MiniPOS 0.1.5
 
@@ -11,7 +13,6 @@
 
 ### Internals
 
-- Add type annotations
 - Shrink config classes
 - Update dependencies
 - Use logging handler to count critical logs
@@ -44,7 +45,7 @@
 
 - Use separate package
 - Use poetry for dependency management
-- Add linters and type checkers
+- Add ruff (linter), black (formatter), mypy (type checker)
 
 
 # MiniPOS 0.1.1
@@ -66,19 +67,10 @@
 
 - Use sqlite for data storage (breaking change, old data.pkl file is no longer supported)
 
-### Bugfixes
-
-- Fix descending ordering of completed orders
-- Fix duplciate orders filtering
-
 ### Removals
 
 - admin page
 - persistence config
-
-### Internals
-
-- Add type hints
 
 
 # MiniPOS v0.0.2
@@ -97,10 +89,6 @@
 - Improve popup window in service
 - Use sans-serif font
 - Use two lines for date in bar
-
-### Internals
-
-- Fix linter warnings
 
 
 # MiniPOS v0.0.1
