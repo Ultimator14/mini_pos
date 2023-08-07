@@ -28,6 +28,7 @@ class CustomFormatter(logging.Formatter):
 
 class LogCount(logging.Handler):
     """Counts critical logs. Counter is reset on access."""
+
     def __init__(self):
         super().__init__()
         self._count = 0
