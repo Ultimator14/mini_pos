@@ -26,7 +26,7 @@
                             <td>{{product.comment}}</td>
                             {%- if not product.completed %}
                             <td><form action="{{ url_for ('bar.bar_submit') }}" method="post">
-                                <button id="{{order.id}}" type="submit" name="product-completed" value="{{product.id}}">&#x2713;</button>
+                                <button id="product-{{product.id}}" type="submit" name="product-completed" value="{{product.id}}">&#x2713;</button>
                                 <input type="hidden" name="order" value="{{order.id}}"/>
                             </form></td>
                             {% else -%}
@@ -38,7 +38,7 @@
                 </td>
                 <td>
                     <form action="{{ url_for ('bar.bar_submit') }}" method="post">
-                        <button id="{{order.id}}" type="submit" name="order-completed" value="{{order.id}}">&#x2713;</button>
+                        <button id="order-{{order.id}}" type="submit" name="order-completed" value="{{order.id}}">&#x2713;</button>
                     </form>
                 </td>
             </tr>
