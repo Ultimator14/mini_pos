@@ -27,7 +27,6 @@
                             {%- if not product.completed %}
                             <td><form action="{{ url_for ('bar.bar_submit') }}" method="post">
                                 <button id="product-{{product.id}}" type="submit" name="product-completed" value="{{product.id}}">&#x2713;</button>
-                                <input type="hidden" name="order" value="{{order.id}}"/>
                             </form></td>
                             {% else -%}
                             <td><button class="no-click" type="button">&#x2713;</button></td>
