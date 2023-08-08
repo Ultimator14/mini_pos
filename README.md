@@ -127,6 +127,30 @@ Table positions can be customized. Tables must have a start position `x,y`, a ho
 Overlapping tables are not supported and will produce a warning.  
 Tables outside the grid are not supported and will produce an error.
 
+
+## Pitfalls
+
+It's not safe to alter configuration options and restarting the server without reloading the pages on the client side.  
+Make sure, that waiters reload the page after a config change and server restart happened.
+
+Example:
+
+Removing, adding or swapping products in the configuration could cause a wrong product to be ordered when the server is restarted.  
+Products are numbered by their position in the configuration file.
+When a table is opened in service, the product numbers are fetched from the server.
+When the server is restarted and the product numbers changed somehow, frontend and backend are not synced anymore.
+This could cause wrong products in the next order.
+
+Scenario:
+
+- Waiter opens `/service/A1`, products are `Prod1` (1), `Prod2` (2), `Prod3` (3)
+- Product `Prod1` is removed from server config
+- Server is restarted
+- Products in server are now `Prod2` (1), `Prod3` (2)
+- Waiter orders `Prod2` identified by number 2
+- Server receives number 2 and maps it to product `Prod3`
+
+
 ## Images
 
 ### Bar
