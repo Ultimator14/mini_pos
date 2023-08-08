@@ -11,6 +11,7 @@
 ### Internals
 
 - Don't submit order and product in bar
+- Don't lookup form values twice
 
 
 # MiniPOS 0.1.6

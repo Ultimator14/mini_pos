@@ -53,11 +53,13 @@ def service_table_submit(table):
         app.logger.error("POST in /service/<table> but invalid table. Skipping...")
         return "Error! Invalid table"
 
-    if "nonce" not in request.form:
+    nonce = request.form.get("nonce")
+
+    if nonce is None:
         app.logger.error("POST in /service/<table> but missing nonce. Skipping...")
         return "Error! Missing nonce"
 
-    if not (nonce := request.form["nonce"]).isdigit():
+    if not nonce.isdigit():
         app.logger.error("POST in /service/<table> but nonce not convertible to integer. Skipping...")
         return "Error! Nonce is not int"
 
@@ -71,21 +73,23 @@ def service_table_submit(table):
     product_added = False
 
     for available_product in range(1, len(app.config["minipos"].product.available) + 1):
-        if f"amount-{available_product}" not in request.form:
+        amount_param = request.form.get(f"amount-{available_product}")
+
+        if amount_param is None:
             app.logger.warning("POST in /service/<table> but missing amount-%s event. Skipping...", available_product)
             continue
 
-        if not (amount_param := request.form[f"amount-{available_product}"]).isdigit():
+        if not amount_param.isdigit():
             app.logger.warning("POST in /service/<table> with filetype not convertible to integer. Skipping...")
             continue
 
         amount = int(amount_param)
 
-        if f"comment-{available_product}" not in request.form:
+        comment = request.form.get(f"comment-{available_product}")
+
+        if comment is None:
             app.logger.warning("POST in /service/<table> but missing comment-%s event", available_product)
             comment = ""
-        else:
-            comment = request.form[f"comment-{available_product}"]
 
         if amount > 0:
             name, price, _ = app.config["minipos"].product.available[available_product]

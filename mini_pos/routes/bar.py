@@ -20,17 +20,21 @@ def bar():
 @bar_bp.route("/", methods=["POST"], strict_slashes=False)
 def bar_submit():
     app.logger.debug("POST /bar")
-    if "order-completed" in request.form and "product-completed" in request.form:
+
+    order_id = request.form.get("order-completed")
+    product_id = request.form.get("product-completed")
+
+    if order_id is not None and product_id is not None:
         app.logger.info("POST in /bar with order and product completion data. Using order...")
 
-    if "order-completed" in request.form:
-        if not (order_id := request.form["order-completed"]).isdigit():
+    if order_id is not None:
+        if not order_id.isdigit():
             app.logger.error("POST in /bar but filetype not convertible to integer")
         else:
             handle_order_completed_event(int(order_id))
 
-    elif "product-completed" in request.form:
-        if not (product_id := request.form["product-completed"]).isdigit():
+    elif product_id is not None:
+        if not product_id.isdigit():
             app.logger.error("POST in /bar but filetype not convertible to integer")
         else:
             handle_product_completed_event(int(product_id))
