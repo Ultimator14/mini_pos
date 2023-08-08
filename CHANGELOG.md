@@ -1,5 +1,9 @@
 # MiniPOS [WIP]
 
+### Features
+
+- Add Dockerfile
+
 ### Internals
 
 - Don't submit order and product in bar
