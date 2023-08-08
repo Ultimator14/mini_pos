@@ -1,3 +1,10 @@
+# MiniPOS [WIP]
+
+### Internals
+
+- Don't submit order and product in bar
+
+
 # MiniPOS 0.1.6
 
 ### Features
@@ -10,6 +17,7 @@
 
 - Fix crash if table is placed outside the grid
 - Fix inconsistent redirect behavior
+
 
 # MiniPOS 0.1.5
 
@@ -28,17 +36,17 @@
 
 ### Features
 
-- Use flask blueprints
 - Add pylint for static code analysis
 
 ### Internals
 
+- Use flask blueprints
 - Improve code structure in package
 
 
 # MiniPOS 0.1.3
 
-### Features
+### Internals
 
 - Split logic in package into separate files
 - Use application factory to create flask app
