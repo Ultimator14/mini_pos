@@ -175,9 +175,6 @@ class UIConfig:
 
 class MiniPOSConfig:
     def __init__(self, config_data: dict) -> None:
-        # debug setting also used for flask
-        app.config["DEBUG"] = config_data.get("debug", app.config["DEBUG"])  # optional
-
         self.product: ProductConfig = ProductConfig(config_data["product"])
         self.table: TableConfig = TableConfig(config_data["table"])
         self.ui: UIConfig = UIConfig(config_data.get("ui", {}))
@@ -206,6 +203,9 @@ def init_config(app):
     # Check if config conforms to correct structure
     if not check_config(config_data, TYPING_DICT, MANDATORY_DICT):
         sys.exit(2)
+
+    # debug setting also used for flask
+    app.config["DEBUG"] = config_data.get("debug", app.config["DEBUG"])
 
     # Get the crit log count handler to use
     crit_log_count_handler = next((x for x in app.logger.handlers if x.name == "CritLogCountHandler"), None)
