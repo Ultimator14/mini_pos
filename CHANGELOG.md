@@ -4,6 +4,10 @@
 
 - Add Dockerfile
 
+### Bugfixes
+
+- Fix poetry lockfile not being up to date with pyproject.toml
+
 ### Internals
 
 - Don't submit order and product in bar
