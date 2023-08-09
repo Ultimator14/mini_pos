@@ -1,4 +1,4 @@
-# MiniPOS [WIP]
+# MiniPOS 0.1.7
 
 ### Features
 
