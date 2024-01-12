@@ -11,12 +11,25 @@ def test_bar(client):
     assert b"<title>Bar</title>" in response.data
 
 
+def test_service_login(client):
+    response = client.get("/service/login")
+    assert b"<title>Service Login</title>" in response.data
+
+
+def test_service_login_redirect(client):
+    response = client.get("/service")
+    assert response.status_code == 302
+    assert b"/service/login" in response.data
+
+
 def test_service(client):
+    client.set_cookie("waiter", "")
     response = client.get("/service")
     assert b"<title>Service</title>" in response.data
 
 
 def test_service2(client):
+    client.set_cookie("waiter", "")
     response = client.get("/service/A1")
     assert b"<title>Service Table A1</title>" in response.data
 
