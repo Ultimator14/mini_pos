@@ -125,7 +125,9 @@ def check_config(data: Any, typing_dict: dict, mandatory_dict: dict | None, path
 
 class ProductConfig:
     def __init__(self, product: dict[str, Any]) -> None:
-        self.available: AvailableProductsT = dict(enumerate([tuple(product) for product in product["available"]], start=1))  # type: ignore
+        self.available: AvailableProductsT = dict(
+            enumerate([tuple(product) for product in product["available"]], start=1)
+        )  # type: ignore
         self.category_map: dict[int, str] = dict(product["categories"])
 
 
@@ -207,6 +209,11 @@ def init_config(app):
     # debug setting also used for flask
     app.config["DEBUG"] = config_data.get("debug", app.config["DEBUG"])
 
+    # Make sure that no table is named "login" as this breaks login functionality in service
+    if any(x[4] == "login" for x in config_data["table"]["names"]):
+        app.logger.critical("Table name 'login' is prohibited.")
+        sys.exit(3)
+
     # Get the crit log count handler to use
     crit_log_count_handler = next((x for x in app.logger.handlers if x.name == "CritLogCountHandler"), None)
     assert crit_log_count_handler is not None  # defined in log.py, should not be None
@@ -217,7 +224,7 @@ def init_config(app):
     app.config["minipos"] = MiniPOSConfig(config_data)
 
     if crit_log_count_handler.count != 0:
-        sys.exit(3)
+        sys.exit(4)
 
     # adapt log setting
     if app.config["DEBUG"]:

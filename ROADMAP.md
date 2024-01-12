@@ -4,13 +4,6 @@ This file provides an overview about the planned (future) changes.
 
 ## Release 1.0.0
 
-### Waiter login (breaking change for database)
-
-- Waiter should be able to save a name
-- The name should be displayed in the bar
-- Orders should be attached to a waiter
-- The name should be saved client side via webstorage or cookie
-
 ### Multiple bars (breaking change for config file)
 
 - Support arbitrary many bars (e.g. food, drinks, cocktails, ...)

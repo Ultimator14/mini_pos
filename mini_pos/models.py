@@ -14,13 +14,14 @@ class Order(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     nonce = db.Column(db.Integer)
+    waiter = db.Column(db.String)
     table = db.Column(db.String)
     date = db.Column(db.DateTime)
     completed_at = db.Column(db.DateTime)
 
     @classmethod
-    def create(cls, table: str, nonce: int) -> Order:
-        return cls(table=table, nonce=nonce, date=datetime.now(), completed_at=None)
+    def create(cls, waiter: str, table: str, nonce: int) -> Order:
+        return cls(waiter=waiter, table=table, nonce=nonce, date=datetime.now(), completed_at=None)
 
     @property
     def products(self) -> list[Product]:

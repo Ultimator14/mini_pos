@@ -1,6 +1,6 @@
 from random import randint
 
-from flask import Blueprint, redirect, render_template, request, url_for
+from flask import Blueprint, make_response, redirect, render_template, request, url_for
 from flask import current_app as app
 
 from mini_pos.models import Order, Product, db
@@ -11,12 +11,34 @@ service_bp = Blueprint("service", __name__, template_folder="templates")
 @service_bp.route("/", strict_slashes=False)
 def service():
     app.logger.debug("GET /service")
+
+    if "waiter" not in request.cookies:
+        return redirect(url_for("service.service_login"))
+
     return render_template(
         "service.html",
         tables_size=app.config["minipos"].table.size,
         tables_grid=app.config["minipos"].table.grid,
         active_tables=Order.get_active_tables(),
     )
+
+
+@service_bp.route("/login", strict_slashes=False)
+def service_login():
+    return render_template("service_login.html")
+
+
+@service_bp.route("/login", methods=["POST"], strict_slashes=False)
+def service_login_submit():
+    waiter = request.form.get("waiter")
+
+    if waiter is None:
+        app.logger.error("POST in /service/login but missing waiter name. Skipping...")
+        return "Error! Missing waiter name"
+
+    response = make_response(redirect(url_for("service.service")))
+    response.set_cookie("waiter", waiter, max_age=60 * 60 * 24 * 7)  # 1 week
+    return response
 
 
 @service_bp.route("/<table>", strict_slashes=False)
@@ -67,7 +89,8 @@ def service_table_submit(table):
         app.logger.warning("Catched duplicate order by nonce %s", nonce)
         return redirect(url_for("service.service"))
 
-    new_order = Order.create(table, nonce)
+    waiter = request.cookies.get("waiter", "")
+    new_order = Order.create(waiter, table, nonce)
     db.session.add(new_order)
     db.session.flush()  # enforce creation of id, required to assign order_id to product
     product_added = False

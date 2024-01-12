@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Service Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/service_login.css') }}">
+</head>
+<body>
+	<form action="{{ url_for ('service.service_login_submit') }}" method="post">
+		<input type="text" id="name" name="waiter" />
+		<button type="submit" id="submit-button">Speichern</button>
+	</form>
+</body>
+</html>

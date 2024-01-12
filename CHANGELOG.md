@@ -1,3 +1,9 @@
+# MiniPOS Unreleased
+
+### Features
+
+- Add waiter names
+
 # MiniPOS 0.1.7
 
 ### Features

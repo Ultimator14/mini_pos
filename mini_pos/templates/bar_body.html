@@ -10,7 +10,7 @@
             {%for order in orders-%}
             <tr>
                 <td><span class="{{order.active_since_timeout_class}}">{{order.active_since}}</span></td>
-                <td>{{order.table}}</td>
+                <td>{{order.table}}{{'<br/>'|safe + '(' + order.waiter + ')' if order.waiter}}</td>
                 <td>
                     <table class="inner-table">
                         <tr>
@@ -57,7 +57,7 @@
             {%- set completed_at_date, completed_at_time = completed_order.completed_timestamp.split(" ") -%}
             <tr>
                 <td>{{completed_at_date}}</br>{{completed_at_time}}</td>
-                <td>{{completed_order.table}}</td>
+                <td>{{completed_order.table}}{{'<br/>'|safe + '(' + completed_order.waiter + ')' if completed_order.waiter}}</td>
                 <td>
                     <table class="inner-table-completed">
                         <tr>
