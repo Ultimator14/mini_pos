@@ -6,9 +6,17 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/service_login.css') }}">
 </head>
 <body>
-	<form action="{{ url_for ('service.service_login_submit') }}" method="post">
-		<input type="text" id="name" name="waiter" />
-		<button type="submit" id="submit-button">Speichern</button>
-	</form>
+    <h1>Service Login</h1>
+    <form action="{{ url_for ('service.service_login_submit') }}" method="post">
+		<h3>Name: {{ waiter }}</h3>
+        <table><tr>
+            <td><input type="text" id="waiter-field" name="waiter" value="{{ waiter }}" /></td>
+            <td><button type="submit" id="save-button">Speichern</button></td>
+        </tr></table>
+    </form>
+    <br />
+    <form action="{{ url_for ('service.service') }}">
+        <button type="submit" id="service-button">Zum Service</button>
+    </form>
 </body>
 </html>

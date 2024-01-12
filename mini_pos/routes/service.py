@@ -12,9 +12,6 @@ service_bp = Blueprint("service", __name__, template_folder="templates")
 def service():
     app.logger.debug("GET /service")
 
-    if "waiter" not in request.cookies:
-        return redirect(url_for("service.service_login"))
-
     return render_template(
         "service.html",
         tables_size=app.config["minipos"].table.size,
@@ -23,9 +20,18 @@ def service():
     )
 
 
+@service_bp.route("/trylogin", strict_slashes=False)
+def service_trylogin():
+    if "waiter" not in request.cookies:
+        return redirect(url_for("service.service_login"))
+
+    return redirect(url_for("service.service"))
+
+
 @service_bp.route("/login", strict_slashes=False)
 def service_login():
-    return render_template("service_login.html")
+    waiter = request.cookies.get("waiter", "")
+    return render_template("service_login.html", waiter=waiter)
 
 
 @service_bp.route("/login", methods=["POST"], strict_slashes=False)
@@ -36,7 +42,7 @@ def service_login_submit():
         app.logger.error("POST in /service/login but missing waiter name. Skipping...")
         return "Error! Missing waiter name"
 
-    response = make_response(redirect(url_for("service.service")))
+    response = make_response(render_template("service_login.html", waiter=waiter))
     response.set_cookie("waiter", waiter, max_age=60 * 60 * 24 * 7)  # 1 week
     return response
 
