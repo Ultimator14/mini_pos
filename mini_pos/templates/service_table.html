@@ -22,7 +22,7 @@
     </ul>
 
     <hr style="background-color: cornflowerblue;">
-    <form action="{{ url_for ('service.service_table', table=table) }}" method="post">
+    <form action="{{ url_for ('service.service_table_submit', table=table) }}" method="post">
         <input type="hidden" id="nonce" name="nonce" value="{{nonce}}">
         <table>
             <colgroup>
