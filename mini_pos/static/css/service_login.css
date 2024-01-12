@@ -1,0 +1,36 @@
+/*
+Service login page
+*/
+
+h1 {
+    font-size: 6vw;
+}
+
+h3 {
+    font-size: 4vw;
+    margin: 2px;
+}
+
+table {
+    width: 100%;
+}
+
+td {
+    padding: 0;
+}
+
+#waiter-field {
+    font-size: 5vw;
+    width: 100%;
+}
+
+button {
+    text-align: center;
+    font-size: 5vw;
+
+    color: black;
+
+    cursor: pointer;
+
+    width: 100%;
+}
