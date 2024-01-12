@@ -106,12 +106,11 @@ Some configuration options are
 | ui/auto_close         | Automatically complete an order when all products are marked as completed | `bool true/false`                                  |
 | ui/show_completed     | Show the last n completed orders in /bar                                  | `int n`                                            |
 | ui/show_category_names|Show category names between products of different category in service      | `bool true/false`                                  |
-| ui/split_categories   | Make a space between different categories in service (always true if `show_category_names` is set) | `bool true/false`         |
 | ui/timeout            | Timeout in seconds to mark orders yellow/red                              | `int timeout_warn, int timeout_crit`               |
 
 ### Categories
 
-Categories only have an effect if either `show_category_names` or `split_categories` are enabled. An additional space is then added between adjacent products with different category in service.
+An additional space is added between adjacent products with different category in service. If `show_category_names` is enabled, the space is filled with the corresponding category name.
 
 Categories 0-14 have a distinct color scheme
 

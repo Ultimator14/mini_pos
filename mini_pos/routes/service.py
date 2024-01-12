@@ -65,7 +65,6 @@ def service_table(table):
             (p, pval[0], pval[1], pval[2]) for p, pval in app.config["minipos"].product.available.items()
         ],
         category_map=app.config["minipos"].product.category_map,
-        split_categories=app.config["minipos"].ui.split_categories,
         show_category_names=app.config["minipos"].ui.show_category_names,
         split_categories_init=app.config["minipos"].product.available[1][2]
         if len(app.config["minipos"].product.available) > 0

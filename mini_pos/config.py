@@ -24,7 +24,6 @@ TYPING_DICT = {
         "auto_close": bool,
         "show_completed": int,
         "show_category_names": bool,
-        "split_categories": bool,
         "timeout": tuple[int, int],
     },
     "debug": bool,
@@ -171,7 +170,6 @@ class UIConfig:
         self.auto_close = ui.get("auto_close", True)
         self.show_completed = ui.get("show_completed", 5)  # zero = don't show
         self.timeout_warn, self.timeout_crit = ui.get("timeout", (120, 600))
-        self.split_categories = ui.get("split_categories", False)
         self.show_category_names = ui.get("show_category_names", False)
 
 

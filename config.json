@@ -116,7 +116,6 @@
 		"auto_close": true,
 		"show_completed": 5,
 		"show_category_names": true,
-		"split_categories": true,
 		"timeout": [ 120, 600 ]
 	},
 	"debug": false
