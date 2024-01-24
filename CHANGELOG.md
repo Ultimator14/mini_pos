@@ -3,6 +3,7 @@
 ### Bugfixes
 
 - Fix arrow orientation on window resize
+- Fix mobile address bar interfering with window resize
 
 # MiniPOS 0.2.0
 
