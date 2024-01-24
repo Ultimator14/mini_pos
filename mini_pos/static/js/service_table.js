@@ -116,20 +116,44 @@ function modifyAmount(pid, value) {
 }
 
 function toggleCategoryFold(pcat) {
-    let trs = document.getElementsByClassName("category-" + pcat)
-    let products = document.getElementsByClassName("category-" + pcat + "-div");
+    let cfd = document.getElementById("category-fold-div-" + pcat);
+    cfd.classList.toggle("hidden");
+}
 
-    //Hide product contents (product-divs)
-    for(let i=0; i<products.length; i++) {
-        products[i].classList.toggle("hidden");
-    }
+function recomputeCategoryFold() {
+    let divs = document.getElementsByClassName("category-fold-div");
 
-    //Hide td element inside tr elements
-    for(let i=0; i<trs.length; i++) {
-        let tds = trs[i].children;
+    for(let i=0; i<divs.length; i++) {
+        let currentMaxHeight = divs[i].style.maxHeight;
 
-        for(let j=0; j<tds.length; j++) {
-            tds[j].classList.toggle("hidden");
+        //Reset max-height to allow element to expand
+        divs[i].style.maxHeight = "";
+
+        let offsetHeight = divs[i].offsetHeight + "px";
+
+        //Pad strings for computation to prevent things like 500 > 1000 because 5 > 1
+        let maxlen = Math.max(offsetHeight.length, currentMaxHeight.length);
+        let offsetHeightPadded = offsetHeight.padStart(maxlen, "0");
+        let currentMaxHeightPadded = currentMaxHeight.padStart(maxlen, "0");
+
+        //Set max-height to current computed height if the value is larger than before
+        if (offsetHeightPadded > currentMaxHeightPadded) {
+            divs[i].style.maxHeight = offsetHeight;
+        } else {
+            divs[i].style.maxHeight = currentMaxHeight;
         }
     }
 }
+
+//Handle windows resize with unfolded categories
+window.addEventListener('resize', () => {
+    //Force category unfold on window resize, supporting folded resize makes more trouble than it's worth
+    let divs = document.getElementsByClassName("category-fold-div");
+
+    for(let i=0; i<divs.length; i++) {
+        divs[i].classList.remove("hidden");
+    }
+
+    //Recompute element size
+    recomputeCategoryFold();
+});

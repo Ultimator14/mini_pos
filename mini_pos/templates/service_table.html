@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/service_table.css') }}">
     <script src="{{ url_for('static', filename='js/service_table.js') }}"></script>
 </head>
-<body onload="updateValues()">
+<body onload="updateValues(); recomputeCategoryFold()">
 <div>
     <form class="inline" action="{{ url_for ('service.service') }}" method="get">
         <button class="back-button" type="submit">&#x2715;</button>
@@ -38,15 +38,32 @@
                     <th colspan="3">Menge</th>
                 </tr>
                 {% if show_category_names -%}
-                    {%- set curcat = namespace(value=split_categories_init + 1) -%}
+                    {# {{ Set curcat to a value different from the first category number, this forces display of first category}} #}
+                    {%- set curcat = namespace(value=-1) -%}
                 {%- else -%}
+                    {# {{ Set curcat the first category number, this removes a leading spacer row}} #}
                     {%- set curcat = namespace(value=split_categories_init) -%}
                 {%- endif -%}
 
                 {%- for pid, pname, pprice, pcat in available_products -%}
 
-                {%- if show_category_names and pcat != curcat.value %}
+                {%- if show_category_names and pcat != curcat.value -%}
+                {%- if curcat.value != -1 -%}
+                    {#- {{ This is not the very first category, add a closing table}} -#}
+                </tbody>
+                </table></div></td></tr>
+                {% endif -%}
+
                 <tr><td colspan="5" class="category-name-{{pcat}}"><button type="button" class="category-button" id="category-button-{{pcat}}" onclick="toggleCategoryFold({{pcat}})">{{ category_map[pcat] }}</button></td></tr>
+                <tr><td colspan="5"><div id="category-fold-div-{{pcat}}" class="category-fold-div"><table>
+                <colgroup>
+                    <col style="width: 15vw;">
+                    <col style="width: 40vw;">
+                    <col style="width: 15vw;">
+                    <col style="width: 15vw;">
+                    <col style="width: 15vw;">
+                </colgroup>
+                <tbody>
                 {% set curcat.value = pcat -%}
                 {%- elif pcat != curcat.value %}
                 <tr><td colspan="5"><br/></td></tr>
@@ -54,13 +71,19 @@
                 {%- endif -%}
 
                 <tr id="available-product-row-{{pid}}" class="available-product-row category-{{pcat}}">
-                    <td><div class="category-{{pcat}}-div"><button type="button" id="customize-button-{{pid}}" class="customize-button" onclick="showPopup({{pid}})">&#9881;</button></div></td>
-                    <td><div id="available-product-name-{{pid}}" class="category-{{pcat}}-div available-product-name">{{pname}}</div></td>
-                    <td><div class="category-{{pcat}}-div"><button type="button" class="amount-button" onclick="modifyAmount({{pid}}, -1)">&minus;</button></div></td>
-                    <td><div class="category-{{pcat}}-div"><input type="text" id="amount-{{pid}}" class="amount-box" name="amount-{{pid}}" value="0" onchange="updateValues()"/></div></td>
-                    <td><div class="category-{{pcat}}-div"><button type="button" class="amount-button" onclick="modifyAmount({{pid}}, +1)">&plus;</button></div></td>
+                    <td><button type="button" id="customize-button-{{pid}}" class="customize-button" onclick="showPopup({{pid}})">&#9881;</button></td>
+                    <td id="available-product-name-{{pid}}" class="available-product-name">{{pname}}</td>
+                    <td><button type="button" class="amount-button" onclick="modifyAmount({{pid}}, -1)">&minus;</button></td>
+                    <td><input type="text" id="amount-{{pid}}" class="amount-box" name="amount-{{pid}}" value="0" onchange="updateValues()"/></td>
+                    <td><button type="button" class="amount-button" onclick="modifyAmount({{pid}}, +1)">&plus;</button></td>
                 </tr>
-                {%- endfor %}
+                {% endfor -%}
+
+                {%- if show_category_names -%}
+                    {#- {{ The very last category was printed. add a closing table}} -#}
+                </tbody>
+                </table></div></td></tr>
+                {%- endif %}
             </tbody>
         </table>
         <h2 id="overview-h2">Übersicht</h2>

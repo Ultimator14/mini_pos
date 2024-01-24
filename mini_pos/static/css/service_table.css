@@ -210,9 +210,18 @@ table tr.category-14.colorized-row { background-color: hsl(0, 90%, 93%);}
 }
 
 .hidden {
-    max-height: 0;
+    max-height: 0px !important;
     overflow: hidden;
 
     padding: 0;
     border: 0;
+}
+
+.category-fold-div {
+    /*
+     * a default max-height is required for this to work but we don't want to specify a maximum
+     * instead we do this on body load with javascript
+    */
+    /* max-height: 1000px; */
+    transition: max-height .5s;
 }
