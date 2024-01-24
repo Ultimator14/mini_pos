@@ -4,6 +4,7 @@
 
 - Fix arrow orientation on window resize
 - Fix mobile address bar interfering with window resize
+- Fix url bar on mobile devices to prevent window resize
 
 # MiniPOS 0.2.0
 
