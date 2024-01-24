@@ -1,5 +1,8 @@
 # MiniPOS Unreleased
 
+### Bugfixes
+
+- Fix arrow orientation on window resize
 
 # MiniPOS 0.2.0
 

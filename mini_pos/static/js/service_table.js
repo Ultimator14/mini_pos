@@ -157,6 +157,12 @@ window.addEventListener('resize', () => {
         divs[i].classList.remove("hidden");
     }
 
+    let cbs = document.getElementsByClassName("category-button");
+
+    for(let i=0; i<divs.length; i++) {
+        cbs[i].classList.remove("arrowturn");
+    }
+
     //Recompute element size
     recomputeCategoryFold();
 });
