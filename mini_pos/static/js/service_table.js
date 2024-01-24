@@ -118,6 +118,9 @@ function modifyAmount(pid, value) {
 function toggleCategoryFold(pcat) {
     let cfd = document.getElementById("category-fold-div-" + pcat);
     cfd.classList.toggle("hidden");
+
+    let cfb = document.getElementById("category-button-" + pcat);
+    cfb.classList.toggle("arrowturn");
 }
 
 function recomputeCategoryFold() {
