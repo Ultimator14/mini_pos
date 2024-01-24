@@ -1,8 +1,25 @@
 # MiniPOS Unreleased
 
+
+# MiniPOS 0.2.0
+
 ### Features
 
-- Add waiter names
+- Add waiter names (breaking change, database now contains column for waiter name)
+- Make categories foldable in service
+
+### Removals
+
+- `split_categories` config option
+
+### Bugfixes
+
+- Use correct path for `service_table_submit` form
+
+### Internals
+
+- Update dependencies
+
 
 # MiniPOS 0.1.7
 
