@@ -114,3 +114,22 @@ function modifyAmount(pid, value) {
     textbox.value = new_value;
     updateValues();
 }
+
+function toggleCategoryFold(pcat) {
+    let trs = document.getElementsByClassName("category-" + pcat)
+    let products = document.getElementsByClassName("category-" + pcat + "-div");
+
+    //Hide product contents (product-divs)
+    for(let i=0; i<products.length; i++) {
+        products[i].classList.toggle("hidden");
+    }
+
+    //Hide td element inside tr elements
+    for(let i=0; i<trs.length; i++) {
+        let tds = trs[i].children;
+
+        for(let j=0; j<tds.length; j++) {
+            tds[j].classList.toggle("hidden");
+        }
+    }
+}
