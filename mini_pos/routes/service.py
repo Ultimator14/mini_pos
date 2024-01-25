@@ -70,7 +70,7 @@ def service_table(table):
         if len(app.config["minipos"].product.available) > 0
         else 0,
         nonce=nonce,
-        fold_categories=True,  # TODO make configurable
+        fold_categories=app.config["minipos"].ui.fold_categories,
     )
 
 

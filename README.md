@@ -105,7 +105,8 @@ Some configuration options are
 | table/names           | Table positions, sizes and names                                          | `List[int x, int y, int xlen, int ylen, str name]` |
 | ui/auto_close         | Automatically complete an order when all products are marked as completed | `bool true/false`                                  |
 | ui/show_completed     | Show the last n completed orders in /bar                                  | `int n`                                            |
-| ui/show_category_names|Show category names between products of different category in service      | `bool true/false`                                  |
+| ui/show_category_names| Show category names between products of different category in service     | `bool true/false`                                  |
+| ui/fold_categories    | Fold categories by default in service                                     | `bool true/false`                                  |
 | ui/timeout            | Timeout in seconds to mark orders yellow/red                              | `int timeout_warn, int timeout_crit`               |
 
 ### Categories
