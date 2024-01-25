@@ -149,29 +149,20 @@ function recomputeCategoryFold() {
 }
 
 //Handle windows resize with unfolded categories
-let windowWidth = window.innerWidth;
-let windowHeight = window.innerHeight;
-
 window.addEventListener('resize', () => {
     //Force category unfold on window resize, supporting folded resize makes more trouble than it's worth
-    //ONLY do this if window size grows, as only then we get a problem with max-height of the categories
-    if (window.innerWidth > windowWidth || window.innerHeight > windowHeight) {
-        windowWidth = window.innerWidth;
-        windowHeight = window.innerHeight;
+    let divs = document.getElementsByClassName("category-fold-div");
 
-        let divs = document.getElementsByClassName("category-fold-div");
-
-        for(let i=0; i<divs.length; i++) {
-            divs[i].classList.remove("hidden");
-        }
-
-        let cbs = document.getElementsByClassName("category-button");
-
-        for(let i=0; i<divs.length; i++) {
-            cbs[i].classList.remove("arrowturn");
-        }
-
-        //Recompute element size
-        recomputeCategoryFold();
+    for(let i=0; i<divs.length; i++) {
+        divs[i].classList.remove("hidden");
     }
+
+    let cbs = document.getElementsByClassName("category-button");
+
+    for(let i=0; i<divs.length; i++) {
+        cbs[i].classList.remove("arrowturn");
+    }
+
+    //Recompute element size
+    recomputeCategoryFold();
 });
