@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/service_table.css') }}">
     <script src="{{ url_for('static', filename='js/service_table.js') }}"></script>
 </head>
-<body onload="updateValues(); recomputeCategoryFold()">
+<body onload="updateValues(){% if fold_categories %}; initialCategoryFold(){% endif %}">
 <div>
     <form class="inline" action="{{ url_for ('service.service') }}" method="get">
         <button class="back-button" type="submit">&#x2715;</button>

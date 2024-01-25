@@ -117,52 +117,46 @@ function modifyAmount(pid, value) {
 
 function toggleCategoryFold(pcat) {
     let cfd = document.getElementById("category-fold-div-" + pcat);
-    cfd.classList.toggle("hidden");
-
     let cfb = document.getElementById("category-button-" + pcat);
-    cfb.classList.toggle("arrowturn");
+
+    if (! cfd.classList.contains("hidden")) {
+        //Element is shown and will be hidden
+        //Set max height for later unfold
+        cfd.classList.remove("category-fold-div");  //disable transitions for this step
+        cfd.style.maxHeight = cfd.offsetHeight + "px";
+        cfd.classList.add("category-fold-div");  //reenable transitions
+    }
+
+    ["transitionEnd", "webkitTransitionEnd", "transitionend", "oTransitionEnd", "msTransitionEnd"].forEach(function(e) {
+        cfd.addEventListener(e, function() {
+            if(! cfd.classList.contains("hidden")){
+                //Element was hidden and is shown, transition is over
+                cfd.style.maxHeight = "";  //Reset max-height to allow element to resize to auto
+            }
+        });
+    });
+
+    //Set a small timeout (1ms probably also works but we use 10ms to be sure)
+    //If the reenable transitions step comes too quick before a event that would enable
+    //transitions, the transition will not fire. With the timeout the browser has enough
+    //time to enable the transition
+    setTimeout(function(){
+        cfd.classList.toggle("hidden");
+        cfb.classList.toggle("arrowturn");
+    }, 10);
 }
 
-function recomputeCategoryFold() {
+function initialCategoryFold() {
     let divs = document.getElementsByClassName("category-fold-div");
+    let buttons = document.getElementsByClassName("category-button");
 
+    //Set height and hide by default
     for(let i=0; i<divs.length; i++) {
-        let currentMaxHeight = divs[i].style.maxHeight;
-
-        //Reset max-height to allow element to expand
-        divs[i].style.maxHeight = "";
-
-        let offsetHeight = divs[i].offsetHeight + "px";
-
-        //Pad strings for computation to prevent things like 500 > 1000 because 5 > 1
-        let maxlen = Math.max(offsetHeight.length, currentMaxHeight.length);
-        let offsetHeightPadded = offsetHeight.padStart(maxlen, "0");
-        let currentMaxHeightPadded = currentMaxHeight.padStart(maxlen, "0");
-
-        //Set max-height to current computed height if the value is larger than before
-        if (offsetHeightPadded > currentMaxHeightPadded) {
-            divs[i].style.maxHeight = offsetHeight;
-        } else {
-            divs[i].style.maxHeight = currentMaxHeight;
-        }
+        divs[i].style.maxHeight = divs[i].offsetHeight + "px";
+        divs[i].classList.toggle("hidden");
+    }
+    //Turn arrows to correct position
+    for(let i=0; i<buttons.length; i++) {
+        buttons[i].classList.toggle("arrowturn");
     }
 }
-
-//Handle windows resize with unfolded categories
-window.addEventListener('resize', () => {
-    //Force category unfold on window resize, supporting folded resize makes more trouble than it's worth
-    let divs = document.getElementsByClassName("category-fold-div");
-
-    for(let i=0; i<divs.length; i++) {
-        divs[i].classList.remove("hidden");
-    }
-
-    let cbs = document.getElementsByClassName("category-button");
-
-    for(let i=0; i<divs.length; i++) {
-        cbs[i].classList.remove("arrowturn");
-    }
-
-    //Recompute element size
-    recomputeCategoryFold();
-});
