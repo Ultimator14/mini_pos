@@ -1,5 +1,10 @@
 #!/usr/bin/python3.10
 
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
 from mini_pos import create_app
 from mini_pos.models import Order, db
 
@@ -93,3 +98,55 @@ with app.app_context():
         )
     app.logger.info("")
     app.logger.info("")
+
+    # Create dataframe for plots
+    datalist = [
+        [
+            order.date,
+            order.completed_at - order.date,
+            order.waiter,
+            order.table,
+            sum(p.price * p.amount for p in order.products),
+            len(order.products),
+        ]
+        for order in completed_orders
+    ]
+    columns = ["date", "ordertime", "waiter", "table", "price", "numproducts"]
+    df = pd.DataFrame(datalist, columns=columns)
+
+    df["ordertime"] = df["ordertime"].dt.round("1s").dt.seconds  # datetime to seconds
+
+    # Plot revenue by 3min time interval
+    df2 = df.resample("3min", on="date").price.sum()
+    plt.plot(df2.dropna(), linestyle="-")  # , marker="o")
+    plt.xlabel("Zeit")
+    plt.ylabel("Einnahmen (€)")
+    plt.title("Umsatz")
+    plt.savefig("analysis_revenue.pdf")
+    # plt.show()
+    plt.close()
+
+    # Plot order duration by time
+    df3 = df.resample("3min", on="date").ordertime.mean()
+    plt.plot(df3.dropna(), linestyle="-")  # ,  marker="o")
+    plt.xlabel("Zeit")
+    plt.ylabel("Bearbeitungsdauer (s)")
+    plt.title("Durchschnittliche Bearbeitungsdauer")
+    plt.savefig("analysis_ordertime.pdf")
+    # plt.show()
+    plt.close()
+
+    # Plot table by waiter
+    tdf = (
+        df[["waiter", "table"]]
+        .groupby(["table", "waiter"])
+        .value_counts()
+        .reset_index()
+        .set_index("table")
+        .pivot_table(columns="waiter", index="table", fill_value=0)
+        .astype(int)
+    )
+    p = tdf.plot.bar(y="count", title="Tisch/Bedienung", xlabel="Tisch", ylabel="Bestellungen")  # plot to global plt
+    p.legend(title="Bedienung")
+    plt.show()
+    plt.close()

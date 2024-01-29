@@ -163,3 +163,27 @@ Scenario:
 ![Service 2](https://user-images.githubusercontent.com/30043959/216357709-668a4354-eb63-42cb-9b32-4790a8375497.png)
 ![Service 3](https://user-images.githubusercontent.com/30043959/216357756-f21db042-17cc-40e4-bbd3-5419ee8bebaa.png)
 ![Service 4](https://user-images.githubusercontent.com/30043959/216357819-45f2a6fc-65fb-46f2-88f0-a92e139871ac.png)
+
+
+## Analysis
+
+The analysis script provides an overview about sold products, revenue as well as some more statistics.  
+For the script to work, the dependencies from the analysis group must be installed. Afterwards the analysis can be started with the `analyze.py` script.
+
+Install analysis dependencies:
+
+```bash
+poetry install --with analysis
+```
+
+Enter the poetry virtual environment:
+```bash
+poetry shell
+```
+
+Start analysis:
+```bash
+python analyze.py
+```
+
+Note: When experimenting with custom plots, `plot.show()` may not work. This is because PyQt5 is not included in the dependency list. Which again is because poetry is cross-platform but PyQt5 only supports some architectures. To still be able to show plots inside the poetry virtualenv, use `pip install pyqt5` (if there exists a wheel for your arch). Alternatively install PyQt5 on your system and use the `virtualenvs.options.system-site-packages` config option for poetry to allow the virtualenv to access it.
