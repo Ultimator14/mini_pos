@@ -4,6 +4,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.backends.backend_pdf import PdfPages
 
 from mini_pos import create_app
 from mini_pos.models import Order, db
@@ -117,27 +118,13 @@ with app.app_context():
     df["ordertime"] = df["ordertime"].dt.round("1s").dt.seconds  # datetime to seconds
 
     # Plot revenue by 3min time interval
-    df2 = df.resample("3min", on="date").price.sum()
-    plt.plot(df2.dropna(), linestyle="-")  # , marker="o")
-    plt.xlabel("Zeit")
-    plt.ylabel("Einnahmen (€)")
-    plt.title("Umsatz")
-    plt.savefig("analysis_revenue.pdf")
-    # plt.show()
-    plt.close()
+    df1 = df.resample("3min", on="date").price.sum().dropna()
 
     # Plot order duration by time
-    df3 = df.resample("3min", on="date").ordertime.mean()
-    plt.plot(df3.dropna(), linestyle="-")  # ,  marker="o")
-    plt.xlabel("Zeit")
-    plt.ylabel("Bearbeitungsdauer (s)")
-    plt.title("Durchschnittliche Bearbeitungsdauer")
-    plt.savefig("analysis_ordertime.pdf")
-    # plt.show()
-    plt.close()
+    df2 = df.resample("3min", on="date").ordertime.mean().dropna()
 
     # Plot table by waiter
-    tdf = (
+    df3 = (
         df[["waiter", "table"]]
         .groupby(["table", "waiter"])
         .value_counts()
@@ -146,7 +133,25 @@ with app.app_context():
         .pivot_table(columns="waiter", index="table", fill_value=0)
         .astype(int)
     )
-    p = tdf.plot.bar(y="count", title="Tisch/Bedienung", xlabel="Tisch", ylabel="Bestellungen")  # plot to global plt
-    p.legend(title="Bedienung")
-    plt.show()
-    plt.close()
+
+    # Prepare figures and axes
+    fig1, ax1 = plt.subplots()
+    fig2, ax2 = plt.subplots()
+    fig3, ax3 = plt.subplots()
+
+    # Plot data
+    df1.plot(title="Umsatz", xlabel="Zeit", ylabel="Einnahmen (€)", ax=ax1)
+
+    df2.plot(title="Durchschnittliche Bearbeitungsdauer", xlabel="Zeit", ylabel="Bearbeitungsdauer (s)", ax=ax2)
+
+    df3.plot.bar(y="count", title="Tisch/Bedienung", xlabel="Tisch", ylabel="Bestellungen", ax=ax3)
+    ax3.legend(title="Bedienung")
+
+    # Save figures as pdf
+    pp = PdfPages("analysis.pdf")
+    for fig in [fig1, fig2, fig3]:
+        fig.savefig(pp, format="pdf", dpi=300)
+    pp.close()
+
+    # Show figures in window
+    # plt.show()
