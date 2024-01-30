@@ -1,5 +1,8 @@
 # MiniPOS Unreleased
 
+
+# MiniPOS 0.2.2
+
 ### Features
 
 - Improve analysis script
