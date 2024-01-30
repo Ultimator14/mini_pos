@@ -12,6 +12,7 @@ from mini_pos.models import Order, db
 app = create_app()
 
 PDF_FILENAME = "analysis.pdf"
+FIGSIZE = (20, 15)
 
 app.logger.info("Starting analysis...")
 
@@ -66,11 +67,15 @@ def extract_data():
         return info, df_orders, df_products
 
 
+def newplot():
+    return plt.subplots(figsize=FIGSIZE)
+
+
 def create_general_figs(general):
     app.logger.info("Creating general figures...")
     orders_len, completed_orders_len, total_product_count, total_revenue = general
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=FIGSIZE)
     fig.clf()
 
     general_info = f"""
@@ -90,7 +95,7 @@ def create_order_figs(dfo):
     app.logger.info("Creating order figures...")
 
     # Revenue by 5min time interval
-    df1 = dfo.resample("5min", on="date").price.sum().dropna()
+    df1 = dfo.resample("5min", on="date").price.sum().dropna().cumsum()
 
     # Order duration by time
     df2_ot = dfo.resample("5min", on="date").ordertime
@@ -118,13 +123,13 @@ def create_order_figs(dfo):
         .set_index("date")
         .pivot_table(columns="waiter", index="date", fill_value=0)
         .astype(int)
-    )["count"]
+    )["count"].cumsum()
 
     # Prepare figures and axes
-    fig1, ax1 = plt.subplots()
-    fig2, ax2 = plt.subplots()
-    fig3, ax3 = plt.subplots()
-    fig4, ax4 = plt.subplots()
+    fig1, ax1 = newplot()
+    fig2, ax2 = newplot()
+    fig3, ax3 = newplot()
+    fig4, ax4 = newplot()
 
     # Plot data
     df1.plot(title="Umsatz", xlabel="Zeit", ylabel="Einnahmen (€)", ax=ax1)
@@ -169,14 +174,24 @@ def create_product_figs(dfp):
     df5 = df5[["waiter", "fullprice"]].groupby("waiter").sum().sort_values("fullprice", ascending=False)
 
     # Products by time
-    # df6 = dfp
+    df6 = (
+        dfp[["name", "date", "amount"]]
+        .groupby("name")
+        .resample("10min", on="date", include_groups=False)
+        .sum()
+        .reset_index()
+        .set_index("date")
+        .pivot_table(columns="name", index="date", fill_value=0)
+        .astype(int)
+    )["amount"].cumsum()
 
     # Prepare figures and axes
-    fig1, ax1 = plt.subplots()
-    fig2, ax2 = plt.subplots()
-    fig3, ax3 = plt.subplots()
-    fig4, ax4 = plt.subplots()
-    fig5, ax5 = plt.subplots()
+    fig1, ax1 = newplot()
+    fig2, ax2 = newplot()
+    fig3, ax3 = newplot()
+    fig4, ax4 = newplot()
+    fig5, ax5 = newplot()
+    fig6, ax6 = newplot()
 
     # Plot data
     df1.plot.bar(title="Verkaufte Produkte", xlabel="Produkte", ylabel="Anzahl", legend=False, ax=ax1)
@@ -191,7 +206,10 @@ def create_product_figs(dfp):
 
     df5.plot.bar(title="Umsatz pro Bedienung", xlabel="Bedienung", ylabel="Umsatz in €", legend=False, ax=ax5)
 
-    return [fig1, fig2, fig3, fig4, fig5]
+    df6.plot(title="Verkaufte Produkte nach Zeit (10min)", xlabel="Zeit", ylabel="Anzahl", ax=ax6)
+    ax6.legend(title="Produkt")
+
+    return [fig1, fig2, fig3, fig4, fig5, fig6]
 
 
 def save_figs(figs):
