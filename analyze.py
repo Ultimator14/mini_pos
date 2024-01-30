@@ -109,10 +109,22 @@ def create_order_figs(dfo):
         .astype(int)
     )
 
+    # Orders by waiter by time
+    df4 = (
+        dfo[["waiter", "date"]]
+        .resample("5min", on="date")
+        .waiter.value_counts()
+        .reset_index()
+        .set_index("date")
+        .pivot_table(columns="waiter", index="date", fill_value=0)
+        .astype(int)
+    )["count"]
+
     # Prepare figures and axes
     fig1, ax1 = plt.subplots()
     fig2, ax2 = plt.subplots()
     fig3, ax3 = plt.subplots()
+    fig4, ax4 = plt.subplots()
 
     # Plot data
     df1.plot(title="Umsatz", xlabel="Zeit", ylabel="Einnahmen (€)", ax=ax1)
@@ -124,7 +136,10 @@ def create_order_figs(dfo):
     df3.plot.bar(y="count", title="Tisch/Bedienung", xlabel="Tisch", ylabel="Bestellungen", ax=ax3)
     ax3.legend(title="Bedienung")
 
-    return [fig1, fig2, fig3]
+    df4.plot(title="Bedienungsbestellungen nach Zeit", xlabel="Zeit", ylabel="Bestellungen (5min)", ax=ax4)
+    ax4.legend(title="Bedienung")
+
+    return [fig1, fig2, fig3, fig4]
 
 
 def create_product_figs(dfp):
@@ -152,6 +167,9 @@ def create_product_figs(dfp):
     df5 = dfp[["price", "amount", "waiter"]].copy()
     df5["fullprice"] = df5.amount * df5.price
     df5 = df5[["waiter", "fullprice"]].groupby("waiter").sum().sort_values("fullprice", ascending=False)
+
+    # Products by time
+    # df6 = dfp
 
     # Prepare figures and axes
     fig1, ax1 = plt.subplots()
