@@ -169,6 +169,7 @@ Scenario:
 
 The analysis script provides an overview about sold products, revenue as well as some more statistics.  
 For the script to work, the dependencies from the analysis group must be installed. Afterwards the analysis can be started with the `analyze.py` script.
+The results are saved as `analysis.pdf`.
 
 Install analysis dependencies:
 
@@ -186,4 +187,5 @@ Start analysis:
 python analyze.py
 ```
 
-Note: When experimenting with custom plots, `plot.show()` may not work. This is because PyQt5 is not included in the dependency list. Which again is because poetry is cross-platform but PyQt5 only supports some architectures. To still be able to show plots inside the poetry virtualenv, use `pip install pyqt5` (if there exists a wheel for your arch). Alternatively install PyQt5 on your system and use the `virtualenvs.options.system-site-packages` config option for poetry to allow the virtualenv to access it.
+Note: When it's desired to show the plots in a window, uncomment the last line `plt.show()` in the `analyze.py` script.  
+However the command `plot.show()` will probably not work. This is because PyQt5 is not included in the dependency list. Which again is because poetry is cross-platform but PyQt5 only supports some specific architectures. To still be able to show plots inside the poetry virtualenv, use `pip install pyqt5` (if there exists a wheel for your arch). Alternatively install PyQt5 on your system and use the `virtualenvs.options.system-site-packages` config option for poetry to allow the virtualenv to access it.

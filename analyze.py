@@ -1,6 +1,5 @@
 #!/usr/bin/python3.10
 
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -98,10 +97,7 @@ def create_order_figs(dfo):
     df1 = dfo.resample("5min", on="date").price.sum().dropna().cumsum()
 
     # Order duration by time
-    df2_ot = dfo.resample("5min", on="date").ordertime
-    df2 = df2_ot.mean().dropna()
-    df2a = df2_ot.max().dropna()
-    df2b = df2_ot.min().dropna()
+    df2 = dfo.resample("5min", on="date").ordertime.agg(["mean", "max", "min"]).dropna()
 
     # Table by waiter
     df3 = (
@@ -135,8 +131,7 @@ def create_order_figs(dfo):
     df1.plot(title="Umsatz", xlabel="Zeit", ylabel="Einnahmen (€)", ax=ax1)
 
     df2.plot(title="Bearbeitungsdauer (5min)", xlabel="Zeit", ylabel="Bearbeitungsdauer (s)", ax=ax2)
-    df2a.plot(ax=ax2)
-    df2b.plot(ax=ax2)
+    ax2.legend(["Average", "Max", "Min"])
 
     df3.plot.bar(y="count", title="Tisch/Bedienung", xlabel="Tisch", ylabel="Bestellungen", ax=ax3)
     ax3.legend(title="Bedienung")
@@ -151,7 +146,7 @@ def create_product_figs(dfp):
     app.logger.info("Creating product figures...")
 
     # Sold units
-    df1 = dfp[["name", "amount"]].groupby("name").sum().sort_values("amount", ascending=False)
+    df1 = dfp[["name", "amount"]].groupby("name").sum().sort_values("amount")
 
     # Products by table, orders by table
     df2 = dfp[["table", "amount"]].groupby("table").sum().sort_values("amount", ascending=False)
@@ -194,7 +189,7 @@ def create_product_figs(dfp):
     fig6, ax6 = newplot()
 
     # Plot data
-    df1.plot.bar(title="Verkaufte Produkte", xlabel="Produkte", ylabel="Anzahl", legend=False, ax=ax1)
+    df1.plot.barh(title="Verkaufte Produkte", xlabel="Produkte", ylabel="Anzahl", legend=False, ax=ax1)
 
     df2.plot.bar(title="Bestellungen pro Tisch", xlabel="Tisch", ylabel="Anzahl", ax=ax2)
     ax2.legend(["Produkte", "Bestellungen"])
@@ -207,7 +202,14 @@ def create_product_figs(dfp):
     df5.plot.bar(title="Umsatz pro Bedienung", xlabel="Bedienung", ylabel="Umsatz in €", legend=False, ax=ax5)
 
     df6.plot(title="Verkaufte Produkte nach Zeit (10min)", xlabel="Zeit", ylabel="Anzahl", ax=ax6)
-    ax6.legend(title="Produkt")
+
+    last_point_order = df6.iloc[-1].to_numpy().argsort()
+    legend_handles, legend_labels = ax6.get_legend_handles_labels()
+
+    handles_ordered = list(np.array(legend_handles)[last_point_order][::-1])
+    labels_ordered = list(np.array(legend_labels)[last_point_order][::-1])
+
+    ax6.legend(title="Produkt", handles=handles_ordered, labels=labels_ordered)
 
     return [fig1, fig2, fig3, fig4, fig5, fig6]
 
