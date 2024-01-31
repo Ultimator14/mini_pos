@@ -27,15 +27,6 @@ def extract_data():
         orders = Order.get_open_orders()
         completed_orders = get_completed_orders()
 
-        # General information
-        orders_len = len(orders)
-        completed_orders_len = len(completed_orders)
-        total_product_count = sum(product.amount for order in completed_orders for product in order.products)
-        total_revenue = round(
-            sum(product.price * product.amount for order in completed_orders for product in order.products), 2
-        )
-        info = (orders_len, completed_orders_len, total_product_count, total_revenue)
-
         # Dataframes
         datalist_orders = [
             [
@@ -50,20 +41,42 @@ def extract_data():
         ]
 
         datalist_products = [
-            [product.name, product.price, product.amount, order.date, order.waiter, order.table, order.id]
+            [
+                product.name,
+                product.price,
+                product.amount,
+                order.date,
+                order.completed_at - order.date,
+                order.waiter,
+                order.table,
+                order.id,
+            ]
             for order in completed_orders
             for product in order.products
         ]
 
         ocolumns = ["date", "ordertime", "waiter", "table", "price", "numproducts"]
-        pcolumns = ["name", "price", "amount", "date", "waiter", "table", "orderid"]
+        pcolumns = ["name", "price", "amount", "date", "ordertime", "waiter", "table", "orderid"]
 
         df_orders = pd.DataFrame(datalist_orders, columns=ocolumns)
         df_products = pd.DataFrame(datalist_products, columns=pcolumns)
 
         df_orders["ordertime"] = df_orders["ordertime"].dt.round("1s").dt.seconds  # datetime to seconds
 
-        return info, df_orders, df_products
+        # General information
+        orders_len = len(orders)
+        completed_orders_len = len(completed_orders)
+        total_product_count = sum(product.amount for order in completed_orders for product in order.products)
+        total_revenue = round(
+            sum(product.price * product.amount for order in completed_orders for product in order.products), 2
+        )
+        average_ordertime = int(round(df_orders["ordertime"].mean(), 0))
+
+        return (
+            (orders_len, completed_orders_len, total_product_count, total_revenue, average_ordertime),
+            df_orders,
+            df_products,
+        )
 
 
 def newplot():
@@ -72,7 +85,7 @@ def newplot():
 
 def create_general_figs(general):
     app.logger.info("Creating general figures...")
-    orders_len, completed_orders_len, total_product_count, total_revenue = general
+    orders_len, completed_orders_len, total_product_count, total_revenue, average_ordertime = general
 
     fig = plt.figure(figsize=FIGSIZE)
     fig.clf()
@@ -82,6 +95,7 @@ def create_general_figs(general):
     Abgeschlossene Bestellungen: {completed_orders_len!s}
     Verkaufte Produkte: {total_product_count}
     Umsatz: {total_revenue}€
+    Durchschnittliche Bearbeitungsdauer: {average_ordertime}s
     """
     # print(general_info)  # print some general info to console
 
@@ -121,11 +135,15 @@ def create_order_figs(dfo):
         .astype(int)
     )["count"].cumsum()
 
+    # Ordertime histogram
+    df5 = dfo[["ordertime"]]
+
     # Prepare figures and axes
     fig1, ax1 = newplot()
     fig2, ax2 = newplot()
     fig3, ax3 = newplot()
     fig4, ax4 = newplot()
+    fig5, ax5 = newplot()
 
     # Plot data
     df1.plot(title="Umsatz", xlabel="Zeit", ylabel="Einnahmen (€)", ax=ax1)
@@ -139,7 +157,17 @@ def create_order_figs(dfo):
     df4.plot(title="Bedienungsbestellungen nach Zeit", xlabel="Zeit", ylabel="Bestellungen (5min)", ax=ax4)
     ax4.legend(title="Bedienung")
 
-    return [fig1, fig2, fig3, fig4]
+    df5.plot.hist(
+        bins=20,
+        title="Bearbeitungsdauer",
+        xlabel="Bearbeitungsdauer",
+        ylabel="#Bestellungen",
+        legend=False,
+        grid=False,
+        ax=ax5,
+    )
+
+    return [fig1, fig2, fig3, fig4, fig5]
 
 
 def create_product_figs(dfp):
@@ -180,6 +208,9 @@ def create_product_figs(dfp):
         .astype(int)
     )["amount"].cumsum()
 
+    # Product by time
+    df7 = dfp[["name", "ordertime"]].groupby("name").mean().sort_values("ordertime").astype("timedelta64[s]")
+
     # Prepare figures and axes
     fig1, ax1 = newplot()
     fig2, ax2 = newplot()
@@ -187,6 +218,7 @@ def create_product_figs(dfp):
     fig4, ax4 = newplot()
     fig5, ax5 = newplot()
     fig6, ax6 = newplot()
+    fig7, ax7 = newplot()
 
     # Plot data
     df1.plot.barh(title="Verkaufte Produkte", xlabel="Produkte", ylabel="Anzahl", legend=False, ax=ax1)
@@ -211,7 +243,11 @@ def create_product_figs(dfp):
 
     ax6.legend(title="Produkt", handles=handles_ordered, labels=labels_ordered)
 
-    return [fig1, fig2, fig3, fig4, fig5, fig6]
+    df7.plot.barh(
+        title="Bearbeitungsdauer pro Produkt", xlabel="Bearbeitungsdauer (s)", ylabel="Produkte", legend=False, ax=ax7
+    )
+
+    return [fig1, fig2, fig3, fig4, fig5, fig6, fig7]
 
 
 def save_figs(figs):
