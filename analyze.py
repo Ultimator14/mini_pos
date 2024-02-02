@@ -288,9 +288,9 @@ def create_figs(dfo, dfp):
             fig_table_by_waiter,
             fig_products_orders_by_table,
             fig_revenue_by_table,
-            fig_orders_by_waiter_by_time,
-            fig_products_orders_by_waiter,
-            fig_revenue_by_waiter,
+            #fig_orders_by_waiter_by_time,
+            #fig_products_orders_by_waiter,
+            #fig_revenue_by_waiter,
             fig_products_by_time,
             fig_revenue_by_time,
         ]
