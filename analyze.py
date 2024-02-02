@@ -69,9 +69,7 @@ def newplot():
     return plt.subplots(figsize=FIGSIZE)
 
 
-def create_general_figs(dfo, dfp):
-    app.logger.info("Creating general figures...")
-
+def fig_general(dfo, dfp):
     orders_len = len(dfo)
     total_product_count = dfp["amount"].sum()
     total_revenue = (dfp["price"] * dfp["amount"]).sum()
@@ -90,20 +88,67 @@ def create_general_figs(dfo, dfp):
 
     fig.text(0.5, 0.5, general_info, transform=fig.transFigure, size=24, ha="center")
 
-    return [fig]
+    return fig
 
 
-def create_order_figs(dfo):
-    app.logger.info("Creating order figures...")
+def fig_sold_products(_, dfp):
+    """Create sold products figure"""
+    fig, ax = newplot()
 
-    # Revenue by 5min time interval
-    df1 = dfo.resample("5min", on="date").price.sum().dropna().cumsum()
+    df = dfp[["name", "amount"]].groupby("name").sum().sort_values("amount")
 
-    # Order duration by time
-    df2 = dfo.resample("5min", on="date").ordertime.agg(["mean", "max", "min"]).dropna()
+    df.plot.barh(title="Verkaufte Produkte", xlabel="Produkte", ylabel="Anzahl", legend=False, ax=ax)
 
-    # Table by waiter
-    df3 = (
+    return fig
+
+
+def fig_ordertime_hist(dfo, _):
+    """Create ordertime histogram"""
+    fig, ax = newplot()
+
+    df = dfo[["ordertime"]]
+
+    df.plot.hist(
+        bins=20,
+        title="Bearbeitungsdauer",
+        xlabel="Bearbeitungsdauer",
+        ylabel="#Bestellungen",
+        legend=False,
+        grid=False,
+        ax=ax,
+    )
+
+    return fig
+
+
+def fig_ordertime_by_time(dfo, _):
+    """Create ordertime by time figure"""
+    fig, ax = newplot()
+
+    df = dfo.resample("5min", on="date").ordertime.agg(["mean", "max", "min"]).dropna()
+    df.plot(title="Bearbeitungsdauer (5min)", xlabel="Zeit", ylabel="Bearbeitungsdauer (s)", ax=ax)
+    ax.legend(["Average", "Max", "Min"])
+
+    return fig
+
+
+def fig_ordertime_by_product(_, dfp):
+    """Create ordertime by product figure"""
+    fig, ax = newplot()
+
+    df = dfp[["name", "ordertime"]].groupby("name").mean().sort_values("ordertime").astype("timedelta64[s]")
+    df.plot.barh(
+        title="Bearbeitungsdauer pro Produkt", xlabel="Bearbeitungsdauer (s)", ylabel="Produkte", legend=False, ax=ax
+    )
+
+    return fig
+
+
+def fig_table_by_waiter(dfo, _):
+    """Create table by waiter figure"""
+    fig, ax = newplot()
+
+    df = (
         dfo[["waiter", "table"]]
         .groupby(["table", "waiter"])
         .value_counts()
@@ -112,9 +157,44 @@ def create_order_figs(dfo):
         .pivot_table(columns="waiter", index="table", fill_value=0)
         .astype(int)
     )
+    df.plot.bar(y="count", title="Tisch/Bedienung", xlabel="Tisch", ylabel="Bestellungen", ax=ax)
+    ax.legend(title="Bedienung")
 
-    # Orders by waiter by time
-    df4 = (
+    return fig
+
+
+def fig_products_orders_by_table(_, dfp):
+    """Create products/orders by table figure"""
+    fig, ax = newplot()
+
+    df = dfp[["table", "amount"]].groupby("table").sum().sort_values("amount", ascending=False)
+    dfa = dfp[["table", "orderid"]].groupby("table").nunique()
+    df = df.merge(dfa, on="table")
+
+    df.plot.bar(title="Bestellungen pro Tisch", xlabel="Tisch", ylabel="Anzahl", ax=ax)
+    ax.legend(["Produkte", "Bestellungen"])
+
+    return fig
+
+
+def fig_revenue_by_table(_, dfp):
+    """Create revenue by table figure"""
+    fig, ax = newplot()
+
+    df = dfp[["price", "amount", "table"]].copy()
+    df["fullprice"] = df.amount * df.price
+    df = df[["table", "fullprice"]].groupby("table").sum().sort_values("fullprice", ascending=False)
+
+    df.plot.bar(title="Umsatz pro Tisch", xlabel="Tisch", ylabel="Umsatz in €", legend=False, ax=ax)
+
+    return fig
+
+
+def fig_orders_by_waiter_by_time(dfo, _):
+    """Create orders by waiter by time figure"""
+    fig, ax = newplot()
+
+    df = (
         dfo[["waiter", "date"]]
         .resample("5min", on="date")
         .waiter.value_counts()
@@ -124,69 +204,43 @@ def create_order_figs(dfo):
         .astype(int)
     )["count"].cumsum()
 
-    # Ordertime histogram
-    df5 = dfo[["ordertime"]]
+    df.plot(title="Bedienungsbestellungen nach Zeit", xlabel="Zeit", ylabel="Bestellungen (5min)", ax=ax)
+    ax.legend(title="Bedienung")
 
-    # Prepare figures and axes
-    fig1, ax1 = newplot()
-    fig2, ax2 = newplot()
-    fig3, ax3 = newplot()
-    fig4, ax4 = newplot()
-    fig5, ax5 = newplot()
-
-    # Plot data
-    df1.plot(title="Umsatz", xlabel="Zeit", ylabel="Einnahmen (€)", ax=ax1)
-
-    df2.plot(title="Bearbeitungsdauer (5min)", xlabel="Zeit", ylabel="Bearbeitungsdauer (s)", ax=ax2)
-    ax2.legend(["Average", "Max", "Min"])
-
-    df3.plot.bar(y="count", title="Tisch/Bedienung", xlabel="Tisch", ylabel="Bestellungen", ax=ax3)
-    ax3.legend(title="Bedienung")
-
-    df4.plot(title="Bedienungsbestellungen nach Zeit", xlabel="Zeit", ylabel="Bestellungen (5min)", ax=ax4)
-    ax4.legend(title="Bedienung")
-
-    df5.plot.hist(
-        bins=20,
-        title="Bearbeitungsdauer",
-        xlabel="Bearbeitungsdauer",
-        ylabel="#Bestellungen",
-        legend=False,
-        grid=False,
-        ax=ax5,
-    )
-
-    return [fig1, fig2, fig3, fig4, fig5]
+    return fig
 
 
-def create_product_figs(dfp):
-    app.logger.info("Creating product figures...")
+def fig_products_orders_by_waiter(_, dfp):
+    """Create products/orders by waiter figure"""
+    fig, ax = newplot()
 
-    # Sold units
-    df1 = dfp[["name", "amount"]].groupby("name").sum().sort_values("amount")
+    df = dfp[["waiter", "amount"]].groupby("waiter").sum().sort_values("amount", ascending=False)
+    dfa = dfp[["waiter", "orderid"]].groupby("waiter").nunique()
+    df = df.merge(dfa, on="waiter")
 
-    # Products by table, orders by table
-    df2 = dfp[["table", "amount"]].groupby("table").sum().sort_values("amount", ascending=False)
-    df2a = dfp[["table", "orderid"]].groupby("table").nunique()
-    df2 = df2.merge(df2a, on="table")
+    df.plot.bar(title="Bestellungen pro Bedienung", xlabel="Bedienung", ylabel="Anzahl", ax=ax)
+    ax.legend(["Produkte", "Bestellungen"])
 
-    # Revenue by table
-    df3 = dfp[["price", "amount", "table"]].copy()
-    df3["fullprice"] = df3.amount * df3.price
-    df3 = df3[["table", "fullprice"]].groupby("table").sum().sort_values("fullprice", ascending=False)
+    return fig
 
-    # Products by waiter, orders by waiter
-    df4 = dfp[["waiter", "amount"]].groupby("waiter").sum().sort_values("amount", ascending=False)
-    df4a = dfp[["waiter", "orderid"]].groupby("waiter").nunique()
-    df4 = df4.merge(df4a, on="waiter")
 
-    # Revenue by waiter
-    df5 = dfp[["price", "amount", "waiter"]].copy()
-    df5["fullprice"] = df5.amount * df5.price
-    df5 = df5[["waiter", "fullprice"]].groupby("waiter").sum().sort_values("fullprice", ascending=False)
+def fig_revenue_by_waiter(_, dfp):
+    """Create revenue by waiter figure"""
+    fig, ax = newplot()
 
-    # Products by time
-    df6 = (
+    df = dfp[["price", "amount", "waiter"]].copy()
+    df["fullprice"] = df.amount * df.price
+    df = df[["waiter", "fullprice"]].groupby("waiter").sum().sort_values("fullprice", ascending=False)
+    df.plot.bar(title="Umsatz pro Bedienung", xlabel="Bedienung", ylabel="Umsatz in €", legend=False, ax=ax)
+
+    return fig
+
+
+def fig_products_by_time(_, dfp):
+    """Create products by time figure"""
+    fig, ax = newplot()
+
+    df = (
         dfp[["name", "date", "amount"]]
         .groupby("name")
         .resample("10min", on="date", include_groups=False)
@@ -197,46 +251,50 @@ def create_product_figs(dfp):
         .astype(int)
     )["amount"].cumsum()
 
-    # Product by time
-    df7 = dfp[["name", "ordertime"]].groupby("name").mean().sort_values("ordertime").astype("timedelta64[s]")
+    df.plot(title="Verkaufte Produkte nach Zeit (10min)", xlabel="Zeit", ylabel="Anzahl", ax=ax)
 
-    # Prepare figures and axes
-    fig1, ax1 = newplot()
-    fig2, ax2 = newplot()
-    fig3, ax3 = newplot()
-    fig4, ax4 = newplot()
-    fig5, ax5 = newplot()
-    fig6, ax6 = newplot()
-    fig7, ax7 = newplot()
-
-    # Plot data
-    df1.plot.barh(title="Verkaufte Produkte", xlabel="Produkte", ylabel="Anzahl", legend=False, ax=ax1)
-
-    df2.plot.bar(title="Bestellungen pro Tisch", xlabel="Tisch", ylabel="Anzahl", ax=ax2)
-    ax2.legend(["Produkte", "Bestellungen"])
-
-    df3.plot.bar(title="Umsatz pro Tisch", xlabel="Tisch", ylabel="Umsatz in €", legend=False, ax=ax3)
-
-    df4.plot.bar(title="Bestellungen pro Bedienung", xlabel="Bedienung", ylabel="Anzahl", ax=ax4)
-    ax4.legend(["Produkte", "Bestellungen"])
-
-    df5.plot.bar(title="Umsatz pro Bedienung", xlabel="Bedienung", ylabel="Umsatz in €", legend=False, ax=ax5)
-
-    df6.plot(title="Verkaufte Produkte nach Zeit (10min)", xlabel="Zeit", ylabel="Anzahl", ax=ax6)
-
-    last_point_order = df6.iloc[-1].to_numpy().argsort()
-    legend_handles, legend_labels = ax6.get_legend_handles_labels()
+    last_point_order = df.iloc[-1].to_numpy().argsort()
+    legend_handles, legend_labels = ax.get_legend_handles_labels()
 
     handles_ordered = list(np.array(legend_handles)[last_point_order][::-1])
     labels_ordered = list(np.array(legend_labels)[last_point_order][::-1])
 
-    ax6.legend(title="Produkt", handles=handles_ordered, labels=labels_ordered)
+    ax.legend(title="Produkt", handles=handles_ordered, labels=labels_ordered)
 
-    df7.plot.barh(
-        title="Bearbeitungsdauer pro Produkt", xlabel="Bearbeitungsdauer (s)", ylabel="Produkte", legend=False, ax=ax7
-    )
+    return fig
 
-    return [fig1, fig2, fig3, fig4, fig5, fig6, fig7]
+
+def fig_revenue_by_time(dfo, _):
+    """Create revenue by time figure"""
+    fig, ax = newplot()
+
+    df = dfo.resample("5min", on="date").price.sum().dropna().cumsum()
+    df.plot(title="Umsatz nach Zeit", xlabel="Zeit", ylabel="Einnahmen (€)", ax=ax)
+
+    return fig
+
+
+def create_figs(dfo, dfp):
+    app.logger.info("Creating figures...")
+    dfs = (dfo, dfp)
+    return [
+        x(*dfs)
+        for x in [
+            fig_general,
+            fig_sold_products,
+            fig_ordertime_hist,
+            fig_ordertime_by_time,
+            fig_ordertime_by_product,
+            fig_table_by_waiter,
+            fig_products_orders_by_table,
+            fig_revenue_by_table,
+            fig_orders_by_waiter_by_time,
+            fig_products_orders_by_waiter,
+            fig_revenue_by_waiter,
+            fig_products_by_time,
+            fig_revenue_by_time,
+        ]
+    ]
 
 
 def save_figs(figs):
@@ -250,8 +308,7 @@ def save_figs(figs):
 
 
 # Do analysis and save figures as pdf
-dfo, dfp = extract_data()
-figs = create_general_figs(dfo, dfp) + create_order_figs(dfo) + create_product_figs(dfp)
+figs = create_figs(*extract_data())
 save_figs(figs)
 
 # Show figures in window (uncomment if pyqt5 is available)
