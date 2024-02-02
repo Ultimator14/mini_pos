@@ -24,8 +24,7 @@ def extract_data():
         def get_completed_orders() -> list[Order]:
             return list(db.session.execute(db.select(Order).filter(Order.completed_at.isnot(None))).scalars())
 
-        orders = Order.get_open_orders()
-        completed_orders = get_completed_orders()
+        orders = get_completed_orders()
 
         # Dataframes
         datalist_orders = [
@@ -37,7 +36,7 @@ def extract_data():
                 sum(p.price * p.amount for p in order.products),
                 len(order.products),
             ]
-            for order in completed_orders
+            for order in orders
         ]
 
         datalist_products = [
@@ -51,7 +50,7 @@ def extract_data():
                 order.table,
                 order.id,
             ]
-            for order in completed_orders
+            for order in orders
             for product in order.products
         ]
 
@@ -63,36 +62,26 @@ def extract_data():
 
         df_orders["ordertime"] = df_orders["ordertime"].dt.round("1s").dt.seconds  # datetime to seconds
 
-        # General information
-        orders_len = len(orders)
-        completed_orders_len = len(completed_orders)
-        total_product_count = sum(product.amount for order in completed_orders for product in order.products)
-        total_revenue = round(
-            sum(product.price * product.amount for order in completed_orders for product in order.products), 2
-        )
-        average_ordertime = int(round(df_orders["ordertime"].mean(), 0))
-
-        return (
-            (orders_len, completed_orders_len, total_product_count, total_revenue, average_ordertime),
-            df_orders,
-            df_products,
-        )
+        return df_orders, df_products
 
 
 def newplot():
     return plt.subplots(figsize=FIGSIZE)
 
 
-def create_general_figs(general):
+def create_general_figs(dfo, dfp):
     app.logger.info("Creating general figures...")
-    orders_len, completed_orders_len, total_product_count, total_revenue, average_ordertime = general
+
+    orders_len = len(dfo)
+    total_product_count = dfp["amount"].sum()
+    total_revenue = (dfp["price"] * dfp["amount"]).sum()
+    average_ordertime = round(dfo["ordertime"].mean())
 
     fig = plt.figure(figsize=FIGSIZE)
     fig.clf()
 
     general_info = f"""
-    Offene Bestellungen: {orders_len!s}
-    Abgeschlossene Bestellungen: {completed_orders_len!s}
+    Abgeschlossene Bestellungen: {orders_len!s}
     Verkaufte Produkte: {total_product_count}
     Umsatz: {total_revenue}€
     Durchschnittliche Bearbeitungsdauer: {average_ordertime}s
@@ -261,8 +250,8 @@ def save_figs(figs):
 
 
 # Do analysis and save figures as pdf
-info, dfo, dfp = extract_data()
-figs = create_general_figs(info) + create_order_figs(dfo) + create_product_figs(dfp)
+dfo, dfp = extract_data()
+figs = create_general_figs(dfo, dfp) + create_order_figs(dfo) + create_product_figs(dfp)
 save_figs(figs)
 
 # Show figures in window (uncomment if pyqt5 is available)
