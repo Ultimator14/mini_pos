@@ -164,7 +164,6 @@ Scenario:
 ![Service 3](https://user-images.githubusercontent.com/30043959/216357756-f21db042-17cc-40e4-bbd3-5419ee8bebaa.png)
 ![Service 4](https://user-images.githubusercontent.com/30043959/216357819-45f2a6fc-65fb-46f2-88f0-a92e139871ac.png)
 
-
 ## Analysis
 
 The analysis script provides an overview about sold products, revenue as well as some more statistics.  
@@ -189,3 +188,11 @@ python analyze.py
 
 Note: When it's desired to show the plots in a window, uncomment the last line `plt.show()` in the `analyze.py` script.  
 However the command `plot.show()` will probably not work. This is because PyQt5 is not included in the dependency list. Which again is because poetry is cross-platform but PyQt5 only supports some specific architectures. To still be able to show plots inside the poetry virtualenv, use `pip install pyqt5` (if there exists a wheel for your arch). Alternatively install PyQt5 on your system and use the `virtualenvs.options.system-site-packages` config option for poetry to allow the virtualenv to access it.
+
+## Alternatives
+
+Some (probably more mature) alternatives to this project are
+
+- [Ordersprinter](https://www.ordersprinter.de/)
+- [MoKaSys](https://www.mokasys.de/)
+- [Orderjutsu](https://orderjutsu.org/)
