@@ -8,30 +8,26 @@ readme = "README.md"
 packages = [{include = "mini_pos"}]
 
 [tool.poetry.dependencies]
-python = "^3.11"
-Flask = "^3.0.0"
+python = "^3.12"
+Flask = "^3.1.0"
 Flask-SQLAlchemy = "^3.1.1"
-gunicorn = "^21.2.0"
+gunicorn = "^23.0.0"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.1.12"
-black = "^23.12.1"
-mypy = "^1.8.0"
+ruff = "^0.8.6"
+mypy = "^1.14.1"
 types-Flask-SQLAlchemy = "^2.5.9.4"
 types-Flask = "^1.1.6"
-pylint = "^3.0.3"
-pytest = "^7.4.4"
+pylint = "^3.3.3"
+pytest = "^8.3.4"
 
 [tool.poetry.group.analysis]
 optional = true
 
 [tool.poetry.group.analysis.dependencies]
-matplotlib = "^3.8.2"
-pandas = "^2.2.0"
-numpy = "^1.26.3"
-
-[tool.black]
-line_length = 120
+matplotlib = "^3.10.0"
+pandas = "^2.2.3"
+numpy = "^2.2.1"
 
 [tool.pylint.format]
 max-line-length = 120
