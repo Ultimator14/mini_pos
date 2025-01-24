@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mini-pos"
-version = "0.2.2"
+version = "0.2.3"
 description = "Small browser based POS system"
 authors = ["Jan Breig <git@pygos.space>"]
 license = "MIT"

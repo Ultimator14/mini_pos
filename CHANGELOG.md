@@ -1,6 +1,17 @@
 # MiniPOS Unreleased
 
 
+# MiniPOS 0.2.3
+
+### Features
+
+- Improve analysis script
+
+### Internals
+
+- Update dependencies
+
+
 # MiniPOS 0.2.2
 
 ### Features
