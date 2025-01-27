@@ -47,6 +47,10 @@
 			["Schnitzel mit Kartoffelsalat", 8.00]
 		]
 	},
+	"bars": {
+		"Bar": ["Alkoholfrei", "Bier", "Wein", "Spirituosen"],
+		"Küche": ["Essen"]
+	},
 	"tables": {
 		"size": [6, 9],
 		"names": [
@@ -109,6 +113,7 @@
 	"ui": {
 		"bar": {
 			"auto_close": true,
+			"default": true,
 			"show_completed": 5,
 			"timeout": [ 120, 600 ]
 		},

@@ -4,12 +4,6 @@ This file provides an overview about the planned (future) changes.
 
 ## Release 1.0.0
 
-### Multiple bars (breaking change for config file)
-
-- Support arbitrary many bars (e.g. food, drinks, cocktails, ...)
-- Bars should be selectable on the main page
-- Each bar can display multiple categories (as in config file)
-
 ### Sold out products
 
 - Add admin UI to disable/enable products on the fly

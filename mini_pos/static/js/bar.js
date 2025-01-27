@@ -1,10 +1,12 @@
-let myTimer = setInterval(updateBarBody, 3000);
+function startBarUpdate(name) {
+    let myTimer = setInterval(() => updateBarBody(name), 3000);
+}
 
-async function updateBarBody() {
+async function updateBarBody(name) {
     let server_status_div = document.getElementById("server-status");
 
     try {
-        const response = await fetch("/fetch/bar");
+        const response = await fetch("/fetch/bar/" + name);
         document.getElementsByTagName('body')[0].innerHTML = await response.text();
 
         server_status_div.classList.remove("server-status-down");

@@ -19,13 +19,11 @@ class Order(db.Model):
     date = db.Column(db.DateTime)
     completed_at = db.Column(db.DateTime)
 
+    products = db.relationship("Product", back_populates="order")
+
     @classmethod
     def create(cls, waiter: str, table: str, nonce: int) -> Order:
         return cls(waiter=waiter, table=table, nonce=nonce, date=datetime.now(), completed_at=None)
-
-    @property
-    def products(self) -> list[Product]:
-        return list(db.session.execute(db.select(Product).filter_by(order_id=self.id)).scalars())
 
     @property
     def active_since(self) -> str:
@@ -72,6 +70,18 @@ class Order(db.Model):
         return list(db.session.execute(db.select(Order).filter_by(completed_at=None)).scalars())
 
     @staticmethod
+    def get_open_orders_by_categories(categories: list[str]) -> list[Order]:
+        return list(
+            db.session.execute(
+                db.select(Order)
+                .filter_by(completed_at=None)
+                .join(Order.products)
+                .filter(Product.category.in_(categories))
+                .group_by(Order)
+            ).scalars()
+        )
+
+    @staticmethod
     def get_order_by_id(order_id: int) -> Order | None:
         return db.session.execute(db.select(Order).filter_by(id=order_id)).scalar_one_or_none()
 
@@ -98,6 +108,20 @@ class Order(db.Model):
             ).scalars()
         )
 
+    @staticmethod
+    def get_last_completed_orders_by_categories(categories: list[str]) -> list[Order]:
+        return list(
+            db.session.execute(
+                db.select(Order)
+                .filter(Order.completed_at.isnot(None))
+                .join(Order.products)
+                .filter(Product.category.in_(categories))
+                .group_by(Order)
+                .order_by(Order.completed_at.desc())
+                .limit(app.config["minipos"].ui.bar.show_completed)
+            ).scalars()
+        )
+
 
 class Product(db.Model):
     __tablename__ = "products"
@@ -106,13 +130,24 @@ class Product(db.Model):
     order_id = db.Column(db.Integer, db.ForeignKey(Order.id))
     name = db.Column(db.String)
     price = db.Column(db.Float)
+    category = db.Column(db.String)
     amount = db.Column(db.Integer)
     comment = db.Column(db.String)
     completed = db.Column(db.Boolean)
 
+    order = db.relationship("Order", back_populates="products")
+
     @classmethod
-    def create(cls, order_id: int, name: str, price: float, amount: int, comment="") -> Product:
-        return cls(order_id=order_id, name=name, price=price, amount=amount, comment=comment, completed=False)
+    def create(cls, order_id: int, name: str, price: float, category: str, amount: int, comment="") -> Product:
+        return cls(
+            order_id=order_id,
+            name=name,
+            price=price,
+            category=category,
+            amount=amount,
+            comment=comment,
+            completed=False,
+        )
 
     def complete(self) -> None:
         if not self.completed:

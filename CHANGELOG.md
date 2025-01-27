@@ -1,5 +1,9 @@
 # MiniPOS Unreleased
 
+### Features
+
+- Support multiple bars (breaking change for config and database)
+
 
 # MiniPOS 0.2.4
 

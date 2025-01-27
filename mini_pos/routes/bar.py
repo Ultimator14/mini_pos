@@ -9,17 +9,58 @@ bar_bp = Blueprint("bar", __name__, template_folder="templates")
 @bar_bp.route("/", strict_slashes=False)
 def bar():
     app.logger.debug("GET /bar")
+
+    # If there is only one bar including the default one (if present) we can directly show it
+    bars = app.config["minipos"].bars.copy()
+    default_bar = app.config["minipos"].ui.bar.default
+
+    if default_bar and len(bars) == 0:
+        # display default bar
+        return redirect(url_for("bar.bar_name", name="default"))
+
+    if not default_bar and len(bars) == 1:
+        # display the only bar
+        return redirect(url_for("bar.bar_name", name=bars.keys()[0]))
+
+    # we have multiple bars, hence we must display a selection
+    default_bar_addition = {"default": app.config["minipos"].categories} if default_bar else {}
+
+    return render_template("bar_selection.html", bars=bars | default_bar_addition)
+
+
+@bar_bp.route("/<name>", strict_slashes=False)
+def bar_name(name: str):
+    app.logger.debug("GET /bar/<name>")
+
+    if name == "default" and app.config["minipos"].ui.bar.default:
+        # display default bar
+        return render_template(
+            "bar.html",
+            orders=Order.get_open_orders(),
+            completed_orders=Order.get_last_completed_orders(),
+            show_completed=bool(app.config["minipos"].ui.bar.show_completed),
+            bar=name,
+        )
+
+    # Try to display another bar
+    bar_categories = app.config["minipos"].bars.get(name)
+
+    if bar_categories is None:
+        app.logger.error("GET in /bar/%s with invalid bar. Using default bar. Skipping...", name)
+        return "Error! Bar not found"
+
     return render_template(
         "bar.html",
-        orders=Order.get_open_orders(),
-        completed_orders=Order.get_last_completed_orders(),
+        orders=Order.get_open_orders_by_categories(bar_categories),
+        completed_orders=Order.get_last_completed_orders_by_categories(bar_categories),
         show_completed=bool(app.config["minipos"].ui.bar.show_completed),
+        bar=name,
     )
 
 
-@bar_bp.route("/", methods=["POST"], strict_slashes=False)
-def bar_submit():
-    app.logger.debug("POST /bar")
+@bar_bp.route("/<name>", methods=["POST"], strict_slashes=False)
+def bar_submit(name: str):
+    app.logger.debug("POST /bar/<name>")
 
     order_id = request.form.get("order-completed")
     product_id = request.form.get("product-completed")
@@ -42,7 +83,7 @@ def bar_submit():
     else:
         app.logger.error("POST in /bar but neither order nor product specified")
 
-    return redirect(url_for("bar.bar"))
+    return redirect(url_for("bar.bar_name", name=name))
 
 
 def handle_order_completed_event(order_id: int) -> None:

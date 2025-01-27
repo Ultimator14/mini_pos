@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Bar Selection</title>
+</head>
+<body>
+    <div class="bar-selection">
+        {% for bar in bars -%}
+        <form action="/bar/{{bar}}" method="get">
+            <button style="width: 100vw; height: {{ 100 / (bars | length) }}vh; font-size: {{ 40 / (bars | length) }}vw;" type="submit">{{bar}}</button>
+        </form>
+        {%- endfor %}
+    </div>
+</body>
+</html>

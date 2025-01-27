@@ -121,8 +121,8 @@ def service_table_submit(table):
             comment = ""
 
         if amount > 0:
-            name, price, _ = app.config["minipos"].products[available_product]
-            product = Product.create(new_order.id, name, price, amount, comment)
+            name, price, category = app.config["minipos"].products[available_product]
+            product = Product.create(new_order.id, name, price, category, amount, comment)
             db.session.add(product)
             db.session.flush()  # enforce creation of id, required for log
             product_added = True

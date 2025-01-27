@@ -18,6 +18,8 @@ TablesGridT = list[list[TablesGridTupleT | None]]
 CONFIG_DICT: dict[str, tuple] = {
     # Products
     "products": (dict[str, list[tuple[str, float]]], True, None),
+    # Bars
+    "bars": (dict[str, list[str]], False, None),
     # Tables
     "tables": (
         dict,
@@ -36,6 +38,7 @@ CONFIG_DICT: dict[str, tuple] = {
                 dict,
                 False,
                 {
+                    "default": (bool, False, None),
                     "auto_close": (bool, False, None),
                     "show_completed": (int, False, None),
                     "timeout": (tuple[int, int], False, None),
@@ -95,6 +98,7 @@ class TableConfig:
 class UIConfig:
     class UIBarConfig:
         def __init__(self, ui_bar: dict[str, Any]) -> None:
+            self.default = ui_bar.get("default", True)
             self.auto_close = ui_bar.get("auto_close", True)
             self.show_completed = ui_bar.get("show_completed", 5)  # zero = don't show
             self.timeout_warn, self.timeout_crit = ui_bar.get("timeout", (120, 600))
@@ -113,11 +117,19 @@ class UIConfig:
 class MiniPOSConfig:
     def __init__(self, config_data: dict) -> None:
         self.products = dict(
-            enumerate([(prod[0], prod[1], cat) for cat, prods in config_data["products"].items() for prod in prods], start=1)
+            enumerate(
+                [(prod[0], prod[1], cat) for cat, prods in config_data["products"].items() for prod in prods], start=1
+            )
         )
+        self.categories = list(config_data["products"].keys())
         self.bars = config_data.get("bars", {})
         self.tables: TableConfig = TableConfig(config_data["tables"])
         self.ui: UIConfig = UIConfig(config_data.get("ui", {}))
+
+        # failsafe if no bar is definded and the default is disabled
+        if len(self.bars) == 0 and not self.ui.bar.default:
+            app.logger.warning("No bar defined. Enabling default bar despite disabled in config...")
+            self.ui.bar.default = True
 
 
 def load_file(config_file: str) -> dict | None:
