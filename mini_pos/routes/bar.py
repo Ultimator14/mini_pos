@@ -13,7 +13,7 @@ def bar():
         "bar.html",
         orders=Order.get_open_orders(),
         completed_orders=Order.get_last_completed_orders(),
-        show_completed=bool(app.config["minipos"].ui.show_completed),
+        show_completed=bool(app.config["minipos"].ui.bar.show_completed),
     )
 
 
@@ -65,7 +65,7 @@ def handle_product_completed_event(product_id: int) -> None:
     product.complete()
     order_id = product.order_id
 
-    if app.config["minipos"].ui.auto_close and len(Product.get_open_products_by_order_id(order_id)) == 0:
+    if app.config["minipos"].ui.bar.auto_close and len(Product.get_open_products_by_order_id(order_id)) == 0:
         app.logger.info("Last Product completed. Attempting auto_close")
 
         if (order := Order.get_order_by_id(order_id)) is None:

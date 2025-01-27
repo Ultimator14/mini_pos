@@ -54,8 +54,8 @@
                 </table></div></td></tr>
                 {% endif -%}
 
-                <tr><td colspan="5" class="category-name-{{pcat}}"><button type="button" class="category-button arrow" id="category-button-{{pcat}}" onclick="toggleCategoryFold({{pcat}})">{{ category_map[pcat] }}&nbsp;</button></td></tr>
-                <tr><td colspan="5"><div id="category-fold-div-{{pcat}}" class="category-fold-div"><table>
+                <tr><td colspan="5" class="category-name-{{category_color_map[pcat]}}"><button type="button" class="category-button arrow" id="category-button-{{category_color_map[pcat]}}" onclick="toggleCategoryFold({{category_color_map[pcat]}})">{{pcat}}&nbsp;</button></td></tr>
+                <tr><td colspan="5"><div id="category-fold-div-{{category_color_map[pcat]}}" class="category-fold-div"><table>
                 <colgroup>
                     <col style="width: 15vw;">
                     <col style="width: 40vw;">
@@ -70,7 +70,7 @@
                 {% set curcat.value = pcat -%}
                 {%- endif -%}
 
-                <tr id="available-product-row-{{pid}}" class="available-product-row category-{{pcat}}">
+                <tr id="available-product-row-{{pid}}" class="available-product-row category-{{category_color_map[pcat]}}">
                     <td><button type="button" id="customize-button-{{pid}}" class="customize-button" onclick="showPopup({{pid}})">&#9881;</button></td>
                     <td id="available-product-name-{{pid}}" class="available-product-name">{{pname}}</td>
                     <td><button type="button" class="amount-button" onclick="modifyAmount({{pid}}, -1)">&minus;</button></td>

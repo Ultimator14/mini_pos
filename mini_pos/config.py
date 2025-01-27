@@ -8,7 +8,7 @@ from flask import current_app as app
 
 from .confcheck import LogLevel, check_config_base
 
-AvailableProductsT = dict[int, tuple[str, float, int]]
+ProductsT = dict[int, tuple[str, float, int]]
 TablesGridTupleT = tuple[bool, int | None, int | None, str | None]
 TablesGridT = list[list[TablesGridTupleT | None]]
 
@@ -16,15 +16,10 @@ TablesGridT = list[list[TablesGridTupleT | None]]
 # Value: Datatype (origin), mandatory (bool), sub-config (dict)
 # If sub-config is tuple, this means any-of
 CONFIG_DICT: dict[str, tuple] = {
-    "product": (
-        dict,
-        True,
-        {
-            "available": (list[tuple[str, float, int]], True, None),
-            "categories": (list[tuple[int, str]], True, None),
-        },
-    ),
-    "table": (
+    # Products
+    "products": (dict[str, list[tuple[str, float]]], True, None),
+    # Tables
+    "tables": (
         dict,
         True,
         {
@@ -32,34 +27,41 @@ CONFIG_DICT: dict[str, tuple] = {
             "names": (list[tuple[int, int, int, int, str]], True, None),
         },
     ),
+    # UI
     "ui": (
         dict,
         False,
         {
-            "auto_close": (bool, False, None),
-            "show_completed": (int, False, None),
-            "show_category_names": (bool, False, None),
-            "fold_categories": (bool, False, None),
-            "timeout": (tuple[int, int], False, None),
+            "bar": (
+                dict,
+                False,
+                {
+                    "auto_close": (bool, False, None),
+                    "show_completed": (int, False, None),
+                    "timeout": (tuple[int, int], False, None),
+                },
+            ),
+            "service": (
+                dict,
+                False,
+                {
+                    "show_category_names": (bool, False, None),
+                    "fold_categories": (bool, False, None),
+                    "category_color_map": (dict[str, int], False, None),
+                },
+            ),
         },
     ),
+    # Debug
     "debug": (bool, False, None),
 }
 
 
-class ProductConfig:
-    def __init__(self, product: dict[str, Any]) -> None:
-        self.available: AvailableProductsT = dict(
-            enumerate([tuple(product) for product in product["available"]], start=1)
-        )  # type: ignore
-        self.category_map: dict[int, str] = dict(product["categories"])
-
-
 class TableConfig:
-    def __init__(self, table: dict[str, Any]) -> None:
-        self.size: tuple[int, int] = tuple(table["size"])  # type: ignore
+    def __init__(self, tables: dict[str, Any]) -> None:
+        self.size: tuple[int, int] = tuple(tables["size"])  # type: ignore
 
-        names_config = table["names"]
+        names_config = tables["names"]
         self.names: list[str] = [name for _, _, _, _, name in names_config]
 
         if len(set(self.names)) != len(self.names):
@@ -91,18 +93,30 @@ class TableConfig:
 
 
 class UIConfig:
+    class UIBarConfig:
+        def __init__(self, ui_bar: dict[str, Any]) -> None:
+            self.auto_close = ui_bar.get("auto_close", True)
+            self.show_completed = ui_bar.get("show_completed", 5)  # zero = don't show
+            self.timeout_warn, self.timeout_crit = ui_bar.get("timeout", (120, 600))
+
+    class UIServiceConfig:
+        def __init__(self, ui_service: dict[str, Any]) -> None:
+            self.show_category_names = ui_service.get("show_category_names", False)
+            self.fold_categories = ui_service.get("fold_categories", True)
+            self.category_color_map = ui_service.get("category_color_map", {})
+
     def __init__(self, ui: dict[str, Any]) -> None:
-        self.auto_close = ui.get("auto_close", True)
-        self.show_completed = ui.get("show_completed", 5)  # zero = don't show
-        self.timeout_warn, self.timeout_crit = ui.get("timeout", (120, 600))
-        self.show_category_names = ui.get("show_category_names", False)
-        self.fold_categories = ui.get("fold_categories", True)
+        self.bar = UIConfig.UIBarConfig(ui.get("bar", {}))
+        self.service = UIConfig.UIServiceConfig(ui.get("service", {}))
 
 
 class MiniPOSConfig:
     def __init__(self, config_data: dict) -> None:
-        self.product: ProductConfig = ProductConfig(config_data["product"])
-        self.table: TableConfig = TableConfig(config_data["table"])
+        self.products = dict(
+            enumerate([(prod[0], prod[1], cat) for cat, prods in config_data["products"].items() for prod in prods], start=1)
+        )
+        self.bars = config_data.get("bars", {})
+        self.tables: TableConfig = TableConfig(config_data["tables"])
         self.ui: UIConfig = UIConfig(config_data.get("ui", {}))
 
 
@@ -147,7 +161,7 @@ def init_config(app):
     app.config["DEBUG"] = config_data.get("debug", app.config["DEBUG"])
 
     # Make sure that no table is named "login" as this breaks login functionality in service
-    if any(x[4] == "login" for x in config_data["table"]["names"]):
+    if any(x[4] == "login" for x in config_data["tables"]["names"]):
         app.logger.critical("Table name 'login' is prohibited.")
         sys.exit(3)
 

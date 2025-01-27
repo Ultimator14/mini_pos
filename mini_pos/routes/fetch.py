@@ -13,7 +13,7 @@ def fetch_bar():
         "bar_body.html",
         orders=Order.get_open_orders(),
         completed_orders=Order.get_last_completed_orders(),
-        show_completed=bool(app.config["minipos"].ui.show_completed),
+        show_completed=bool(app.config["minipos"].ui.bar.show_completed),
     )
 
 

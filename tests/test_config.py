@@ -2,28 +2,28 @@ from mini_pos.config import CONFIG_DICT, MiniPOSConfig
 from mini_pos.confcheck import check_config_base
 
 def test_valid_config(app):
-    config_data = {"product": {"available": [], "categories": []}, "table": {"size": [1, 1], "names": []}}
+    config_data = {"products": {}, "tables": {"size": [1, 1], "names": []}}
 
     with app.app_context():
         assert not check_config_base(config_data, CONFIG_DICT)
 
 
 def test_missing_mandatory_value(app):
-    config_data = {"product": {"available": [], "categories": []}, "table": {"size": [1, 1]}}
+    config_data = {"products": {}, "tables": {"size": [1, 1]}}
 
     with app.app_context():
         assert check_config_base(config_data, CONFIG_DICT)
 
 
 def test_wrong_toplevel_type(app):
-    config_data = {"product": {"available": [], "categories": []}, "table": {"size": True, "names": [], "ui": True}}
+    config_data = {"products": {}, "tables": {"size": True, "names": [], "ui": True}}
 
     with app.app_context():
         assert check_config_base(config_data, CONFIG_DICT)
 
 
 def test_wrong_type(app):
-    config_data = {"product": {"available": [], "categories": []}, "table": {"size": True, "names": []}}
+    config_data = {"products": {}, "tables": {"size": True, "names": []}}
 
     with app.app_context():
         assert check_config_base(config_data, CONFIG_DICT)
@@ -40,7 +40,7 @@ def get_crit_log_handler(app):
 
 
 def test_minipos_config(app):
-    config_data = {"product": {"available": [], "categories": []}, "table": {"size": [1, 1], "names": []}}
+    config_data = {"products": {}, "tables": {"size": [1, 1], "names": []}}
     clh = get_crit_log_handler(app)
 
     with app.app_context():
@@ -51,8 +51,8 @@ def test_minipos_config(app):
 
 def test_duplicate_table_name(app):
     config_data = {
-        "product": {"available": [], "categories": []},
-        "table": {"size": [2, 2], "names": [[0, 0, 1, 1, "A1"], [1, 1, 1, 1, "A1"]]},
+        "products": {},
+        "tables": {"size": [2, 2], "names": [[0, 0, 1, 1, "A1"], [1, 1, 1, 1, "A1"]]},
     }
     clh = get_crit_log_handler(app)
 
@@ -64,8 +64,8 @@ def test_duplicate_table_name(app):
 
 def test_invalid_table_length(app):
     config_data = {
-        "product": {"available": [], "categories": []},
-        "table": {"size": [2, 2], "names": [[0, 0, 0, 1, "A1"]]},
+        "products": {},
+        "tables": {"size": [2, 2], "names": [[0, 0, 0, 1, "A1"]]},
     }
     clh = get_crit_log_handler(app)
 
@@ -76,8 +76,8 @@ def test_invalid_table_length(app):
 
 def test_table_outside_grid(app):
     config_data = {
-        "product": {"available": [], "categories": []},
-        "table": {"size": [1, 1], "names": [[0, 0, 1, 2, "A1"]]},
+        "products": {},
+        "tables": {"size": [1, 1], "names": [[0, 0, 1, 2, "A1"]]},
     }
     clh = get_crit_log_handler(app)
 

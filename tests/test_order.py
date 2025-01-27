@@ -9,7 +9,7 @@ def test_service_post(app):
 
     data1 = {"nonce": "123456789"}
 
-    for i in range(1, len(app.config["minipos"].product.available) + 1):
+    for i in range(1, len(app.config["minipos"].products) + 1):
         data1[f"amount-{i}"] = "1"  # one for every product
         data1[f"comment-{i}"] = "Test"  # comment for every product
 

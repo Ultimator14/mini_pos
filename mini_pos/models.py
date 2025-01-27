@@ -42,9 +42,9 @@ class Order(db.Model):
     @property
     def active_since_timeout_class(self) -> str:
         timediff = datetime.now() - self.date
-        if timediff > timedelta(seconds=app.config["minipos"].ui.timeout_crit):
+        if timediff > timedelta(seconds=app.config["minipos"].ui.bar.timeout_crit):
             return "timeout_crit"
-        if timediff > timedelta(seconds=app.config["minipos"].ui.timeout_warn):
+        if timediff > timedelta(seconds=app.config["minipos"].ui.bar.timeout_warn):
             return "timeout_warn"
         return "timeout_ok"
 
@@ -94,7 +94,7 @@ class Order(db.Model):
                 db.select(Order)
                 .filter(Order.completed_at.isnot(None))
                 .order_by(Order.completed_at.desc())
-                .limit(app.config["minipos"].ui.show_completed)
+                .limit(app.config["minipos"].ui.bar.show_completed)
             ).scalars()
         )
 

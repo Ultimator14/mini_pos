@@ -14,8 +14,8 @@ def service():
 
     return render_template(
         "service.html",
-        tables_size=app.config["minipos"].table.size,
-        tables_grid=app.config["minipos"].table.grid,
+        tables_size=app.config["minipos"].tables.size,
+        tables_grid=app.config["minipos"].tables.grid,
         active_tables=Order.get_active_tables(),
     )
 
@@ -50,7 +50,7 @@ def service_login_submit():
 @service_bp.route("/<table>", strict_slashes=False)
 def service_table(table):
     app.logger.debug("GET /service/<table>")
-    if table not in app.config["minipos"].table.names:
+    if table not in app.config["minipos"].tables.names:
         app.logger.error("GET in /service/<table> but invalid table. Skipping...")
         return "Error! Invalid table"
 
@@ -62,22 +62,22 @@ def service_table(table):
         table=table,
         open_product_lists=Product.get_open_product_lists_by_table(table),
         available_products=[
-            (p, pval[0], pval[1], pval[2]) for p, pval in app.config["minipos"].product.available.items()
+            (p, pval[0], pval[1], pval[2]) for p, pval in app.config["minipos"].products.items()
         ],
-        category_map=app.config["minipos"].product.category_map,
-        show_category_names=app.config["minipos"].ui.show_category_names,
-        split_categories_init=app.config["minipos"].product.available[1][2]
-        if len(app.config["minipos"].product.available) > 0
+        category_color_map=app.config["minipos"].ui.service.category_color_map,
+        show_category_names=app.config["minipos"].ui.service.show_category_names,
+        split_categories_init=app.config["minipos"].products[1][2]
+        if len(app.config["minipos"].products) > 0
         else 0,
         nonce=nonce,
-        fold_categories=app.config["minipos"].ui.fold_categories,
+        fold_categories=app.config["minipos"].ui.service.fold_categories,
     )
 
 
 @service_bp.route("/<table>", methods=["POST"], strict_slashes=False)
 def service_table_submit(table):
     app.logger.debug("POST /service/<table>")
-    if table not in app.config["minipos"].table.names:
+    if table not in app.config["minipos"].tables.names:
         app.logger.error("POST in /service/<table> but invalid table. Skipping...")
         return "Error! Invalid table"
 
@@ -101,7 +101,7 @@ def service_table_submit(table):
     db.session.flush()  # enforce creation of id, required to assign order_id to product
     product_added = False
 
-    for available_product in range(1, len(app.config["minipos"].product.available) + 1):
+    for available_product in range(1, len(app.config["minipos"].products) + 1):
         amount_param = request.form.get(f"amount-{available_product}")
 
         if amount_param is None:
@@ -121,7 +121,7 @@ def service_table_submit(table):
             comment = ""
 
         if amount > 0:
-            name, price, _ = app.config["minipos"].product.available[available_product]
+            name, price, _ = app.config["minipos"].products[available_product]
             product = Product.create(new_order.id, name, price, amount, comment)
             db.session.add(product)
             db.session.flush()  # enforce creation of id, required for log
