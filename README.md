@@ -97,23 +97,23 @@ sudo sysctl -w net.ipv4.ip_unprivileged_port_start=1024  # reset sysctl config c
 Configuration is done in the `config.json` file. The file is mandatory. The software does not start without it.  
 Some configuration options are
 
-| Config option         | Description                                                               | Format                                             |
-|-----------------------|:-------------------------------------------------------------------------:|---------------------------------------------------:|
-| product/available     | List of available products (name, price, category)                        | `List[str Name, float price, int category]`        |
-| product/categories    | Category names                                                            | `List[int category, str name]`                     |
-| table/size            | Size for the table grid in service                                        | `int x, int y`                                     |
-| table/names           | Table positions, sizes and names                                          | `List[int x, int y, int xlen, int ylen, str name]` |
-| ui/auto_close         | Automatically complete an order when all products are marked as completed | `bool true/false`                                  |
-| ui/show_completed     | Show the last n completed orders in /bar                                  | `int n`                                            |
-| ui/show_category_names| Show category names between products of different category in service     | `bool true/false`                                  |
-| ui/fold_categories    | Fold categories by default in service                                     | `bool true/false`                                  |
-| ui/timeout            | Timeout in seconds to mark orders yellow/red                              | `int timeout_warn, int timeout_crit`               |
+| Config option                 | Description                                                               | Format                                             |
+|-------------------------------|:-------------------------------------------------------------------------:|---------------------------------------------------:|
+| products                      | Dict of categories with products (name, price)                            | `dict[str category, list[str Name, float price]]`  |
+| tables/size                   | Size for the table grid in service                                        | `int x, int y`                                     |
+| tables/names                  | Table positions, sizes and names                                          | `list[int x, int y, int xlen, int ylen, str name]` |
+| ui/bar/auto_close             | Automatically complete an order when all products are marked as completed | `bool true/false`                                  |
+| ui/bar/show_completed         | Show the last n completed orders in /bar                                  | `int n`                                            |
+| ui/bar/timeout                | Timeout in seconds to mark orders yellow/red                              | `int timeout_warn, int timeout_crit`               |
+| ui/service/show_category_names| Show category names between products of different category in service     | `bool true/false`                                  |
+| ui/service/fold_categories    | Fold categories by default in service                                     | `bool true/false`                                  |
+| ui/service/category_color_map | Dict that maps category names to specific colors                          | `dict[str category, int color]`                    |
 
 ### Categories
 
 An additional space is added between adjacent products with different category in service. If `show_category_names` is enabled, the space is filled with the corresponding category name.
 
-Categories 0-14 have a distinct color scheme
+Category map values 0-14 have a distinct color scheme
 
 - Products in category 1-7 have a light colored background per default and become heavily colored upon selection. The category separators are not colored
 - Products in category 8-14 have a white background per default and become light colored upon selection. The category separators are colored heavily
