@@ -54,8 +54,8 @@
                 </table></div></td></tr>
                 {% endif -%}
 
-                <tr><td colspan="5" class="category-name-{{category_color_map[pcat]}}"><button type="button" class="category-button arrow" id="category-button-{{category_color_map[pcat]}}" onclick="toggleCategoryFold({{category_color_map[pcat]}})">{{pcat}}&nbsp;</button></td></tr>
-                <tr><td colspan="5"><div id="category-fold-div-{{category_color_map[pcat]}}" class="category-fold-div"><table>
+                <tr><td colspan="5" class="category-name-{{category_color_map[pcat]}}"><button type="button" class="category-button arrow" id="category-button-{{pcat}}" onclick="toggleCategoryFold('{{pcat}}')">{{pcat}}&nbsp;</button></td></tr>
+                <tr><td colspan="5"><div id="category-fold-div-{{pcat}}" class="category-fold-div"><table>
                 <colgroup>
                     <col style="width: 15vw;">
                     <col style="width: 40vw;">
@@ -92,7 +92,7 @@
         <hr style="background-color: cornflowerblue;">
         <p id="total-cost-p">Gesamtpreis <span id="total-cost">0.00</span> €</p>
         <button type="submit" id="submit-button">Bestellen</button>
-        {%  for pid, pname, pprice, pcat in available_products %}
+        {%  for pid, pname, pprice, _ in available_products %}
         <div id="customize-popup-{{pid}}" class="popup">
             <div class="popup-inner">
                 <h2>{{ pname }}</h2>
