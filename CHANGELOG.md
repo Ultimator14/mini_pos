@@ -1,6 +1,13 @@
 # MiniPOS Unreleased
 
 
+# MiniPOS 0.2.4
+
+### Features
+
+- Improve config checking
+
+
 # MiniPOS 0.2.3
 
 ### Features
