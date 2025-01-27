@@ -2,125 +2,49 @@ import json
 import logging
 import os
 import sys
-from typing import Any, get_args, get_origin
+from typing import Any
 
 from flask import current_app as app
+
+from .confcheck import LogLevel, check_config_base
 
 AvailableProductsT = dict[int, tuple[str, float, int]]
 TablesGridTupleT = tuple[bool, int | None, int | None, str | None]
 TablesGridT = list[list[TablesGridTupleT | None]]
 
-
-TYPING_DICT = {
-    "product": {
-        "available": list[tuple[str, float, int]],
-        "categories": list[tuple[int, str]],
-    },
-    "table": {
-        "size": tuple[int, int],
-        "names": list[tuple[int, int, int, int, str]],
-    },
-    "ui": {
-        "auto_close": bool,
-        "show_completed": int,
-        "show_category_names": bool,
-        "fold_categories": bool,
-        "timeout": tuple[int, int],
-    },
-    "debug": bool,
+# Key: name
+# Value: Datatype (origin), mandatory (bool), sub-config (dict)
+# If sub-config is tuple, this means any-of
+CONFIG_DICT: dict[str, tuple] = {
+    "product": (
+        dict,
+        True,
+        {
+            "available": (list[tuple[str, float, int]], True, None),
+            "categories": (list[tuple[int, str]], True, None),
+        },
+    ),
+    "table": (
+        dict,
+        True,
+        {
+            "size": (tuple[int, int], True, None),
+            "names": (list[tuple[int, int, int, int, str]], True, None),
+        },
+    ),
+    "ui": (
+        dict,
+        False,
+        {
+            "auto_close": (bool, False, None),
+            "show_completed": (int, False, None),
+            "show_category_names": (bool, False, None),
+            "fold_categories": (bool, False, None),
+            "timeout": (tuple[int, int], False, None),
+        },
+    ),
+    "debug": (bool, False, None),
 }
-
-MANDATORY_DICT = {
-    "product": {
-        "available": True,
-        "categories": True,
-    },
-    "table": {
-        "size": True,
-        "names": True,
-    },
-}
-
-
-def check_type(data: Any, expected_type: type, path: str) -> bool:
-    """Check if data matches a primitive expected type.
-    e.g. check if data has type str
-    """
-    if isinstance(data, expected_type):
-        return True
-
-    app.logger.critical("Invalid type for config option: %s", path)
-    return False
-
-
-def unpack_type(data: Any, expected_type: type, path: str) -> bool:
-    """Check if data matches a nested expected type.
-    e.g. check if data has type list[tuple[str,int]]
-    """
-    origin = get_origin(expected_type)
-
-    # ban dicts
-    if origin is dict:
-        err_msg = "Nested dictionary types are not supported for type checking config"
-        raise TypeError(err_msg)
-
-    # primitive data type, nothing to unpack
-    if origin is None:
-        return check_type(data, expected_type, path)
-
-    path = f"{path} -> {origin.__name__!s}"
-
-    # check parent type (JSON only has lists, python needs tuples)
-    safe_origin = list if origin is tuple else origin
-    if not check_type(data, safe_origin, path):
-        return False
-
-    # check child types (only if parent type is correct)
-    type_params = get_args(expected_type)
-
-    if origin is list:
-        return all(unpack_type(d, type_params[0], path) for d in data)
-
-    if origin is tuple:
-        if len(type_params) != len(data):
-            app.logger.critical("Config option has wrong length (must be %s): %s", len(type_params), data)
-            return False
-
-        return all(unpack_type(data[index], type_param, path) for index, type_param in enumerate(type_params))
-
-    return all(check_type(data[tp], type_params[tp], path) for tp in type_params)
-
-
-def check_config(data: Any, typing_dict: dict, mandatory_dict: dict | None, path="."):
-    """Check if data conforms to the nested datastructure typing_dict.
-    Mandatory keys must be present in mandatory_dict.
-    e.g. check if data matches {"mykey": list[tuple[str,int]]}
-    """
-    check_result = True
-
-    # Iterate over all supported config options
-    for key, expected_type in typing_dict.items():
-        subpath = f"{path} -> {key}"
-
-        if key in data:
-            # Key is present in config
-            if type(expected_type) is dict:
-                if check_type(data[key], dict, subpath):
-                    md = mandatory_dict.get(key) if type(mandatory_dict) is dict else None
-                    check_result = check_config(data[key], typing_dict[key], md, subpath) and check_result
-                else:
-                    check_result = False
-            else:
-                check_result = unpack_type(data[key], expected_type, subpath) and check_result
-        else:
-            # Key is missing from config
-            if mandatory_dict is not None and mandatory_dict.get(key):
-                app.logger.critical("Mandatory key missing from config: %s", subpath)
-                check_result = False
-            else:
-                app.logger.warning("Optional key missing from config: %s", subpath)
-
-    return check_result
 
 
 class ProductConfig:
@@ -203,7 +127,20 @@ def init_config(app):
         sys.exit(1)
 
     # Check if config conforms to correct structure
-    if not check_config(config_data, TYPING_DICT, MANDATORY_DICT):
+    log_lookup = {
+        LogLevel.debug: app.logger.debug,
+        LogLevel.info: app.logger.info,
+        LogLevel.warning: app.logger.warning,
+        LogLevel.error: app.logger.error,
+        LogLevel.critical: app.logger.critical,
+    }
+
+    check_result = check_config_base(config_data, CONFIG_DICT)
+
+    if check_result:
+        for msg, fun in check_result:
+            log_lookup[fun](msg)
+
         sys.exit(2)
 
     # debug setting also used for flask

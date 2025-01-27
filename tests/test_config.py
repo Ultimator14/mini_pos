@@ -1,31 +1,32 @@
-from mini_pos.config import MANDATORY_DICT, TYPING_DICT, MiniPOSConfig, check_config
+from mini_pos.config import CONFIG_DICT, MiniPOSConfig
+from mini_pos.confcheck import check_config_base
 
 def test_valid_config(app):
     config_data = {"product": {"available": [], "categories": []}, "table": {"size": [1, 1], "names": []}}
 
     with app.app_context():
-        assert check_config(config_data, TYPING_DICT, MANDATORY_DICT)
+        assert not check_config_base(config_data, CONFIG_DICT)
 
 
 def test_missing_mandatory_value(app):
     config_data = {"product": {"available": [], "categories": []}, "table": {"size": [1, 1]}}
 
     with app.app_context():
-        assert not check_config(config_data, TYPING_DICT, MANDATORY_DICT)
+        assert check_config_base(config_data, CONFIG_DICT)
 
 
 def test_wrong_toplevel_type(app):
     config_data = {"product": {"available": [], "categories": []}, "table": {"size": True, "names": [], "ui": True}}
 
     with app.app_context():
-        assert not check_config(config_data, TYPING_DICT, MANDATORY_DICT)
+        assert check_config_base(config_data, CONFIG_DICT)
 
 
 def test_wrong_type(app):
     config_data = {"product": {"available": [], "categories": []}, "table": {"size": True, "names": []}}
 
     with app.app_context():
-        assert not check_config(config_data, TYPING_DICT, MANDATORY_DICT)
+        assert check_config_base(config_data, CONFIG_DICT)
 
 
 def get_crit_log_handler(app):
