@@ -131,6 +131,9 @@ class MiniPOSConfig:
             app.logger.warning("No bar defined. Enabling default bar despite disabled in config...")
             self.ui.bar.default = True
 
+        # merge default config with user defined bars if enabled
+        self.bars |= {"default": self.categories} if self.ui.bar.default else {}
+
 
 def load_file(config_file: str) -> dict | None:
     if not os.path.isfile(config_file):

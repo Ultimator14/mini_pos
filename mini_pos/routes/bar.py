@@ -12,37 +12,18 @@ def bar():
 
     # If there is only one bar including the default one (if present) we can directly show it
     bars = app.config["minipos"].bars.copy()
-    default_bar = app.config["minipos"].ui.bar.default
 
-    if default_bar and len(bars) == 0:
-        # display default bar
-        return redirect(url_for("bar.bar_name", name="default"))
-
-    if not default_bar and len(bars) == 1:
+    if len(bars) == 1:
         # display the only bar
         return redirect(url_for("bar.bar_name", name=bars.keys()[0]))
 
-    # we have multiple bars, hence we must display a selection
-    default_bar_addition = {"default": app.config["minipos"].categories} if default_bar else {}
-
-    return render_template("bar_selection.html", bars=bars | default_bar_addition)
+    return render_template("bar_selection.html", bars=bars)
 
 
 @bar_bp.route("/<name>", strict_slashes=False)
 def bar_name(name: str):
     app.logger.debug("GET /bar/<name>")
 
-    if name == "default" and app.config["minipos"].ui.bar.default:
-        # display default bar
-        return render_template(
-            "bar.html",
-            orders=Order.get_open_orders(),
-            completed_orders=Order.get_last_completed_orders(),
-            show_completed=bool(app.config["minipos"].ui.bar.show_completed),
-            bar=name,
-        )
-
-    # Try to display another bar
     if app.config["minipos"].bars.get(name) is None:
         app.logger.error("GET in /bar/%s with invalid bar. Using default bar. Skipping...", name)
         return "Error! Bar not found"
@@ -91,10 +72,7 @@ def handle_order_completed_event(order_id: int, bar: str) -> None:
         app.logger.error("POST in /bar but no matching order to complete")
         return
 
-    if bar == "default":
-        order.complete()
-    else:
-        order.complete_for_bar(bar)
+    order.complete_for_bar(bar)
 
 
 def handle_product_completed_event(product_id: int, bar: str) -> None:

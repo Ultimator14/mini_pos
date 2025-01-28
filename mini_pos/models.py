@@ -65,16 +65,9 @@ class Order(db.Model):
         app.logger.info("Completed order %s", self.id)
 
     def products_for_bar(self, bar: str) -> list[Product]:
-        if bar == "default":
-            return self.products
-
         return [p for p in self.products if p.category in app.config["minipos"].bars.get(bar, [])]
 
     def complete_for_bar(self, bar: str) -> None:
-        if bar == "default":
-            self.complete()
-            return
-
         for product in self.products_for_bar(bar):
             product.complete()
 
