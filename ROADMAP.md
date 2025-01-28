@@ -39,3 +39,4 @@ This file provides an overview about the planned (future) changes.
 - Make order history of table available in service
 - Underscore category names should be hidden (same as no category)
 - Rework fetching logic, change so that fetching does always only fetch data and not the whole html page -> layouting should happen on the client
+- Add more tests (especially for differnt bars)
