@@ -2,6 +2,7 @@
 
 ### Features
 
+- New config structure (breaking change for config file)
 - Support multiple bars (breaking change for config and database)
 
 
