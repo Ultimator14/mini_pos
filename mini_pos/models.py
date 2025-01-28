@@ -86,18 +86,6 @@ class Order(db.Model):
         return list(db.session.execute(db.select(Order).filter_by(completed_at=None)).scalars())
 
     @staticmethod
-    def get_open_orders_by_categories(categories: list[str]) -> list[Order]:
-        return list(
-            db.session.execute(
-                db.select(Order)
-                .filter_by(completed_at=None)
-                .join(Order.products)
-                .filter(Product.category.in_(categories))
-                .group_by(Order)
-            ).scalars()
-        )
-
-    @staticmethod
     def get_order_by_id(order_id: int) -> Order | None:
         return db.session.execute(db.select(Order).filter_by(id=order_id)).scalar_one_or_none()
 
@@ -119,20 +107,6 @@ class Order(db.Model):
             db.session.execute(
                 db.select(Order)
                 .filter(Order.completed_at.isnot(None))
-                .order_by(Order.completed_at.desc())
-                .limit(app.config["minipos"].ui.bar.show_completed)
-            ).scalars()
-        )
-
-    @staticmethod
-    def get_last_completed_orders_by_categories(categories: list[str]) -> list[Order]:
-        return list(
-            db.session.execute(
-                db.select(Order)
-                .filter(Order.completed_at.isnot(None))
-                .join(Order.products)
-                .filter(Product.category.in_(categories))
-                .group_by(Order)
                 .order_by(Order.completed_at.desc())
                 .limit(app.config["minipos"].ui.bar.show_completed)
             ).scalars()
