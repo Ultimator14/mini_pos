@@ -55,8 +55,7 @@ class Order(db.Model):
         return self.completed_at.strftime("%Y-%m-%d %H:%M:%S")
 
     def complete(self) -> None:
-        products = db.session.execute(db.select(Product).filter_by(order_id=self.id, completed=False)).scalars()
-        for product in products:
+        for product in self.products:
             product.complete()
 
         self.completed_at = datetime.now()
