@@ -43,16 +43,14 @@ def bar_name(name: str):
         )
 
     # Try to display another bar
-    bar_categories = app.config["minipos"].bars.get(name)
-
-    if bar_categories is None:
+    if app.config["minipos"].bars.get(name) is None:
         app.logger.error("GET in /bar/%s with invalid bar. Using default bar. Skipping...", name)
         return "Error! Bar not found"
 
     return render_template(
         "bar.html",
-        orders=Order.get_open_orders_by_categories(bar_categories),
-        completed_orders=Order.get_last_completed_orders_by_categories(bar_categories),
+        orders=[o for o in Order.get_open_orders() if any(not p.completed for p in o.products_for_bar(name))],
+        completed_orders=[co for co in Order.get_last_completed_orders() if co.products_for_bar(name)],
         show_completed=bool(app.config["minipos"].ui.bar.show_completed),
         bar=name,
     )
@@ -72,13 +70,13 @@ def bar_submit(name: str):
         if not order_id.isdigit():
             app.logger.error("POST in /bar but filetype not convertible to integer")
         else:
-            handle_order_completed_event(int(order_id))
+            handle_order_completed_event(int(order_id), name)
 
     elif product_id is not None:
         if not product_id.isdigit():
             app.logger.error("POST in /bar but filetype not convertible to integer")
         else:
-            handle_product_completed_event(int(product_id))
+            handle_product_completed_event(int(product_id), name)
 
     else:
         app.logger.error("POST in /bar but neither order nor product specified")
@@ -86,17 +84,20 @@ def bar_submit(name: str):
     return redirect(url_for("bar.bar_name", name=name))
 
 
-def handle_order_completed_event(order_id: int) -> None:
+def handle_order_completed_event(order_id: int, bar: str) -> None:
     order = Order.get_order_by_id(order_id)
 
     if order is None:
         app.logger.error("POST in /bar but no matching order to complete")
         return
 
-    order.complete()
+    if bar == "default":
+        order.complete()
+    else:
+        order.complete_for_bar(bar)
 
 
-def handle_product_completed_event(product_id: int) -> None:
+def handle_product_completed_event(product_id: int, bar: str) -> None:
     product = Product.get_product_by_id(product_id)
 
     if product is None:
@@ -107,6 +108,8 @@ def handle_product_completed_event(product_id: int) -> None:
     order_id = product.order_id
 
     if app.config["minipos"].ui.bar.auto_close and len(Product.get_open_products_by_order_id(order_id)) == 0:
+        # Since orders are filtered for different bars, we only have to check the case that an order is really
+        # closed, not that it is partially closed by one bar only
         app.logger.info("Last Product completed. Attempting auto_close")
 
         if (order := Order.get_order_by_id(order_id)) is None:

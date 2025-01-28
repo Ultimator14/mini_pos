@@ -21,16 +21,14 @@ def fetch_bar(name: str):
         )
 
     # Try to display another bar
-    bar_categories = app.config["minipos"].bars.get(name)
-
-    if bar_categories is None:
+    if app.config["minipos"].bars.get(name) is None:
         app.logger.error("GET in /bar/%s with invalid bar. Using default bar. Skipping...", name)
         return "Error! Bar not found"
 
     return render_template(
         "bar_body.html",
-        orders=Order.get_open_orders_by_categories(bar_categories),
-        completed_orders=Order.get_last_completed_orders_by_categories(bar_categories),
+        orders=[o for o in Order.get_open_orders() if any(not p.completed for p in o.products_for_bar(name))],
+        completed_orders=[co for co in Order.get_last_completed_orders() if co.products_for_bar(name)],
         show_completed=bool(app.config["minipos"].ui.bar.show_completed),
         bar=name,
     )

@@ -19,7 +19,7 @@
                             <th class="icol-3">Sonstiges</th>
                             <th class="icol-4">Erledigt</th>
                         </tr>
-                        {% for product in order.products -%}
+                        {% for product in order.products_for_bar(bar) -%}
                         <tr>
                             <td>{{product.name}}</td>
                             <td>{{product.amount}}</td>
@@ -65,7 +65,7 @@
                             <th class="icolc-2">Menge</th>
                             <th class="icolc-3">Sonstiges</th>
                         </tr>
-                        {% for product in completed_order.products -%}
+                        {% for product in completed_order.products_for_bar(bar) -%}
                             {%- if product.completed %}
                                 <tr>
                                     <td>{{product.name}}</td>
