@@ -8,7 +8,7 @@ def test_index(client):
 
 def test_bar(client):
     response = client.get("/bar")
-    assert b"<title>Bar</title>" in response.data
+    assert any(x in response.data for x in [b"<title>Bar</title>", b"<title>Bar Selection</title>"])
 
 
 def test_service_login(client):
@@ -41,7 +41,7 @@ def test_service2(client):
 
 
 def test_fetch_bar(client):
-    response = client.get("/fetch/bar")
+    response = client.get("/fetch/bar/default")
     assert b"server-status-up" in response.data
 
 

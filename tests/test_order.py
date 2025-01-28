@@ -35,13 +35,13 @@ def test_service_post(app):
 
     # Complete order1 in bar
     data = {"order-completed": str(order1.id)}
-    response = client.post("/bar", data=data)
+    response = client.post("/bar/default", data=data)
 
     assert response.status_code == 302
 
     # Complete second order by completing product
     data = {"product-completed": str(order2_product.id), "order": str(order2.id)}
-    response = client.post("/bar", data=data)
+    response = client.post("/bar/default", data=data)
 
     assert response.status_code == 302
 
