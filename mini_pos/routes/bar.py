@@ -7,7 +7,7 @@ bar_bp = Blueprint("bar", __name__, template_folder="templates")
 
 
 @bar_bp.route("/", strict_slashes=False)
-def bar():
+def bar_selection():
     app.logger.debug("GET /bar")
 
     # If there is only one bar including the default one (if present) we can directly show it
@@ -15,30 +15,30 @@ def bar():
 
     if len(bars) == 1:
         # display the only bar
-        return redirect(url_for("bar.bar_name", name=bars.keys()[0]))
+        return redirect(url_for("bar.bar_name", bar=bars.keys()[0]))
 
     return render_template("bar_selection.html", bars=bars)
 
 
-@bar_bp.route("/<name>", strict_slashes=False)
-def bar_name(name: str):
+@bar_bp.route("/<bar>", strict_slashes=False)
+def bar_name(bar: str):
     app.logger.debug("GET /bar/<name>")
 
-    if app.config["minipos"].bars.get(name) is None:
-        app.logger.error("GET in /bar/%s with invalid bar. Using default bar. Skipping...", name)
+    if app.config["minipos"].bars.get(bar) is None:
+        app.logger.error("GET in /bar/%s with invalid bar. Using default bar. Skipping...", bar)
         return "Error! Bar not found"
 
     return render_template(
         "bar.html",
-        orders=[o for o in Order.get_open_orders() if any(not p.completed for p in o.products_for_bar(name))],
-        completed_orders=[co for co in Order.get_last_completed_orders() if co.products_for_bar(name)],
+        orders=[o for o in Order.get_open_orders() if any(not p.completed for p in o.products_for_bar(bar))],
+        completed_orders=[co for co in Order.get_last_completed_orders() if co.products_for_bar(bar)],
         show_completed=bool(app.config["minipos"].ui.bar.show_completed),
-        bar=name,
+        bar=bar,
     )
 
 
-@bar_bp.route("/<name>", methods=["POST"], strict_slashes=False)
-def bar_submit(name: str):
+@bar_bp.route("/<bar>", methods=["POST"], strict_slashes=False)
+def bar_submit(bar: str):
     app.logger.debug("POST /bar/<name>")
 
     order_id = request.form.get("order-completed")
@@ -51,18 +51,18 @@ def bar_submit(name: str):
         if not order_id.isdigit():
             app.logger.error("POST in /bar but filetype not convertible to integer")
         else:
-            handle_order_completed_event(int(order_id), name)
+            handle_order_completed_event(int(order_id), bar)
 
     elif product_id is not None:
         if not product_id.isdigit():
             app.logger.error("POST in /bar but filetype not convertible to integer")
         else:
-            handle_product_completed_event(int(product_id), name)
+            handle_product_completed_event(int(product_id), bar)
 
     else:
         app.logger.error("POST in /bar but neither order nor product specified")
 
-    return redirect(url_for("bar.bar_name", name=name))
+    return redirect(url_for("bar.bar_name", bar=bar))
 
 
 def handle_order_completed_event(order_id: int, bar: str) -> None:
