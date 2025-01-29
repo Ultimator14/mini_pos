@@ -103,6 +103,7 @@ class Order(db.Model):
         return list(
             db.session.execute(
                 db.select(Order)
+                .filter_by(completed_at=None)
                 .join(Order.products)
                 .filter(
                     Product.category.in_(categories),
