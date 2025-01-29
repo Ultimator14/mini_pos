@@ -62,7 +62,7 @@ def bar_submit(bar: str):
         if not product_id.isdigit():
             app.logger.error("POST in /bar but filetype not convertible to integer")
         else:
-            handle_product_completed_event(int(product_id), bar)
+            handle_product_completed_event(int(product_id))
 
     else:
         app.logger.error("POST in /bar but neither order nor product specified")
@@ -80,7 +80,7 @@ def handle_order_completed_event(order_id: int, bar: str) -> None:
     order.complete_for_bar(bar)
 
 
-def handle_product_completed_event(product_id: int, bar: str) -> None:
+def handle_product_completed_event(product_id: int) -> None:
     product = Product.get_product_by_id(product_id)
 
     if product is None:
