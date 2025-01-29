@@ -102,7 +102,9 @@ class Order(db.Model):
                 db.select(Order)
                 .join(Order.products)
                 .filter(Order.completed_at.is_(None), Product.category.in_(categories))
-                .having(func.sum(case((Product.completed.is_(False), 1), else_=0)) == 0)
+                .having(
+                    func.sum(case((Product.completed.is_(False), 1), else_=0)) == 0
+                )  # do not try to simplify this, it will not work...
                 .group_by(Order)
             ).scalars()
         )
