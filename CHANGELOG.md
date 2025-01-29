@@ -2,8 +2,13 @@
 
 ### Features
 
-- New config structure (breaking change for config file)
 - Support multiple bars (breaking change for config and database)
+- New config structure (breaking change for config file)
+- Improve tests
+
+## Internals
+
+- Create database relationship between Order and Product
 
 
 # MiniPOS 0.2.4
