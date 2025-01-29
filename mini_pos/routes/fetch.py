@@ -18,7 +18,11 @@ def fetch_bar(name: str):
     return render_template(
         "bar_body.html",
         orders=[o for o in open_orders if any(not p.completed for p in o.products_for_bar(name))],
-        partially_completed_orders = [o for o in open_orders if all(p.completed for p in o.products_for_bar(name))],
+        partially_completed_orders=[
+            o
+            for o in open_orders
+            if all(p.completed for p in o.products_for_bar(name)) and len(o.products_for_bar(bar)) > 0
+        ],
         completed_orders=[co for co in Order.get_last_completed_orders() if co.products_for_bar(name)],
         show_completed=bool(app.config["minipos"].ui.bar.show_completed),
         bar=name,
