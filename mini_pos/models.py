@@ -91,7 +91,7 @@ class Order(db.Model):
                 .join(Order.products)
                 .filter(
                     Product.category.in_(categories),
-                    Product.completed == False
+                    Product.completed.is_(False)
                 )
                 .group_by(Order)
             ).scalars()
@@ -106,7 +106,7 @@ class Order(db.Model):
                 .join(Order.products)
                 .filter(
                     Product.category.in_(categories),
-                    Product.completed == True
+                    Product.completed.isnot(False)
                 )
                 .group_by(Order)
             ).scalars()
