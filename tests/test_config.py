@@ -1,5 +1,6 @@
-from mini_pos.config import CONFIG_DICT, MiniPOSConfig
 from mini_pos.confcheck import check_config_base
+from mini_pos.config import CONFIG_DICT, MiniPOSConfig
+
 
 def test_valid_config(app):
     config_data = {"products": {}, "tables": {"size": [1, 1], "names": []}}
@@ -16,7 +17,7 @@ def test_missing_mandatory_value(app):
 
 
 def test_wrong_toplevel_type(app):
-    config_data = {"products": {}, "tables": {"size": True, "names": [], "ui": True}}
+    config_data = {"products": {}, "tables": {"size": True, "names": []}}
 
     with app.app_context():
         assert check_config_base(config_data, CONFIG_DICT)
@@ -24,6 +25,13 @@ def test_wrong_toplevel_type(app):
 
 def test_wrong_type(app):
     config_data = {"products": {}, "tables": {"size": True, "names": []}}
+
+    with app.app_context():
+        assert check_config_base(config_data, CONFIG_DICT)
+
+
+def test_wrong_optional_type(app):
+    config_data = {"products": {}, "tables": {"size": True, "names": [], "ui": {"bar": {"default": 1}}}}
 
     with app.app_context():
         assert check_config_base(config_data, CONFIG_DICT)
@@ -73,6 +81,7 @@ def test_invalid_table_length(app):
         _ = MiniPOSConfig(config_data)
 
     assert clh.count == 1
+
 
 def test_table_outside_grid(app):
     config_data = {

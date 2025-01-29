@@ -8,7 +8,7 @@ def test_index(client):
 
 def test_bar(client):
     response = client.get("/bar")
-    assert any(x in response.data for x in [b"<title>Bar</title>", b"<title>Bar Selection</title>"])
+    assert b"<title>Bar Selection</title>" in response.data
 
 
 def test_service_login(client):

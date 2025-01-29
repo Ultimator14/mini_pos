@@ -3,7 +3,7 @@
 from mini_pos.models import Order
 
 
-def test_service_post(app):
+def test_order_completion(app):
     # Setup
     client = app.test_client()
 
@@ -28,9 +28,8 @@ def test_service_post(app):
 
         assert len(open_orders) == 2
 
-        order1 = open_orders[0]
+        order1, order2 = open_orders
 
-        order2 = open_orders[1]
         order2_product = order2.products[0]
 
     # Complete order1 in bar
@@ -47,9 +46,133 @@ def test_service_post(app):
 
     # Check that both orders are completed
     with app.app_context():
-        open_orders = Order.get_open_orders_for_bar("default")
+        assert len(Order.get_open_orders_for_bar("default")) == 0
 
-    assert len(open_orders) == 0
+
+def test_bars(app):
+    # Setup
+    client = app.test_client()
+
+    data1 = {"nonce": "123123123", "amount-5": "2", "comment-5": "", "amount-6": "2", "comment-6": ""}  # only drinks
+    data2 = {
+        "nonce": "456456456",
+        "amount-31": "2",
+        "comment-31": "Test",
+        "amount-32": "4",
+        "comment-32": "Mycomment",
+    }  # only food
+    data3 = {"nonce": "789789789", "amount-8": "2", "comment-8": "", "amount-31": "7", "comment-31": "Test"}  # both
+
+    response = client.post("/service/A3", data=data1)
+    assert response.status_code == 302
+
+    response = client.post("/service/A4", data=data2)
+    assert response.status_code == 302
+
+    response = client.post("/service/A5", data=data3)
+    assert response.status_code == 302
+
+    # Get order ids of new orders
+    with app.app_context():
+        open_orders = Order.get_open_orders_for_bar("default")
+        assert len(open_orders) == 3
+        order1, order2, order3 = open_orders
+
+        open_orders_bar = Order.get_open_orders_for_bar("Bar")
+        assert open_orders_bar == [order1, order3]
+
+        open_orders_kitchen = Order.get_open_orders_for_bar("Küche")
+        assert open_orders_kitchen == [order2, order3]
+
+        order3_product1, order3_product2 = order3.products
+
+    # Check that both orders are completed and that each bar displays the correct order
+    with app.app_context():
+        assert len(Order.get_open_orders_for_bar("Bar")) == 2
+        assert len(Order.get_partially_completed_order_for_bar("Bar")) == 0
+        assert len(Order.get_last_completed_orders_for_bar("Bar")) == 0
+
+        assert len(Order.get_open_orders_for_bar("Küche")) == 2
+        assert len(Order.get_partially_completed_order_for_bar("Küche")) == 0
+        assert len(Order.get_last_completed_orders_for_bar("Küche")) == 0
+
+        assert len(Order.get_open_orders_for_bar("default")) == 3
+        assert len(Order.get_partially_completed_order_for_bar("default")) == 0
+        assert len(Order.get_last_completed_orders_for_bar("default")) == 0
+
+    # Complete first order from bar Bar
+    data = {"order-completed": str(order1.id)}
+    response = client.post("/bar/Bar", data=data)
+
+    # Check that order is completed correctly
+    with app.app_context():
+        assert len(Order.get_open_orders_for_bar("Bar")) == 1
+        assert len(Order.get_partially_completed_order_for_bar("Bar")) == 0
+        assert len(Order.get_last_completed_orders_for_bar("Bar")) == 1
+
+        assert len(Order.get_open_orders_for_bar("Küche")) == 2
+        assert len(Order.get_partially_completed_order_for_bar("Küche")) == 0
+        assert len(Order.get_last_completed_orders_for_bar("Küche")) == 0
+
+        assert len(Order.get_open_orders_for_bar("default")) == 2
+        assert len(Order.get_partially_completed_order_for_bar("default")) == 0
+        assert len(Order.get_last_completed_orders_for_bar("default")) == 1
+
+    # Complete second order from bar Küche
+    data = {"order-completed": str(order2.id)}
+    response = client.post("/bar/Küche", data=data)
+
+    # Check that order is completed correctly
+    with app.app_context():
+        assert len(Order.get_open_orders_for_bar("Bar")) == 1
+        assert len(Order.get_partially_completed_order_for_bar("Bar")) == 0
+        assert len(Order.get_last_completed_orders_for_bar("Bar")) == 1
+
+        assert len(Order.get_open_orders_for_bar("Küche")) == 1
+        assert len(Order.get_partially_completed_order_for_bar("Küche")) == 0
+        assert len(Order.get_last_completed_orders_for_bar("Küche")) == 1
+
+        assert len(Order.get_open_orders_for_bar("default")) == 1
+        assert len(Order.get_partially_completed_order_for_bar("default")) == 0
+        assert len(Order.get_last_completed_orders_for_bar("default")) == 2
+
+    # Partially complete third order from bar Bar
+    data = {"product-completed": str(order3_product1.id), "order": str(order3.id)}
+    response = client.post("/bar/Bar", data=data)
+
+    # Check that order is partially completed correctly
+    with app.app_context():
+        assert len(Order.get_open_orders_for_bar("Bar")) == 0
+        assert len(Order.get_partially_completed_order_for_bar("Bar")) == 1
+        assert len(Order.get_last_completed_orders_for_bar("Bar")) == 1
+
+        assert len(Order.get_open_orders_for_bar("Küche")) == 1
+        assert len(Order.get_partially_completed_order_for_bar("Küche")) == 0
+        assert len(Order.get_last_completed_orders_for_bar("Küche")) == 1
+
+        assert len(Order.get_open_orders_for_bar("default")) == 1
+        assert len(Order.get_partially_completed_order_for_bar("default")) == 0
+        assert len(Order.get_last_completed_orders_for_bar("default")) == 2
+
+        print(order3.products)
+
+    # Completely complete third order from bar Küche
+    data = {"product-completed": str(order3_product2.id), "order": str(order3.id)}
+    response = client.post("/bar/Küche", data=data)
+
+    # Check that order is completed correctly
+    with app.app_context():
+        assert len(Order.get_open_orders_for_bar("Bar")) == 0
+        assert len(Order.get_partially_completed_order_for_bar("Bar")) == 0
+        assert len(Order.get_last_completed_orders_for_bar("Bar")) == 2
+
+        assert len(Order.get_open_orders_for_bar("Küche")) == 0
+        assert len(Order.get_partially_completed_order_for_bar("Küche")) == 0
+        assert len(Order.get_last_completed_orders_for_bar("Küche")) == 2
+
+        assert len(Order.get_open_orders_for_bar("default")) == 0
+        assert len(Order.get_partially_completed_order_for_bar("default")) == 0
+        assert len(Order.get_last_completed_orders_for_bar("default")) == 3
 
 
 if __name__ == "__main__":
@@ -58,4 +181,5 @@ if __name__ == "__main__":
     from mini_pos.settings import TestConfig
 
     app = create_app(TestConfig)
-    test_service_post(app)
+    test_order_completion(app)
+    test_bars(app)
