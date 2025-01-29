@@ -82,8 +82,50 @@ class Order(db.Model):
             app.logger.info("Completed order %s", self.id)
 
     @staticmethod
-    def get_open_orders() -> list[Order]:
-        return list(db.session.execute(db.select(Order).filter_by(completed_at=None)).scalars())
+    def get_open_orders_for_bar(bar: str) -> list[Order]:
+        categories = app.config["minipos"].bars[bar]
+        return list(
+            db.session.execute(
+                db.select(Order)
+                .filter_by(completed_at=None)
+                .join(Order.products)
+                .filter(
+                    Product.category.in_(categories),
+                    Product.completed == False
+                )
+                .group_by(Order)
+            ).scalars()
+        )
+
+    @staticmethod
+    def get_partially_completed_order_for_bar(bar: str) -> list[Order]:
+        categories = app.config["minipos"].bars[bar]
+        return list(
+            db.session.execute(
+                db.select(Order)
+                .join(Order.products)
+                .filter(
+                    Product.category.in_(categories),
+                    Product.completed == True
+                )
+                .group_by(Order)
+            ).scalars()
+        )
+
+    @staticmethod
+    def get_last_completed_orders_for_bar(bar: str) -> list[Order]:
+        categories = app.config["minipos"].bars[bar]
+        return list(
+            db.session.execute(
+                db.select(Order)
+                .filter(Order.completed_at.isnot(None))
+                .join(Order.products)
+                .filter(Product.category.in_(categories))
+                .group_by(Order)
+                .order_by(Order.completed_at.desc())
+                .limit(app.config["minipos"].ui.bar.show_completed)
+            ).scalars()
+        )
 
     @staticmethod
     def get_order_by_id(order_id: int) -> Order | None:
@@ -100,17 +142,6 @@ class Order(db.Model):
     @staticmethod
     def get_active_tables() -> list[str]:
         return list(db.session.execute(db.select(Order.table).filter_by(completed_at=None).distinct()).scalars())
-
-    @staticmethod
-    def get_last_completed_orders() -> list[Order]:
-        return list(
-            db.session.execute(
-                db.select(Order)
-                .filter(Order.completed_at.isnot(None))
-                .order_by(Order.completed_at.desc())
-                .limit(app.config["minipos"].ui.bar.show_completed)
-            ).scalars()
-        )
 
 
 class Product(db.Model):

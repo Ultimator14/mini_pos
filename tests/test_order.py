@@ -24,7 +24,7 @@ def test_service_post(app):
 
     # Get order ids of new orders
     with app.app_context():
-        open_orders = Order.get_open_orders()
+        open_orders = Order.get_open_orders_for_bar("default")
 
         assert len(open_orders) == 2
 
@@ -47,7 +47,7 @@ def test_service_post(app):
 
     # Check that both orders are completed
     with app.app_context():
-        open_orders = Order.get_open_orders()
+        open_orders = Order.get_open_orders_for_bar("default")
 
     assert len(open_orders) == 0
 
