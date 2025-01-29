@@ -88,9 +88,8 @@ class Order(db.Model):
         return list(
             db.session.execute(
                 db.select(Order)
-                .filter_by(completed_at=None)
                 .join(Order.products)
-                .filter(Product.category.in_(categories), Product.completed.is_(False))
+                .filter(Order.completed_at.is_(None), Product.category.in_(categories), Product.completed.is_(False))
                 .group_by(Order)
             ).scalars()
         )
@@ -101,9 +100,8 @@ class Order(db.Model):
         return list(
             db.session.execute(
                 db.select(Order)
-                .filter_by(completed_at=None)
                 .join(Order.products)
-                .filter(Product.category.in_(categories))
+                .filter(Order.completed_at.is_(None), Product.category.in_(categories))
                 .having(func.sum(case((Product.completed.is_(False), 1), else_=0)) == 0)
                 .group_by(Order)
             ).scalars()
@@ -115,9 +113,8 @@ class Order(db.Model):
         return list(
             db.session.execute(
                 db.select(Order)
-                .filter(Order.completed_at.isnot(None))
                 .join(Order.products)
-                .filter(Product.category.in_(categories))
+                .filter(Order.completed_at.isnot(None), Product.category.in_(categories))
                 .group_by(Order)
                 .order_by(Order.completed_at.desc())
                 .limit(app.config["minipos"].ui.bar.show_completed)
