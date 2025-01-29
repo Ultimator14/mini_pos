@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 
 from flask import current_app as app
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import case, func
 
 db = SQLAlchemy()
 
@@ -89,10 +90,7 @@ class Order(db.Model):
                 db.select(Order)
                 .filter_by(completed_at=None)
                 .join(Order.products)
-                .filter(
-                    Product.category.in_(categories),
-                    Product.completed.is_(False)
-                )
+                .filter(Product.category.in_(categories), Product.completed.is_(False))
                 .group_by(Order)
             ).scalars()
         )
@@ -105,10 +103,8 @@ class Order(db.Model):
                 db.select(Order)
                 .filter_by(completed_at=None)
                 .join(Order.products)
-                .filter(
-                    Product.category.in_(categories),
-                    Product.completed.isnot(False)
-                )
+                .filter(Product.category.in_(categories))
+                .having(func.sum(case((Product.completed.is_(False), 1), else_=0)) == 0)
                 .group_by(Order)
             ).scalars()
         )
