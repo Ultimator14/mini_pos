@@ -53,6 +53,30 @@
                   <th>Tisch</th>
                   <th>Produkte</th>
             </tr>
+            {%for completed_order in partially_completed_orders-%}
+            <tr>
+                <td>Pending...</br></td>
+                <td>{{completed_order.table}}{{'<br/>'|safe + '(' + completed_order.waiter + ')' if completed_order.waiter}}</td>
+                <td>
+                    <table class="inner-table-completed">
+                        <tr>
+                            <th class="icolc-1">Produkt</th>
+                            <th class="icolc-2">Menge</th>
+                            <th class="icolc-3">Sonstiges</th>
+                        </tr>
+                        {% for product in completed_order.products_for_bar(bar) -%}
+                            {%- if product.completed %}
+                                <tr>
+                                    <td>{{product.name}}</td>
+                                    <td>{{product.amount}}</td>
+                                    <td>{{product.comment}}</td>
+                                </tr>
+                            {%- endif -%}
+                        {%- endfor %}
+                    </table>
+                </td>
+            </tr>
+            {%endfor%}
             {%for completed_order in completed_orders-%}
             {%- set completed_at_date, completed_at_time = completed_order.completed_timestamp.split(" ") -%}
             <tr>

@@ -28,9 +28,11 @@ def bar_name(bar: str):
         app.logger.error("GET in /bar/%s with invalid bar. Using default bar. Skipping...", bar)
         return "Error! Bar not found"
 
+    open_orders = Order.get_open_orders()
     return render_template(
         "bar.html",
-        orders=[o for o in Order.get_open_orders() if any(not p.completed for p in o.products_for_bar(bar))],
+        orders=[o for o in open_orders if any(not p.completed for p in o.products_for_bar(bar))],
+        partially_completed_orders = [o for o in open_orders if all(p.completed for p in o.products_for_bar(bar))],
         completed_orders=[co for co in Order.get_last_completed_orders() if co.products_for_bar(bar)],
         show_completed=bool(app.config["minipos"].ui.bar.show_completed),
         bar=bar,
