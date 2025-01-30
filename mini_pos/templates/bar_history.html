@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Bar</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bar.css') }}">
+</head>
+<body>
+    <div id="grey-button-bar">
+        <form action="{{ url_for ('bar.bar_name', bar=bar) }}" method="get">
+            <button id="grey-button" type="submit">Back to bar</button>
+        </form>
+    </div>
+    <table class="completed-outer-table">
+        <tbody>
+              <tr>
+                  <th>Abgeschlossen</th>
+                  <th>Tisch</th>
+                  <th>Produkte</th>
+            </tr>
+            {%for completed_order in completed_orders-%}
+            {%- set completed_at_date, completed_at_time = completed_order.completed_timestamp.split(" ") -%}
+            <tr>
+                <td>{{completed_at_date}}</br>{{completed_at_time}}</td>
+                <td>{{completed_order.table}}{{'<br/>'|safe + '(' + completed_order.waiter + ')' if completed_order.waiter}}</td>
+                <td>
+                    <table class="inner-table-completed">
+                        <tr>
+                            <th class="icolc-1">Produkt</th>
+                            <th class="icolc-2">Menge</th>
+                            <th class="icolc-3">Sonstiges</th>
+                        </tr>
+                        {% for product in completed_order.products_for_bar(bar) -%}
+                            {%- if product.completed %}
+                                <tr>
+                                    <td>{{product.name}}</td>
+                                    <td>{{product.amount}}</td>
+                                    <td>{{product.comment}}</td>
+                                </tr>
+                            {%- endif -%}
+                        {%- endfor %}
+                    </table>
+                </td>
+            </tr>
+            {%endfor%}
+        </tbody>
+    </table>
+</body>
+</html>

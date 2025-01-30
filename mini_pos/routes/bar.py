@@ -37,6 +37,19 @@ def bar_name(bar: str):
         bar=bar,
     )
 
+@bar_bp.route("/<bar>/history", strict_slashes=False)
+def bar_history(bar: str):
+    app.logger.debug("GET /bar/<bar>/history")
+
+    if app.config["minipos"].bars.get(bar) is None:
+        app.logger.error("GET in /bar/%s with invalid bar. Using default bar. Skipping...", bar)
+        return "Error! Bar not found"
+
+    return render_template(
+        "bar_history.html",
+        completed_orders=Order.get_all_completed_orders_for_bar(bar),
+        bar=bar
+    )
 
 @bar_bp.route("/<bar>", methods=["POST"], strict_slashes=False)
 def bar_submit(bar: str):

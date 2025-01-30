@@ -124,6 +124,19 @@ class Order(db.Model):
         )
 
     @staticmethod
+    def get_all_completed_orders_for_bar(bar: str) -> list[Order]:
+        categories = app.config["minipos"].bars[bar]
+        return list(
+            db.session.execute(
+                db.select(Order)
+                .join(Order.products)
+                .filter(Order.completed_at.isnot(None), Product.category.in_(categories))
+                .group_by(Order)
+                .order_by(Order.completed_at.desc())
+            ).scalars()
+        )
+
+    @staticmethod
     def get_order_by_id(order_id: int) -> Order | None:
         return db.session.execute(db.select(Order).filter_by(id=order_id)).scalar_one_or_none()
 

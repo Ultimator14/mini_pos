@@ -6,7 +6,6 @@ This file provides an overview about the planned (future) changes.
 
 ### History Access
 
-- Add history tab (paginated or lazy load) to show all completed orders even if the number of shown completed orders is limited in bar, maybe include this in bar and add a unfold button
 - Make order history of table available in service
 
 ### Misc

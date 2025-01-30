@@ -105,3 +105,8 @@
         </tbody>
     </table>
     {%- endif %}
+    <div id="grey-button-bar">
+        <form action="{{ url_for ('bar.bar_history', bar=bar) }}" method="get">
+            <button id="grey-button" type="submit">Full history</button>
+        </form>
+    </div>
