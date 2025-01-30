@@ -22,7 +22,7 @@ def bar_selection():
 
 @bar_bp.route("/<bar>", strict_slashes=False)
 def bar_name(bar: str):
-    app.logger.debug("GET /bar/<name>")
+    app.logger.debug("GET /bar/<bar>")
 
     if app.config["minipos"].bars.get(bar) is None:
         app.logger.error("GET in /bar/%s with invalid bar. Using default bar. Skipping...", bar)
@@ -40,7 +40,7 @@ def bar_name(bar: str):
 
 @bar_bp.route("/<bar>", methods=["POST"], strict_slashes=False)
 def bar_submit(bar: str):
-    app.logger.debug("POST /bar/<name>")
+    app.logger.debug("POST /bar/<bar>")
 
     order_id = request.form.get("order-completed")
     product_id = request.form.get("product-completed")
