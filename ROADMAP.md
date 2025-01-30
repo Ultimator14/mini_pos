@@ -2,16 +2,6 @@
 
 This file provides an overview about the planned (future) changes.
 
-## Release 0.3.x
-
-### History Access
-
-- Make order history of table available in service
-
-### Misc
-
-- Underscore category names should be hidden (same as no category)
-
 ## Release 0.4.x
 
 ### Order overview
@@ -23,6 +13,10 @@ This file provides an overview about the planned (future) changes.
 - This feature should be client side only
 - The ordering process should already be fininshed and the order should already be displayed at the bar BEFORE waiters compute the subtotals
 - Put this on a separate page, maybe controlled via config value
+
+### History Access
+
+- Make order history of table available in service
 
 ## Release 0.5.x
 
