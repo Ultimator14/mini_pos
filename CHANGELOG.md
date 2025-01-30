@@ -1,5 +1,8 @@
 # MiniPOS Unreleased
 
+
+# MiniPOS 0.3.1
+
 - Add option to show full history in bar
 - Improve tests
 
