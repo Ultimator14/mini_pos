@@ -1,8 +1,11 @@
 # MiniPOS Unreleased
 
+
+# MiniPOS 0.3.0
+
 ### Features
 
-- Support multiple bars (breaking change for config and database)
+- Support multiple bars (breaking change, database now contains category)
 - New config structure (breaking change for config file)
 - Improve tests
 
