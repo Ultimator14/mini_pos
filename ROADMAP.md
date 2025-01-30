@@ -2,15 +2,18 @@
 
 This file provides an overview about the planned (future) changes.
 
-## Release 1.0.0
+## Release 0.3.x
 
-### Sold out products
+### History Access
 
-- Add admin UI to disable/enable products on the fly
-- Products should be displayed ~~strikethrough~~ in service
-- Implement Quota management. Set a limit of products. Once the limit is reached, the product is automatically marked as sold out. Quota should be controlled via admin ui
+- Add history tab (paginated or lazy load) to show all completed orders even if the number of shown completed orders is limited in bar, maybe include this in bar and add a unfold button
+- Make order history of table available in service
 
-## Release 1.1.0
+### Misc
+
+- Underscore category names should be hidden (same as no category)
+
+## Release 0.4.x
 
 ### Order overview
 
@@ -22,7 +25,15 @@ This file provides an overview about the planned (future) changes.
 - The ordering process should already be fininshed and the order should already be displayed at the bar BEFORE waiters compute the subtotals
 - Put this on a separate page, maybe controlled via config value
 
-## Release 2.0.0
+## Release 0.5.x
+
+### Sold out products
+
+- Add admin UI to disable/enable products on the fly
+- Products should be displayed ~~strikethrough~~ in service
+- Implement Quota management. Set a limit of products. Once the limit is reached, the product is automatically marked as sold out. Quota should be controlled via admin ui
+
+## Release 0.6.0
 
 ### Bons
 
@@ -33,10 +44,5 @@ This file provides an overview about the planned (future) changes.
 
 - Add popup in service if server is down. Prevent clicks on any button
 - Reimplement reloading config file on the fly via admin UI (workers have to poll changes, maybe with a database entry holding the time of the latest change and a global variable per worker - if the database time is newer than the worker time, reload config), client-side polling of potential config changes via javascript e.g. changed table order
-- Add history tab (paginated or lazy load) to show all completed orders even if the number of shown completed orders is limited in bar, maybe include this in bar and add a unfold button
 - Convert the client side to PWA
-- Introduce Sub-categories e.g. glasses and bottles for wine
-- Make order history of table available in service
-- Underscore category names should be hidden (same as no category)
 - Rework fetching logic, change so that fetching does always only fetch data and not the whole html page -> layouting should happen on the client
-- Add more tests (especially for differnt bars)
