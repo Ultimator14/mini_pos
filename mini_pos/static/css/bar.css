@@ -7,7 +7,6 @@ Bar page
 
 /*Server status top bar*/
 #server-status {
-    width:100%;
     height: 1.5vw;
     padding: 1vmin;
     margin-bottom: 1vh;
@@ -17,6 +16,7 @@ Bar page
     color: white;
 
     border: none;
+    border-radius: 20px;
 }
 .server-status-up {
     background-color: #4CAF50;
