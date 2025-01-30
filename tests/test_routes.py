@@ -6,9 +6,18 @@ def test_index(client):
     assert b"<title>Index</title>" in response.data
 
 
-def test_bar(client):
+def test_bar_selection(client):
     response = client.get("/bar")
     assert b"<title>Bar Selection</title>" in response.data
+
+
+def test_bar(client):
+    response = client.get("/bar/default")
+    assert b"<title>Bar</title>" in response.data
+
+def test_bar_history(client):
+    response = client.get("/bar/default/history")
+    assert b"<title>Bar History</title>" in response.data
 
 
 def test_service_login(client):
