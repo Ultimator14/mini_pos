@@ -26,10 +26,10 @@
                             <td>{{product.comment}}</td>
                             {%- if not product.completed %}
                             <td><form action="{{ url_for ('bar.bar_submit', bar=bar) }}" method="post">
-                                <button id="product-{{product.id}}" type="submit" name="product-completed" value="{{product.id}}">&#x2713;</button>
+                                <button id="product-{{product.id}}" class="checkbox-button" type="submit" name="product-completed" value="{{product.id}}">&#x2713;</button>
                             </form></td>
                             {% else -%}
-                            <td><button class="no-click" type="button">&#x2713;</button></td>
+                            <td><button class="no-click checkbox-button" type="button">&#x2713;</button></td>
                             {%- endif -%}
                         </tr>
                         {%- endfor %}
@@ -37,7 +37,7 @@
                 </td>
                 <td>
                     <form action="{{ url_for ('bar.bar_submit', bar=bar) }}" method="post">
-                        <button id="order-{{order.id}}" type="submit" name="order-completed" value="{{order.id}}">&#x2713;</button>
+                        <button id="order-{{order.id}}" class="checkbox-button" type="submit" name="order-completed" value="{{order.id}}">&#x2713;</button>
                     </form>
                 </td>
             </tr>

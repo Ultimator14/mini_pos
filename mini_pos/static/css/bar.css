@@ -92,7 +92,7 @@ th, td {
 table table tr:nth-child(odd){background-color: #dbd9d9}
 
 /*Checkbox buttons*/
-button {
+.checkbox-button {
     width: 100%;
     height: 100%;
     font-size: 100%;
