@@ -2,7 +2,7 @@
  * Bar page
  */
 
-/*Set sans-serif as default font*/
+/* Set sans-serif as default font */
 * { font-family: sans-serif; }
 
 /*Server status top bar*/
@@ -18,15 +18,10 @@
     border: none;
     border-radius: 20px;
 }
-.server-status-up {
-    background-color: #4CAF50;
+.server-status-up   { background-color: #4CAF50; }
+.server-status-down { background-color: #b33d3d; }
 
-}
-.server-status-down {
-    background-color: #b33d3d;
-}
-
-/*Table style*/
+/* Table style */
 table {
     width: 100%;
     border-style: solid;
@@ -41,16 +36,11 @@ th, td {
     border: 1px solid;
 }
 
-/*Table colors*/
-.timeout_ok {
-    color: #4CAF50;
-}
-.timeout_warn {
-    color: darkorange;
-}
-.timeout_crit {
-    color: #b33d3d;
-}
+/* Table colors */
+.timeout_ok   { color: #4CAF50; }
+.timeout_warn { color: darkorange; }
+.timeout_crit { color: #b33d3d; }
+
 .outer-table > tbody > tr > th {
     background-color: darkorange;
     color: white;
@@ -59,39 +49,23 @@ th, td {
     background-color: cornflowerblue;
     color: white;
 }
-/*Align columns of inner tables*/
-.inner-table {
-	table-layout: fixed;
-}
-.icol-1 {
-	width: 35%;
-}
-.icol-2 {
-	width: 10%;
-}
-.icol-3 {
-	width: 40%;
-}
-.icol-4 {
-	width: 15%;
-}
-.inner-table-completed {
-	table-layout: fixed;
-}
-.icolc-1 {
-	width: 40%;
-}
-.icolc-2 {
-	width: 10%;
-}
-.icolc-3 {
-	width: 50%;
-}
 
-/*Every 2nd row grey in inner table*/
+/* Align columns of inner tables */
+.inner-table { table-layout: fixed; }
+.icol-1 { width: 35%; }
+.icol-2 { width: 10%; }
+.icol-3 { width: 40%; }
+.icol-4 { width: 15%; }
+
+.inner-table-completed { table-layout: fixed; }
+.icolc-1 { width: 40%; }
+.icolc-2 { width: 10%; }
+.icolc-3 { width: 50%; }
+
+/* Every 2nd row grey in inner table */
 table table tr:nth-child(odd){background-color: #dbd9d9}
 
-/*Checkbox buttons*/
+/* Checkbox buttons */
 .checkbox-button {
     width: 100%;
     height: 100%;
@@ -111,8 +85,8 @@ table table tr:nth-child(odd){background-color: #dbd9d9}
     background-color: grey;
 }
 
-/* Back button at the top of history*/
-#grey-button {
+/* Back button at the top of history */
+.grey-button {
     width:100%;
     height: 100%;
     font-size: 1.5vw;
@@ -126,7 +100,7 @@ table table tr:nth-child(odd){background-color: #dbd9d9}
     cursor: pointer;
 }
 
-#grey-button-bar {
+.grey-button-bar {
     height: 1.5vw;
     padding: 1vmin;
     margin-bottom: 1vh;

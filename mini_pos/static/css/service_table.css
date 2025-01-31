@@ -1,21 +1,21 @@
 /*
-Service page
-*/
+ * Service page
+ */
 
-/*Set sans-serif as default font*/
+/* Set sans-serif as default font */
 * { font-family: sans-serif; }
 
-/*Fix color not working on hr tags
+/* Fix color not working on hr tags
 (see https://stackoverflow.com/questions/6382023/changing-the-color-of-an-hr-element) */
 hr { height: 1px; border: 0; }
 
-/*Disable double tap to zoom*/
+/* Disable double tap to zoom */
 * { touch-action: manipulation; }
 
-/*Center heading*/
+/* Center heading */
 h2 { text-align: center; }
 
-/*Back button and main heading*/
+/* Back button and main heading */
 .back-button {
     font-size: 7vmin;
     text-align: center;
@@ -33,7 +33,7 @@ h2 { text-align: center; }
     padding: 5px;
 }
 
-/*Responsive font sizes*/
+/* Responsive font sizes */
 h2, table, .customize-button, .amount-button, .amount-box, .comment-box  {
     font-size: 6vmin;
 }
@@ -41,7 +41,7 @@ li {
     font-size: 4vmin;
 }
 
-/*Tables*/
+/* Tables */
 table {
     width: 100%;
 
@@ -53,7 +53,7 @@ td, th {
     border-bottom: 1px solid black;
 }
 
-/*Very light colorization based on category*/
+/* Very light colorization based on category */
 table tr { background-color: hsl(0, 0%, 100%);}
 
 table tr.category-1 { background-color: hsl(330, 90%, 93%);}
@@ -64,7 +64,7 @@ table tr.category-5 { background-color: hsl(45, 90%, 93%);}
 table tr.category-6 { background-color: hsl(15, 90%, 93%);}
 table tr.category-7 { background-color: hsl(0, 90%, 93%);}
 
-/*Table colors on amount > 0*/
+/* Table colors on amount > 0 */
 table tr.colorized-row { background-color: #4CAF50;}
 
 table tr.category-1.colorized-row { background-color: hsl(330, 90%, 60%);}
@@ -91,7 +91,7 @@ table tr.category-14.colorized-row { background-color: hsl(0, 90%, 93%);}
 .category-name-13 { background-color: hsl(15, 90%, 60%); }
 .category-name-14 { background-color: hsl(0, 90%, 60%); }
 
-/*Buttons*/
+/* Buttons */
 .amount-button, .amount-box, .customize-button {
     width: 10vw;
     text-align: center;
@@ -112,19 +112,19 @@ table tr.category-14.colorized-row { background-color: hsl(0, 90%, 93%);}
     cursor: pointer;
 }
 
-/*Overview*/
+/* Overview */
 #overview-h2 {
     font-size: 6vmin;
     text-align: left;
 }
 
-/*Total price*/
+/* Total price */
 #total-cost-p {
     font-size: 7vmin;
     padding-left: 10px;
 }
 
-/*Popup customization window*/
+/* Popup customization window */
 .popup {
     display: none;
 
