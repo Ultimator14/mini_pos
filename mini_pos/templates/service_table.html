@@ -37,18 +37,19 @@
                     <th colspan="2">Produkt</th>
                     <th colspan="3">Menge</th>
                 </tr>
+                {% set ns = namespace() -%}
                 {% if ui_config.show_category_names -%}
-                    {# {{ Set curcat to a value different from the first category number, this forces display of first category}} #}
-                    {%- set curcat = namespace(value=-1) -%}
+                    {# {{ Set curcat to a value different from the first category name, this forces display of first category}} #}
+                    {%- set ns.curcat = None -%}
                 {%- else -%}
-                    {# {{ Set curcat the first category number, this removes a leading spacer row}} #}
-                    {%- set curcat = namespace(value=split_categories_init) -%}
+                    {# {{ Set curcat to the first category, this removes a leading spacer row}} #}
+                    {%- set ns.curcat = split_categories_init -%}
                 {%- endif -%}
 
                 {%- for pid, pname, pprice, pcat in products -%}
 
-                {%- if ui_config.show_category_names and pcat != curcat.value -%}
-                {%- if curcat.value != -1 -%}
+                {%- if ui_config.show_category_names and pcat != ns.curcat -%}
+                {%- if ns.curcat != None -%}
                     {#- {{ This is not the very first category, add a closing table}} -#}
                 </tbody>
                 </table></div></td></tr>
@@ -64,10 +65,10 @@
                     <col style="width: 15vw;">
                 </colgroup>
                 <tbody>
-                {% set curcat.value = pcat -%}
-                {%- elif pcat != curcat.value %}
+                {% set ns.curcat = pcat -%}
+                {%- elif pcat != ns.curcat %}
                 <tr><td colspan="5"><br/></td></tr>
-                {% set curcat.value = pcat -%}
+                {% set ns.curcat = pcat -%}
                 {%- endif -%}
 
                 <tr id="available-product-row-{{pid}}" class="available-product-row category-{{ui_config.category_color_map[pcat]}}">
