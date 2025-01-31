@@ -7,10 +7,10 @@
 </head>
 <body>
     <div class="index">
-        <form action="/bar" method="get">
+        <form action="{{ url_for ('bar.bar_selection') }}" method="get">
             <button type="submit">Bar</button>
         </form>
-        <form action="/service/trylogin" method="get">
+        <form action="{{ url_for ('service.service_trylogin') }}" method="get">
             <button type="submit">Service</button>
         </form>
     </div>

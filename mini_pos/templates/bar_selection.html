@@ -7,7 +7,7 @@
 <body>
     <div class="bar-selection">
         {% for bar in bars -%}
-        <form action="/bar/{{bar}}" method="get">
+        <form action="{{ url_for ('bar.bar_name', bar=bar) }}" method="get">
             <button style="width: 100vw; height: {{ 100 / (bars | length) }}vh; font-size: {{ 40 / (bars | length) }}vw;" type="submit">{{bar}}</button>
         </form>
         {%- endfor %}
