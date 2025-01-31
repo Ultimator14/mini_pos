@@ -48,7 +48,7 @@
 		]
 	},
 	"bars": {
-		"Bar": ["Alkoholfrei", "Bier", "Wein", "Spirituosen"],
+		"Getränke": ["Alkoholfrei", "Bier", "Wein", "Spirituosen"],
 		"Küche": ["Essen"]
 	},
 	"tables": {
