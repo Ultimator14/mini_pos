@@ -1,7 +1,21 @@
 # MiniPOS Unreleased
 
 
+# MiniPOS 0.3.2
+
+### Bugfixes
+
+- Fix status bar buttons looking different
+
+### Internals
+
+- Reformat css
+- Always use `url_for` instead of hardcoded paths
+
+
 # MiniPOS 0.3.1
+
+### Features
 
 - Add option to show full history in bar
 - Improve tests
