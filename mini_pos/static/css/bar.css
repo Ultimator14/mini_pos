@@ -7,7 +7,7 @@
 
 /*Server status top bar*/
 #server-status {
-    height: 1.5vw;
+    height: 100%;
     padding: 1vmin;
     margin-bottom: 1vh;
     font-size: 1.5vw;
@@ -89,6 +89,7 @@ table table tr:nth-child(odd){background-color: #dbd9d9}
 .grey-button {
     width:100%;
     height: 100%;
+    padding: 1vmin;
     font-size: 1.5vw;
     text-align: center;
 
@@ -101,7 +102,6 @@ table table tr:nth-child(odd){background-color: #dbd9d9}
 }
 
 .grey-button-bar {
-    height: 1.5vw;
-    padding: 1vmin;
+    margin-top: 1vh;
     margin-bottom: 1vh;
 }
