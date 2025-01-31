@@ -71,9 +71,9 @@
                 {% set ns.curcat = pcat -%}
                 {%- endif -%}
 
-                <tr id="available-product-row-{{pid}}" class="available-product-row category-{{ui_config.category_color_map[pcat]}}">
+                <tr id="product-row-{{pid}}" class="product-row category-{{ui_config.category_color_map[pcat]}}">
                     <td><button type="button" id="customize-button-{{pid}}" class="customize-button" onclick="showPopup({{pid}})">&#9881;</button></td>
-                    <td id="available-product-name-{{pid}}" class="available-product-name">{{pname}}</td>
+                    <td id="product-name-{{pid}}" class="product-name">{{pname}}</td>
                     <td><button type="button" class="amount-button" onclick="modifyAmount({{pid}}, -1)">&minus;</button></td>
                     <td><input type="text" id="amount-{{pid}}" class="amount-box" name="amount-{{pid}}" value="0" onchange="updateValues()"/></td>
                     <td><button type="button" class="amount-button" onclick="modifyAmount({{pid}}, +1)">&plus;</button></td>

@@ -99,11 +99,11 @@ def service_table_submit(table):
     db.session.flush()  # enforce creation of id, required to assign order_id to product
     product_added = False
 
-    for available_product in range(1, len(app.config["minipos"].products) + 1):
-        amount_param = request.form.get(f"amount-{available_product}")
+    for product in range(1, len(app.config["minipos"].products) + 1):
+        amount_param = request.form.get(f"amount-{product}")
 
         if amount_param is None:
-            app.logger.warning("POST in /service/<table> but missing amount-%s event. Skipping...", available_product)
+            app.logger.warning("POST in /service/<table> but missing amount-%s event. Skipping...", product)
             continue
 
         if not amount_param.isdigit():
@@ -112,19 +112,19 @@ def service_table_submit(table):
 
         amount = int(amount_param)
 
-        comment = request.form.get(f"comment-{available_product}")
+        comment = request.form.get(f"comment-{product}")
 
         if comment is None:
-            app.logger.warning("POST in /service/<table> but missing comment-%s event", available_product)
+            app.logger.warning("POST in /service/<table> but missing comment-%s event", product)
             comment = ""
 
         if amount > 0:
-            name, price, category = app.config["minipos"].products[available_product]
-            product = Product.create(new_order.id, name, price, category, amount, comment)
-            db.session.add(product)
+            name, price, category = app.config["minipos"].products[product]
+            new_product = Product.create(new_order.id, name, price, category, amount, comment)
+            db.session.add(new_product)
             db.session.flush()  # enforce creation of id, required for log
             product_added = True
-            app.logger.info("Queued product %s for order %s", product.id, new_order.id)
+            app.logger.info("Queued product %s for order %s", new_product.id, new_order.id)
 
     if not product_added:
         app.logger.warning("POST in /service/<table> but order does not contain any product. Skipping...")
