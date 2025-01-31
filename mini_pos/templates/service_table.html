@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/service_table.css') }}">
     <script src="{{ url_for('static', filename='js/service_table.js') }}"></script>
 </head>
-<body onload="updateValues(){% if fold_categories %}; initialCategoryFold(){% endif %}">
+<body onload="updateValues(){% if ui_config.fold_categories %}; initialCategoryFold(){% endif %}">
 <div>
     <form class="inline" action="{{ url_for ('service.service') }}" method="get">
         <button class="back-button" type="submit">&#x2715;</button>
@@ -14,9 +14,9 @@
     <h2 class="inline">Service {{table}}</h2>
     <hr style="background-color: darkorange;">
     <ul>
-        {% for products in open_product_lists -%}
+        {% for open_products in open_product_lists -%}
         <li>
-            {{ products|join('<br/>')|safe}}
+            {{ open_products|join('<br/>')|safe}}
         </li>
         {% endfor -%}
     </ul>
@@ -37,7 +37,7 @@
                     <th colspan="2">Produkt</th>
                     <th colspan="3">Menge</th>
                 </tr>
-                {% if show_category_names -%}
+                {% if ui_config.show_category_names -%}
                     {# {{ Set curcat to a value different from the first category number, this forces display of first category}} #}
                     {%- set curcat = namespace(value=-1) -%}
                 {%- else -%}
@@ -45,16 +45,16 @@
                     {%- set curcat = namespace(value=split_categories_init) -%}
                 {%- endif -%}
 
-                {%- for pid, pname, pprice, pcat in available_products -%}
+                {%- for pid, pname, pprice, pcat in products -%}
 
-                {%- if show_category_names and pcat != curcat.value -%}
+                {%- if ui_config.show_category_names and pcat != curcat.value -%}
                 {%- if curcat.value != -1 -%}
                     {#- {{ This is not the very first category, add a closing table}} -#}
                 </tbody>
                 </table></div></td></tr>
                 {% endif -%}
 
-                <tr><td colspan="5" class="category-name-{{category_color_map[pcat]}}"><button type="button" class="category-button arrow" id="category-button-{{pcat}}" onclick="toggleCategoryFold('{{pcat}}')">{{pcat}}&nbsp;</button></td></tr>
+                <tr><td colspan="5" class="category-name-{{ui_config.category_color_map[pcat]}}"><button type="button" class="category-button arrow" id="category-button-{{pcat}}" onclick="toggleCategoryFold('{{pcat}}')">{{pcat}}&nbsp;</button></td></tr>
                 <tr><td colspan="5"><div id="category-fold-div-{{pcat}}" class="category-fold-div"><table>
                 <colgroup>
                     <col style="width: 15vw;">
@@ -70,7 +70,7 @@
                 {% set curcat.value = pcat -%}
                 {%- endif -%}
 
-                <tr id="available-product-row-{{pid}}" class="available-product-row category-{{category_color_map[pcat]}}">
+                <tr id="available-product-row-{{pid}}" class="available-product-row category-{{ui_config.category_color_map[pcat]}}">
                     <td><button type="button" id="customize-button-{{pid}}" class="customize-button" onclick="showPopup({{pid}})">&#9881;</button></td>
                     <td id="available-product-name-{{pid}}" class="available-product-name">{{pname}}</td>
                     <td><button type="button" class="amount-button" onclick="modifyAmount({{pid}}, -1)">&minus;</button></td>
@@ -79,7 +79,7 @@
                 </tr>
                 {% endfor -%}
 
-                {%- if show_category_names -%}
+                {%- if ui_config.show_category_names -%}
                     {#- {{ The very last category was printed. add a closing table}} -#}
                 </tbody>
                 </table></div></td></tr>
@@ -92,7 +92,7 @@
         <hr style="background-color: cornflowerblue;">
         <p id="total-cost-p">Gesamtpreis <span id="total-cost">0.00</span> €</p>
         <button type="submit" id="submit-button">Bestellen</button>
-        {%  for pid, pname, pprice, _ in available_products %}
+        {%  for pid, pname, pprice, _ in products %}
         <div id="customize-popup-{{pid}}" class="popup">
             <div class="popup-inner">
                 <h2>{{ pname }}</h2>

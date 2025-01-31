@@ -61,16 +61,14 @@ def service_table(table):
         "service_table.html",
         table=table,
         open_product_lists=Product.get_open_product_lists_by_table(table),
-        available_products=[
+        products=[
             (p, pval[0], pval[1], pval[2]) for p, pval in app.config["minipos"].products.items()
         ],
-        category_color_map=app.config["minipos"].ui.service.category_color_map,
-        show_category_names=app.config["minipos"].ui.service.show_category_names,
+        ui_config=app.config["minipos"].ui.service,
         split_categories_init=app.config["minipos"].products[1][2]
         if len(app.config["minipos"].products) > 0
         else 0,
         nonce=nonce,
-        fold_categories=app.config["minipos"].ui.service.fold_categories,
     )
 
 
