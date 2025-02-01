@@ -4,6 +4,7 @@
 
 - Disallow negative values as product amount
 - Fix crash in analysis if no orders are found
+- Fix category folding
 
 
 # MiniPOS 0.3.3
