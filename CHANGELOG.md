@@ -2,6 +2,7 @@
 
 ### Bugfixes
 
+- Disallow negative values as product amount
 - Fix crash in analysis if no orders are found
 
 

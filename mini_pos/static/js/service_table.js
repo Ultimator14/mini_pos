@@ -37,6 +37,12 @@ function updateValues() {
         let name = names[i].innerHTML;
         let price = prices[i].innerHTML;
 
+        //Catch negative values
+        if (amount < 0) {
+            amount = 0;
+            amounts[i].value = 0;
+        }
+
         //Compute per product cose and accumulation
         let current_cost = parseFloat(price) * parseFloat(amount);
         sum += current_cost;
