@@ -1,21 +1,24 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Service</title>
+{% extends "_base.html" %}
+
+{% set ns = namespace() -%}
+
+{% block title %}Service{% endblock %}
+
+{% block head %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/service.css') }}">
     <script src="{{ url_for('static', filename='js/service.js') }}"></script>
     <style>
-        {% set td_width = 95 / tables_size[0] -%}
-        {%- set td_height = 95 / tables_size[1] -%}
+        {%- set ns.td_width = 95 / tables_size[0] -%}
+        {%- set ns.td_height = 95 / tables_size[1] -%}
 
         td {
             width: {{ td_width }}vw;
             height: {{ td_height }}vh;
         }
     </style>
-</head>
-<body>
+{% endblock %}
+
+{% block content %}
 <div>
     <table>
         <tbody>
@@ -29,7 +32,7 @@
             {% else -%}
             {%- set main, xlen, ylen, name = tables_grid[y][x] -%}
             {%- if main %}
-                <td colspan="{{ xlen }}" rowspan="{{ ylen }}" style="width: {{ td_width * xlen }}vw; height: {{ td_height * ylen }}vh;">
+                <td colspan="{{ xlen }}" rowspan="{{ ylen }}" style="width: {{ ns.td_width * xlen }}vw; height: {{ ns.td_height * ylen }}vh;">
                     <form action="{{ url_for ('service.service_table', table=name) }}" method="get">
                         <button id="{{name}}" type="submit" class="{{ 'active-order' if name in active_tables else 'no-order'}}">{{name}}</button>
                     </form>
@@ -42,5 +45,4 @@
         </tbody>
     </table>
 </div>
-</body>
-</html>
+{% endblock %}

@@ -1,11 +1,12 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Service Login</title>
+{% extends "_base.html" %}
+
+{% block title %}Service Login{% endblock %}
+
+{% block head %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/service_login.css') }}">
-</head>
-<body>
+{% endblock %}
+
+{% block content %}
     <h1>Service Login</h1>
     <form action="{{ url_for ('service.service_login_submit') }}" method="post">
 		<h3>Name: {{ waiter }}</h3>
@@ -18,5 +19,4 @@
     <form action="{{ url_for ('service.service') }}">
         <button type="submit" id="service-button">Zum Service</button>
     </form>
-</body>
-</html>
+{% endblock %}

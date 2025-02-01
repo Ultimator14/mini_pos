@@ -1,11 +1,12 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Bar History</title>
+{% extends "_base.html" %}
+
+{% block title %}Bar History{% endblock %}
+
+{% block head %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bar.css') }}">
-</head>
-<body>
+{% endblock %}
+
+{% block content %}
     <div class="grey-button-bar">
         <form action="{{ url_for ('bar.bar_name', bar=bar) }}" method="get">
             <button class="grey-button" type="submit">Back to bar</button>
@@ -45,5 +46,4 @@
             {%endfor%}
         </tbody>
     </table>
-</body>
-</html>
+{% endblock %}

@@ -1,12 +1,13 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Service Table {{table}}</title>
+{% extends "_base.html" %}
+
+{% block title %}Service Table {{table}}{% endblock %}
+
+{% block head %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/service_table.css') }}">
     <script src="{{ url_for('static', filename='js/service_table.js') }}"></script>
-</head>
-<body onload="updateValues(){% if ui_config.fold_categories %}; initialCategoryFold(){% endif %}">
+{% endblock %}
+
+{% block content %}
 <div>
     <form class="inline" action="{{ url_for ('service.service') }}" method="get">
         <button class="back-button" type="submit">&#x2715;</button>
@@ -52,7 +53,7 @@
                 {%- if ns.curcat != None -%}
                     {#- {{ This is not the very first category, add a closing table}} -#}
                 </tbody>
-                </table></div></td></tr>
+                </table></div></body></tr>
                 {% endif -%}
 
                 <tr><td colspan="5" class="category-name-{{ui_config.category_color_map[pcat]}}"><button type="button" class="category-button arrow" id="category-button-{{pcat}}" onclick="toggleCategoryFold('{{pcat}}')">{{pcat}}&nbsp;</button></td></tr>
@@ -125,5 +126,8 @@
         {%  endfor %}
     </form>
 </div>
-</body>
-</html>
+{% endblock %}
+
+{% block footer %}
+<script>updateValues(){% if ui_config.fold_categories %}; initialCategoryFold(){% endif %}"</script>
+{% endblock %}

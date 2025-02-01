@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Bar Selection</title>
-</head>
-<body>
+{% extends "_base.html" %}
+
+{% block title %}Bar Selection{% endblock %}
+
+{% block content %}
     <div class="bar-selection">
         {% for bar in bars -%}
         <form action="{{ url_for ('bar.bar_name', bar=bar) }}" method="get">
@@ -12,5 +10,4 @@
         </form>
         {%- endfor %}
     </div>
-</body>
-</html>
+{% endblock %}

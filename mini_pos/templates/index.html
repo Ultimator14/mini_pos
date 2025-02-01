@@ -1,11 +1,12 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Index</title>
+{% extends "_base.html" %}
+
+{% block title %}Index{% endblock %}
+
+{% block head %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
-</head>
-<body>
+{% endblock %}
+
+{% block content %}
     <div class="index">
         <form action="{{ url_for ('bar.bar_selection') }}" method="get">
             <button type="submit">Bar</button>
@@ -14,5 +15,4 @@
             <button type="submit">Service</button>
         </form>
     </div>
-</body>
-</html>
+{% endblock %}
