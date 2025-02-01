@@ -11,10 +11,6 @@ h3 {
     margin: 2px;
 }
 
-table {
-    width: 100%;
-}
-
 td {
     padding: 0;
 }
@@ -25,7 +21,6 @@ td {
 }
 
 button {
-    text-align: center;
     font-size: 5vw;
 
     color: black;

@@ -1,0 +1,26 @@
+/*
+ * Used everywhere
+ */
+
+/* Set sans-serif as default font */
+* { font-family: sans-serif; }
+
+/* Fix color not working on hr tags
+(see https://stackoverflow.com/questions/6382023/changing-the-color-of-an-hr-element) */
+hr { height: 1px; border: 0; }
+
+/* Always fill parent element with form */
+form {
+    width: 100%;
+    height: 100%;
+}
+
+/* Buttons */
+button {
+    text-align: center;
+}
+
+/* Tables */
+table {
+    width: 100%;
+}

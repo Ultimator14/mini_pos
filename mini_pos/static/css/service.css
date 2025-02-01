@@ -2,31 +2,18 @@
  * Service page
  */
 
-/* Set sans-serif as default font */
-* { font-family: sans-serif; }
-
 /* Disable double tap to zoom */
 * { touch-action: manipulation; }
-
-table {
-    width: 100%;
-}
 
 button {
     width: 100%;
     height: 100%;
 
-    text-align: center;
     font-size: 7vmin;
 
     color: black;
 
     cursor: pointer;
-}
-
-form {
-    width: 100%;
-    height: 100%;
 }
 
 .active-order {

@@ -2,9 +2,6 @@
  * Index page
  */
 
-/* Set sans-serif as default font */
-* { font-family: sans-serif; }
-
 /* Stretch buttons over full page width */
 button {
     width: 100vw;
