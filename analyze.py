@@ -26,6 +26,11 @@ def extract_data():
 
         orders = get_completed_orders()
 
+        if not orders:
+            app.logger.error("No orders found. Terminating.")
+            exit()
+
+
         # Dataframes
         datalist_orders = [
             [

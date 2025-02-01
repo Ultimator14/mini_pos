@@ -1,5 +1,9 @@
 # MiniPOS Unreleased
 
+### Bugfixes
+
+- Fix crash in analysis if no orders are found
+
 
 # MiniPOS 0.3.3
 
