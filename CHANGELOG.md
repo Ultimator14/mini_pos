@@ -1,6 +1,15 @@
 # MiniPOS Unreleased
 
 
+# MiniPOS 0.3.3
+
+### Internals
+
+- Deduplicate css
+- Use template inheritance
+- Rename variables to better fit their purpose
+
+
 # MiniPOS 0.3.2
 
 ### Bugfixes
