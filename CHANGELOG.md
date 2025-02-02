@@ -1,10 +1,16 @@
 # MiniPOS Unreleased
 
+
+# MiniPOS 0.3.4
+
 ### Bugfixes
 
 - Disallow negative values as product amount
 - Fix crash in analysis if no orders are found
 - Fix category folding
+
+### Internals
+
 - Conform to HTML standard
 
 
