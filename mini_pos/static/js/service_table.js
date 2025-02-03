@@ -9,21 +9,19 @@ function compare_ids(a, b) {
 }
 
 function updateValues() {
-    let amounts = Array.from(document.getElementsByClassName("amount-box"));
-    let amounts2 = Array.from(document.getElementsByClassName("amount2-text"));
-    let comments = Array.from(document.getElementsByClassName("comment-box"));
-    let costs = Array.from(document.getElementsByClassName("cost-text"));
-    let names = Array.from(document.getElementsByClassName("product-name"));
-    let prices = Array.from(document.getElementsByClassName("price-text"));
-    let rows = Array.from(document.getElementsByClassName("product-row"));
+    let classes = [
+        "amount-box",
+        "amount2-text",
+        "comment-box",
+        "cost-text",
+        "product-name",
+        "price-text",
+        "product-row"
+    ];
 
-    amounts.sort(compare_ids);
-    amounts2.sort(compare_ids);
-    comments.sort(compare_ids);
-    costs.sort(compare_ids);
-    names.sort(compare_ids);
-    prices.sort(compare_ids);
-    rows.sort(compare_ids);
+    let clselements= classes.map(cls => Array.from(document.getElementsByClassName(cls)));
+    clselements.forEach((cls) => cls.sort(compare_ids));
+    let [amounts, amounts2, comments, costs, names, prices, rows] = clselements;
 
     let sum = 0;
     let overview = document.getElementById("overview");
