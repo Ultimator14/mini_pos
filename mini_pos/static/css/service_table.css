@@ -222,3 +222,8 @@ table tr.category-14.colorized-row { background-color: hsl(0, 90%, 93%);}
 .arrowturn::after {
     transform: rotate(-90deg);
 }
+
+/* Service Overview */
+.nowrap {
+    white-space: nowrap;
+}

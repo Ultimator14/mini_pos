@@ -50,6 +50,7 @@ def service_login_submit():
 @service_bp.route("/<table>", strict_slashes=False)
 def service_table(table):
     app.logger.debug("GET /service/<table>")
+
     if table not in app.config["minipos"].tables.names:
         app.logger.error("GET in /service/<table> but invalid table. Skipping...")
         return "Error! Invalid table"
@@ -131,5 +132,8 @@ def service_table_submit(table):
     else:
         db.session.commit()
         app.logger.info("Added order %s", new_order.id)
+
+    if app.config["minipos"].ui.service.order_overview:
+        return render_template("service_table_overview.html", table=table, products=new_order.products)
 
     return redirect(url_for("service.service"))

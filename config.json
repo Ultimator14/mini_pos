@@ -120,6 +120,7 @@
 		"service": {
 			"show_category_names": true,
 			"fold_categories": true,
+			"order_overview": true,
 			"category_color_map": {
 				"Alkoholfrei": 13,
 				"Bier": 11,

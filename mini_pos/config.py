@@ -50,6 +50,7 @@ CONFIG_DICT: dict[str, tuple] = {
                 {
                     "show_category_names": (bool, False, None),
                     "fold_categories": (bool, False, None),
+                    "order_overview": (bool, False, None),
                     "category_color_map": (dict[str, int], False, None),
                 },
             ),
@@ -107,6 +108,7 @@ class UIConfig:
         def __init__(self, ui_service: dict[str, Any]) -> None:
             self.show_category_names = ui_service.get("show_category_names", False)
             self.fold_categories = ui_service.get("fold_categories", True)
+            self.order_overview = ui_service.get("order_overview", True)
             self.category_color_map = ui_service.get("category_color_map", {})
 
     def __init__(self, ui: dict[str, Any]) -> None:

@@ -1,0 +1,56 @@
+{% extends "_base.html" %}
+
+{% block title %}Service Table {{table}} Overview{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/service_table.css') }}">
+    <script src="{{ url_for('static', filename='js/service_table.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div>
+    <h2 class="inline">Service {{table}} Overview</h2>
+    <hr style="background-color: darkorange;">
+
+    <form action="javascript:payPartially()" method="get">
+        <table>
+            <colgroup>
+                <col style="width: 40vw;">
+                <col style="width: 15vw;">
+                <col style="width: 15vw;">
+                <col style="width: 15vw;">
+                <col style="width: 15vw;">
+            </colgroup>
+            <tbody>
+                <tr>
+                    <th>Produkt</th>
+                    <th>Preis</th>
+                    <th colspan="4">Menge</th>
+                </tr>
+                {% for product in products -%}
+                <tr id="product-row-{{product.id}}" class="product-row">
+                    <td id="product-name-{{product.id}}" class="product-name">{{product.name}}</td>
+                    <td><span id="product-price-{{product.id}}" class="product-price">{{"%.2f"|format(product.price)}}</span>&nbsp;€</td>
+                    <td><button type="button" class="amount-button" onclick="modifyAmount2({{product.id}}, -1)">&minus;</button></td>
+                    <td class="nowrap">
+                        <input type="text" id="amount-{{product.id}}" class="amount-box" name="amount-{{product.id}}" value="0" onchange="updateValues2()"/>
+                        / <span id="max-amount-{{product.id}}" class="max-amount">{{product.amount}}</span>
+                    </td>
+                    <td><button type="button" class="amount-button" onclick="modifyAmount2({{product.id}}, +1)">&plus;</button></td>
+                </tr>
+                {%- endfor %}
+            </tbody>
+        </table>
+        <h2 id="overview-h2">Übersicht</h2>
+        <hr style="background-color: darkorange;">
+        <ul id="overview"></ul>
+        <hr style="background-color: cornflowerblue;">
+        <p id="total-cost-p">Gesamtpreis <span id="total-cost">0.00</span> €</p>
+        <button type="submit" id="submit-button">Bezahlen</button>
+     </form>
+</div>
+{% endblock %}
+
+{% block footer %}
+<script>updateValues2()</script>
+{% endblock %}
