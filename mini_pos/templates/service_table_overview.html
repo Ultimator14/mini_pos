@@ -39,7 +39,12 @@
                 {%- endfor %}
                 <tr>
                     <td><!--nothing--></td>
-                    <td colspan="3"><button class="mark-all-button" type="button" onclick="markAll()">Alles</button></td>
+                    <td colspan="3" class="nowrap">
+                        <div class="select-button-container">
+                            <button class="select-button" type="button" onclick="unselectAll()">&minus;&minus;</button>
+                            <button class="select-button" type="button" onclick="selectAll()">&plus;&plus;</button>
+                        </div>
+                    </td>
                 </tr>
             </tbody>
         </table>

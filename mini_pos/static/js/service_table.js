@@ -297,19 +297,27 @@ function payPartially() {
     }
 }
 
-function markAll() {
-    let classes = [
-        "amount-box",
-        "max-amount",
-    ];
+function selectAll() {
+    let amounts = Array.from(document.getElementsByClassName("amount-box"));
+    let max_amounts = Array.from(document.getElementsByClassName("max-amount"));
 
-    let clselements= classes.map(cls => Array.from(document.getElementsByClassName(cls)));
-    clselements.forEach((cls) => cls.sort(compare_ids));
-    let [amounts, max_amounts] = clselements;
+    amounts.sort(compare_ids);
+    max_amounts.sort(compare_ids);
 
     //Set amount = max_amount for all products
     for(let i=0; i<amounts.length; i++) {
         amounts[i].value = max_amounts[i].innerHTML;
+    }
+
+    updateValues2();
+}
+
+function unselectAll() {
+    let amounts = Array.from(document.getElementsByClassName("amount-box"));
+
+    //Set amount = 0 for all products
+    for(let i=0; i<amounts.length; i++) {
+        amounts[i].value = 0;
     }
 
     updateValues2();

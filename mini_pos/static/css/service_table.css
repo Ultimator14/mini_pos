@@ -239,7 +239,18 @@ table tr.category-14.colorized-row { background-color: hsl(0, 90%, 93%);}
     white-space: nowrap;
 }
 
-.mark-all-button {
-    width: 48vw;  /* align with left and right buttons: col2(12vw) + col3(26vw) + button+(10vw) = 48*/
+/*
+ * Align with left and right buttons
+ * Total width is col2(12vw) + col3(26vw) + button+(10vw) = 48vw
+ * Give 23.5 for each button to have 1vw space in the middle
+ */
+.select-button {
+    width: 23.5vw;
     font-size: 6vmin;
+}
+
+.select-button-container {
+    display: flex;
+    justify-content: space-between;
+    width: 48vw;
 }
