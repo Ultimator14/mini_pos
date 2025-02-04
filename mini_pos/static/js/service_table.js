@@ -61,14 +61,17 @@ function updateValues() {
 
                 //Generate overview
                 let entry = document.createElement('li');
-                let entry_text = amount + "x " + name
+                let entry2 = document.createElement('li');
 
-                if (comment !== "") {
-                    entry_text += " (" + comment + ")";
-                }
+                let entry_text = amount + "x " + name
+                entry_text += (comment !== "" ? " (" + comment + ")" : "")
+                let entry_text2 = current_cost.toFixed(2).toString() + "€"
 
                 entry.appendChild(document.createTextNode(entry_text));
+                entry2.appendChild(document.createTextNode(entry_text2));
+
                 overview.appendChild(entry);
+                overview.appendChild(entry2);
             }
             else {
                 rows[i].classList.remove("colorized-row");
@@ -202,7 +205,8 @@ function updateValues() {
             let price = prices[i].innerHTML;
 
             //Compute accumulation
-            sum += parseFloat(price) * parseFloat(amount);
+            let current_cost = parseFloat(price) * parseFloat(amount);
+            sum += current_cost;
 
             //Colorize table row if amount is > 0
             if (parseFloat(amount) > 0) {
@@ -210,10 +214,15 @@ function updateValues() {
 
                 //Generate overview
                 let entry = document.createElement('li');
+                let entry2 = document.createElement('li');
+
                 let entry_text = amount + "x " + name
+                let entry_text2 = current_cost.toFixed(2).toString() + "€"
 
                 entry.appendChild(document.createTextNode(entry_text));
+                entry2.appendChild(document.createTextNode(entry_text2));
                 overview.appendChild(entry);
+                overview.appendChild(entry2);
             }
             else {
                 //rows[i].classList.remove("colorized-row");  TODO

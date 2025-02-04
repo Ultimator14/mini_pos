@@ -227,3 +227,14 @@ table tr.category-14.colorized-row { background-color: hsl(0, 90%, 93%);}
 .nowrap {
     white-space: nowrap;
 }
+
+#overview {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    }
+
+#overview li:nth-child(2n) {
+    list-style: none;
+    text-align: right;
+    margin-right: 1vw;
+}
