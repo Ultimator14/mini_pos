@@ -37,6 +37,10 @@
                     <td style="display: none;" id="product-price-{{product.id}}" class="product-price">{{"%.2f"|format(product.price)}}</td>
                 </tr>
                 {%- endfor %}
+                <tr>
+                    <td><!--nothing--></td>
+                    <td colspan="3"><button class="mark-all-button" type="button" onclick="markAll()">Alles</button></td>
+                </tr>
             </tbody>
         </table>
         <h2 id="overview-h2">Übersicht</h2>

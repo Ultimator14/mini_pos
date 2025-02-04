@@ -295,3 +295,21 @@ function payPartially() {
         location.href = '/service';
     }
 }
+
+function markAll() {
+    let classes = [
+        "amount-box",
+        "max-amount",
+    ];
+
+    let clselements= classes.map(cls => Array.from(document.getElementsByClassName(cls)));
+    clselements.forEach((cls) => cls.sort(compare_ids));
+    let [amounts, max_amounts] = clselements;
+
+    //Set amount = max_amount for all products
+    for(let i=0; i<amounts.length; i++) {
+        amounts[i].value = max_amounts[i].innerHTML;
+    }
+
+    updateValues2();
+}

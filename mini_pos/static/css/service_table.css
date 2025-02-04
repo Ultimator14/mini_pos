@@ -107,6 +107,17 @@ table tr.category-14.colorized-row { background-color: hsl(0, 90%, 93%);}
     text-align: left;
 }
 
+#overview {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+}
+
+#overview li:nth-child(2n) {
+    list-style: none;
+    text-align: right;
+    margin-right: 1vw;
+}
+
 /* Total price */
 #total-cost-p {
     font-size: 7vmin;
@@ -228,13 +239,7 @@ table tr.category-14.colorized-row { background-color: hsl(0, 90%, 93%);}
     white-space: nowrap;
 }
 
-#overview {
-    display: grid;
-    grid-template-columns: 3fr 1fr;
-    }
-
-#overview li:nth-child(2n) {
-    list-style: none;
-    text-align: right;
-    margin-right: 1vw;
+.mark-all-button {
+    width: 100%;
+    font-size: 6vmin;
 }
