@@ -26,7 +26,7 @@
                     <th colspan="3">Menge</th>
                 </tr>
                 {% for product in products -%}
-                <tr id="product-row-{{product.id}}" class="product-row">
+                <tr id="product-row-{{product.id}}" class="product-row category-{{ui_config.category_color_map[product.category]}}">
                     <td id="product-name-{{product.id}}" class="product-name">{{product.name}}</td>
                     <td><button type="button" class="amount-button" onclick="modifyAmount2({{product.id}}, -1)">&minus;</button></td>
                     <td class="nowrap">

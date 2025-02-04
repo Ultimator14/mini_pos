@@ -62,13 +62,9 @@ def service_table(table):
         "service_table.html",
         table=table,
         open_product_lists=Product.get_open_product_lists_by_table(table),
-        products=[
-            (p, pval[0], pval[1], pval[2]) for p, pval in app.config["minipos"].products.items()
-        ],
+        products=[(p, pval[0], pval[1], pval[2]) for p, pval in app.config["minipos"].products.items()],
         ui_config=app.config["minipos"].ui.service,
-        split_categories_init=app.config["minipos"].products[1][2]
-        if len(app.config["minipos"].products) > 0
-        else 0,
+        split_categories_init=app.config["minipos"].products[1][2] if len(app.config["minipos"].products) > 0 else 0,
         nonce=nonce,
     )
 
@@ -134,6 +130,11 @@ def service_table_submit(table):
         app.logger.info("Added order %s", new_order.id)
 
     if app.config["minipos"].ui.service.order_overview:
-        return render_template("service_table_overview.html", table=table, products=new_order.products)
+        return render_template(
+            "service_table_overview.html",
+            table=table,
+            products=new_order.products,
+            ui_config=app.config["minipos"].ui.service,
+        )
 
     return redirect(url_for("service.service"))

@@ -210,7 +210,7 @@ function updateValues2() {
 
         //Colorize table row if amount is > 0
         if (parseFloat(amount) > 0) {
-            //rows[i].classList.add("colorized-row");  TODO
+            rows[i].classList.add("colorized-row");
 
             //Generate overview
             let entry = document.createElement('li');
@@ -225,7 +225,7 @@ function updateValues2() {
             overview.appendChild(entry2);
         }
         else {
-            //rows[i].classList.remove("colorized-row");  TODO
+            rows[i].classList.remove("colorized-row");
         }
     }
 
@@ -280,9 +280,10 @@ function payPartially() {
             rows[i].remove();
 
         } else if (parseFloat(amount) > 0) {
-            //Reset amount, update max_amount
+            //Reset amount, update max_amount, reset colors
             amounts[i].value = 0;
             max_amounts[i].innerHTML = max_amount - amount;
+            rows[i].classList.remove("colorized-row");
         }
     }
 
