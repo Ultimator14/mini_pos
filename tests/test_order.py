@@ -6,6 +6,16 @@ BAR_FOOD = "Küche"
 BAR_DRINKS = "Getränke"
 BAR_DEFAULT = "default"
 
+
+def overview_check(app, response, table):
+    """Helper function to check response code based on overview config option"""
+    if app.config["minipos"].ui.service.order_overview:
+        assert response.status_code == 200
+        assert f"Service Table {table} Overview".encode() in response.data
+    else:
+        assert response.status_code == 302  # assert redirect to service page
+
+
 def test_order_completion(app):
     # Setup
     client = app.test_client()
@@ -20,10 +30,10 @@ def test_order_completion(app):
 
     # Order products
     response = client.post("/service/A1", data=data1)
-    assert response.status_code == 302  # assert redirect to service page
+    overview_check(app, response, "A1")
 
     response = client.post("/service/A2", data=data2)
-    assert response.status_code == 302
+    overview_check(app, response, "A2")
 
     # Get order ids of new orders
     with app.app_context():
@@ -67,13 +77,13 @@ def test_bars(app):
     data3 = {"nonce": "789789789", "amount-8": "2", "comment-8": "", "amount-31": "7", "comment-31": "Test"}  # both
 
     response = client.post("/service/A3", data=data1)
-    assert response.status_code == 302
+    overview_check(app, response, "A3")
 
     response = client.post("/service/A4", data=data2)
-    assert response.status_code == 302
+    overview_check(app, response, "A4")
 
     response = client.post("/service/A5", data=data3)
-    assert response.status_code == 302
+    overview_check(app, response, "A5")
 
     # Get order ids of new orders
     with app.app_context():
