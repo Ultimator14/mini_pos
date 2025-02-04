@@ -129,12 +129,12 @@ def service_table_submit(table):
         db.session.commit()
         app.logger.info("Added order %s", new_order.id)
 
-    if app.config["minipos"].ui.service.order_overview:
-        return render_template(
-            "service_table_overview.html",
-            table=table,
-            products=new_order.products,
-            ui_config=app.config["minipos"].ui.service,
-        )
+        if app.config["minipos"].ui.service.order_overview:
+            return render_template(
+                "service_table_overview.html",
+                table=table,
+                products=new_order.products,
+                ui_config=app.config["minipos"].ui.service,
+            )
 
     return redirect(url_for("service.service"))
