@@ -240,6 +240,6 @@ table tr.category-14.colorized-row { background-color: hsl(0, 90%, 93%);}
 }
 
 .mark-all-button {
-    width: 100%;
+    width: 48vw;  /* align with left and right buttons: col2(12vw) + col3(26vw) + button+(10vw) = 48*/
     font-size: 6vmin;
 }
