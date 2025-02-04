@@ -2,23 +2,13 @@
 
 This file provides an overview about the planned (future) changes.
 
-## Release 0.4.x
-
-### Order overview
-
-- Add an additional step after finishing an order in service
-- Waiters should be able to combine products from a completed order arbitrarily in case different people want to pay
-- Products can be marked as payed
-- After payment is complete, return to main service page
-- This feature should be client side only
-- The ordering process should already be fininshed and the order should already be displayed at the bar BEFORE waiters compute the subtotals
-- Put this on a separate page, maybe controlled via config value
+## Release 0.3.x
 
 ### History Access
 
 - Make order history of table available in service
 
-## Release 0.5.x
+## Release 0.4.x
 
 ### Sold out products
 
@@ -26,7 +16,7 @@ This file provides an overview about the planned (future) changes.
 - Products should be displayed ~~strikethrough~~ in service
 - Implement Quota management. Set a limit of products. Once the limit is reached, the product is automatically marked as sold out. Quota should be controlled via admin ui
 
-## Release 0.6.0
+## Release 0.5.x
 
 ### Bons
 

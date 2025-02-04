@@ -1,6 +1,18 @@
 # MiniPOS Unreleased
 
 
+# MiniPOS 0.3.5
+
+### Features
+
+- Add order overview in service for waiters to compute subtotals
+- Display per-product price in service overview
+
+### Internals
+
+- Adapt tests to new feature
+
+
 # MiniPOS 0.3.4
 
 ### Bugfixes
