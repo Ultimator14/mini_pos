@@ -34,7 +34,7 @@
                         / <span id="max-amount-{{product.id}}" class="max-amount">{{product.amount}}</span>
                     </td>
                     <td><button type="button" class="amount-button" onclick="modifyAmount2({{product.id}}, +1)">&plus;</button></td>
-                    <div style="display: none;"><span id="product-price-{{product.id}}" class="product-price">{{"%.2f"|format(product.price)}}</span>&nbsp;€</div>
+                    <td style="display: none;" id="product-price-{{product.id}}" class="product-price">{{"%.2f"|format(product.price)}}</td>
                 </tr>
                 {%- endfor %}
             </tbody>
