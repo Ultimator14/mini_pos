@@ -279,7 +279,7 @@ function updateValues() {
 
     //Clear overview and total value
     document.getElementById("overview").innerHTML = "";
-    document.getElementById("total-cost").innerHTML = 0;
+    document.getElementById("total-cost").innerHTML = Number(0).toFixed(2).toString();
 
     //Check if last product is completed
     if (document.getElementsByClassName("product-row").length == 0) {
