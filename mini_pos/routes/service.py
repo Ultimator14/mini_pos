@@ -12,6 +12,11 @@ service_bp = Blueprint("service", __name__, template_folder="templates")
 def service():
     app.logger.debug("GET /service")
 
+    # Don't display table overview if there is only one table
+    tables = app.config["minipos"].tables.names
+    if len(tables) == 1:
+        return redirect(url_for("service.service_table", table=tables[0]))
+
     return render_template(
         "service.html",
         tables_size=app.config["minipos"].tables.size,

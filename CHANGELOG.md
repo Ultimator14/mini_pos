@@ -1,5 +1,9 @@
 # MiniPOS Unreleased
 
+### Features
+
+- Don't display table overview if there is only one table
+
 
 # MiniPOS 0.3.6
 
