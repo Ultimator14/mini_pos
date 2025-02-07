@@ -29,3 +29,4 @@ This file provides an overview about the planned (future) changes.
 - Reimplement reloading config file on the fly via admin UI (workers have to poll changes, maybe with a database entry holding the time of the latest change and a global variable per worker - if the database time is newer than the worker time, reload config), client-side polling of potential config changes via javascript e.g. changed table order
 - Convert the client side to PWA
 - Rework fetching logic, change so that fetching does always only fetch data and not the whole html page -> layouting should happen on the client
+- Restrict url access via param instead of many if-s in functions
