@@ -1,6 +1,15 @@
 # MiniPOS Unreleased
 
 
+# MiniPOS 0.3.6
+
+### Features
+
+- Add history overview in service
+- Add button in service overview to deselect all products
+- Do not forward to order overview if order contains no product
+
+
 # MiniPOS 0.3.5
 
 ### Features
