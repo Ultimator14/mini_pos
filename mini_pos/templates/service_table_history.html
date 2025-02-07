@@ -1,0 +1,46 @@
+{% extends "_base.html" %}
+
+{% block title %}Service Table {{table}} History{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/service_table.css') }}">
+{% endblock %}
+
+{% block content %}
+<div>
+    <form class="inline" action="{{ url_for ('service.service_table', table=table) }}" method="get">
+        <button class="back-button" type="submit">&#x2715;</button>
+    </form>
+
+    <h2 class="inline">Service {{table}} History</h2>
+    <hr style="background-color: darkorange;">
+
+    <table class="history-table">
+        <colgroup>
+            <col style="width: 15vw;">
+            <col style="width: 85vw;">
+        </colgroup>
+        <tbody>
+            <tr>
+                <th>Status</th>
+                <th>Produkte</th>
+            </tr>
+            {% for order in orders %}
+            <tr>
+                {% if order.completed_at is not none %}
+                {%- set completed_at_date, completed_at_time = order.completed_timestamp.split(" ") -%}
+                <td>{{completed_at_date}}</br>{{completed_at_time}}</td>
+                {% else %}
+                <td>Offen</td>
+                {% endif %}
+                <td><ul>
+                    {% for product in order.products %}
+                    <li>{{product.amount}}x {{product.name}}{% if product.comment != "" %} ({{product.comment}}){% endif %}</li>
+                    {% endfor %}
+                </ul></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

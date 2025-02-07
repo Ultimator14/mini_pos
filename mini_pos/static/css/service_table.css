@@ -19,6 +19,21 @@ h2 { text-align: center; }
     border-radius: 0;
 
     cursor: pointer;
+    line-height: 1;
+}
+.history-button {
+    font-size: 7vmin;
+
+    background-color: inherit;
+    color: black;
+
+    border: none;
+    border-radius: 0;
+
+    cursor: pointer;
+
+    float: right;
+    line-height: 1;
 }
 .inline {
     display: inline;
@@ -253,4 +268,9 @@ table tr.category-14.colorized-row { background-color: hsl(0, 90%, 93%);}
     display: flex;
     justify-content: space-between;
     width: 48vw;
+}
+
+/* Service History */
+.history-table {
+    font-size: 4vmin;
 }

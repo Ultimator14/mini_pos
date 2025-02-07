@@ -12,7 +12,11 @@
     <form class="inline" action="{{ url_for ('service.service') }}" method="get">
         <button class="back-button" type="submit">&#x2715;</button>
     </form>
+
     <h2 class="inline">Service {{table}}</h2>
+    <form class="inline" action="{{ url_for ('service.service_table_history', table=table) }}" method="get">
+        <button class="history-button" type="submit">&#x1F56E;</button>
+    </form>
     <hr style="background-color: darkorange;">
     <ul>
         {% for open_products in open_product_lists -%}

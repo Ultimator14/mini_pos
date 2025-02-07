@@ -68,6 +68,13 @@ def service_table(table):
         nonce=nonce,
     )
 
+@service_bp.route("/<table>/history", strict_slashes=False)
+def service_table_history(table):
+    return render_template(
+        "service_table_history.html",
+        table=table,
+        orders=Order.get_orders_by_table(table)
+    )
 
 @service_bp.route("/<table>", methods=["POST"], strict_slashes=False)
 def service_table_submit(table):

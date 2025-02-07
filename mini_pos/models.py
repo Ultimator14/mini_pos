@@ -141,6 +141,10 @@ class Order(db.Model):
         return db.session.execute(db.select(Order).filter_by(id=order_id)).scalar_one_or_none()
 
     @staticmethod
+    def get_orders_by_table(table: str) -> list[Order]:
+        return list(db.session.execute(db.select(Order).filter_by(table=table).order_by(Order.id.desc())).scalars())
+
+    @staticmethod
     def get_open_orders_by_table(table: str) -> list[Order]:
         return list(db.session.execute(db.select(Order).filter_by(table=table, completed_at=None)).scalars())
 
