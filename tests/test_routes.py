@@ -15,6 +15,7 @@ def test_bar(client):
     response = client.get("/bar/default")
     assert b"<title>Bar</title>" in response.data
 
+
 def test_bar_history(client):
     response = client.get("/bar/default/history")
     assert b"<title>Bar History</title>" in response.data
@@ -47,6 +48,11 @@ def test_service(client):
 def test_service2(client):
     response = client.get("/service/A1")
     assert b"<title>Service Table A1</title>" in response.data
+
+
+def test_service_history(client):
+    response = client.get("/service/A1/history")
+    assert b"<title>Service Table A1 History</title>" in response.data
 
 
 def test_fetch_bar(client):
