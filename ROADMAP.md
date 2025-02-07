@@ -2,12 +2,6 @@
 
 This file provides an overview about the planned (future) changes.
 
-## Release 0.3.x
-
-### History Access
-
-- Make order history of table available in service
-
 ## Release 0.4.x
 
 ### Sold out products
