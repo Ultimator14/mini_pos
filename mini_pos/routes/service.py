@@ -66,20 +66,21 @@ def service_table(table):
     return render_template(
         "service_table.html",
         table=table,
-        open_product_lists=Product.get_open_product_lists_by_table(table),
+        open_product_lists=[
+            [f"{p.amount}x {p.name}" + (f" ({p.comment})" if p.comment else "") for p in ps]
+            for ps in Product.get_open_product_lists_by_table(table)
+        ],
         products=[(p, pval[0], pval[1], pval[2]) for p, pval in app.config["minipos"].products.items()],
         ui_config=app.config["minipos"].ui.service,
         split_categories_init=app.config["minipos"].products[1][2] if len(app.config["minipos"].products) > 0 else 0,
         nonce=nonce,
     )
 
+
 @service_bp.route("/<table>/history", strict_slashes=False)
 def service_table_history(table):
-    return render_template(
-        "service_table_history.html",
-        table=table,
-        orders=Order.get_orders_by_table(table)
-    )
+    return render_template("service_table_history.html", table=table, orders=Order.get_orders_by_table(table))
+
 
 @service_bp.route("/<table>", methods=["POST"], strict_slashes=False)
 def service_table_submit(table):

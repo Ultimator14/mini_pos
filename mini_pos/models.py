@@ -198,14 +198,8 @@ class Product(db.Model):
         return list(db.session.execute(db.select(Product).filter_by(completed=False, order_id=order_id)).scalars())
 
     @staticmethod
-    def get_open_product_lists_by_table(table: str) -> list[list[str]]:
-        return [
-            [
-                f"{p.amount}x {p.name}" + (f" ({p.comment})" if p.comment else "")
-                for p in Product.get_open_products_by_order_id(o.id)
-            ]
-            for o in Order.get_open_orders_by_table(table)
-        ]
+    def get_open_product_lists_by_table(table: str) -> list[list[Product]]:
+        return [Product.get_open_products_by_order_id(o.id) for o in Order.get_open_orders_by_table(table)]
 
 
 def init_db(app):

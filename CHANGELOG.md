@@ -4,6 +4,9 @@
 
 - Don't display table overview if there is only one table
 
+### Internals
+
+- Move string concat logic out of models
 
 # MiniPOS 0.3.6
 
