@@ -17,6 +17,15 @@ This file provides an overview about the planned (future) changes.
 - Add support for printing bons (python-escpos?)
 - Make bar optional (in favor of bons)
 
+## Release 0.6.x
+
+### Statistics
+
+- Add live statistics endpoint accessible via website
+- Different statistics should be accessible via e.g. /statistics/by-table
+- Statistics should be live updated for users to have a competitive experience
+
+
 ## Unscheduled
 
 - Add popup in service if server is down. Prevent clicks on any button
@@ -24,4 +33,3 @@ This file provides an overview about the planned (future) changes.
 - Convert the client side to PWA
 - Rework fetching logic, change so that fetching does always only fetch data and not the whole html page -> layouting should happen on the client
 - Simplify get_open_product_lists_by_table
-- Add live statistics endpoint accessible via website (e.g. /statistics/by-table etc.)
