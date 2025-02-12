@@ -11,6 +11,7 @@
 ### Internals
 
 - Move string concat logic out of models
+- Update dependencies
 
 # MiniPOS 0.3.6
 
