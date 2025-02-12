@@ -4,6 +4,10 @@
 
 - Don't display table overview if there is only one table
 
+### Bugfixes
+
+- Fix too large numbers in service overview
+
 ### Internals
 
 - Move string concat logic out of models

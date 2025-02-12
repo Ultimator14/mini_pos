@@ -179,6 +179,7 @@ function initialCategoryFold() {
 function updateValues2() {
     let classes = [
         "amount-box",
+        "max-amount",
         "product-name",
         "product-price",
         "product-row"
@@ -186,7 +187,7 @@ function updateValues2() {
 
     let clselements= classes.map(cls => Array.from(document.getElementsByClassName(cls)));
     clselements.forEach((cls) => cls.sort(compare_ids));
-    let [amounts, names, prices, rows] = clselements;
+    let [amounts, max_amounts ,names, prices, rows] = clselements;
 
     let sum = 0;
     let overview = document.getElementById("overview");
@@ -197,6 +198,11 @@ function updateValues2() {
         //Catch negative values
         if (amounts[i].value < 0) {
             amounts[i].value = 0;
+        }
+
+        //Catch values > max
+        if (amounts[i].value > max_amounts[i].innerHTML) {
+            amounts[i].value = max_amounts[i].innerHTML;
         }
 
         //Extract values
