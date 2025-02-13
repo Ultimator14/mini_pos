@@ -1,5 +1,8 @@
 # MiniPOS Unreleased
 
+
+# MiniPOS 0.3.7
+
 ### Features
 
 - Don't display table overview if there is only one table
@@ -12,6 +15,7 @@
 
 - Move string concat logic out of models
 - Update dependencies
+
 
 # MiniPOS 0.3.6
 
