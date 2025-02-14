@@ -38,6 +38,11 @@ function updateValues() {
             amounts[i].value = 0;
         }
 
+        //Catch 0x..., 0b...
+        if (amounts[i].value != String(Number(amounts[i].value))) {
+            amounts[i].value = Number(amounts[i].value);
+        }
+
         //Catch negative values
         if (amounts[i].value < 0) {
             amounts[i].value = 0;
@@ -48,8 +53,6 @@ function updateValues() {
         let comment = comments[i].value;
         let name = names[i].innerHTML;
         let price = prices[i].innerHTML;
-
-
 
         //Compute per product cose and accumulation
         let current_cost = parseFloat(price) * parseFloat(amount);
@@ -204,6 +207,11 @@ function updateValues2() {
         //Catch NaN's
         if (isNaN(amounts[i].value)) {
             amounts[i].value = 0;
+        }
+
+        //Catch 0x..., 0b...
+        if (amounts[i].value != String(Number(amounts[i].value))) {
+            amounts[i].value = Number(amounts[i].value);
         }
 
         //Catch negative values
