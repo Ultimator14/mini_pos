@@ -1,6 +1,19 @@
 # MiniPOS Unreleased
 
 
+# MiniPOS 0.3.8
+
+### Features
+
+- Add return button in service overview
+
+### Bugfixes
+
+- Fix NaNs in service amount
+- Fix bin/hex in service amount
+- Replace non printable glyphs in service
+
+
 # MiniPOS 0.3.7
 
 ### Features
