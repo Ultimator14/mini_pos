@@ -1,0 +1,109 @@
+{
+	"products": {
+		"Alkoholfrei": [
+			["Mineralwasser Classic 0,5", 2.50],
+			["Mineralwasser Medium", 2.50],
+			["Mineralwasser Classic 0,7", 3.50],
+			["Spezi", 2.50],
+			["Apfelschorle", 3.00]
+		],
+		"Bier": [
+			["Pils", 3.00],
+			["Radler", 3.00],
+			["Hefeweizen", 3.80],
+			["Colaweizen", 3.80],
+			["Pils alkoholfrei", 3.00],
+			["Weizen alkoholfrei", 3.80]
+		],
+		"Wein": [
+			["Müller lieblich", 3.50],
+			["Riesling trocken", 4.00],
+			["Spätburgunder trocken", 4.00],
+			["Flasche Müller", 13.00],
+			["Flasche Riesling", 15.00],
+			["Flasche Spätburgunder", 15.00],
+			["Müllerschorle süß", 3.00],
+			["Müllerschorle sauer", 3.00],
+			["Rieslingschorle süß", 3.50],
+			["Rieslingschorle sauer", 3.50],
+			["Rotweinschorle süß", 3.50],
+			["Rotweinschorle sauer", 3.50],
+			["Glas Sekt", 2.50],
+			["Glas Sekt Orange", 2.50],
+			["Flasche Sekt", 17.00]
+		],
+		"Spirituosen": [
+			["Gedopter", 3.00],
+			["Gin Tonic", 4.50]
+		],
+		"Essen": [
+			["Schinkenweck", 3.50],
+			["Käseweck", 3.50],
+			["Chilli sin Carne", 5.00],
+			["Wurstsalat", 7.00],
+			["Schnitzelweck", 5.00],
+			["Schnitzel mit Kartoffelsalat", 8.00]
+		]
+	},
+	"bars": {
+		"Getränke": ["Alkoholfrei", "Bier", "Wein", "Spirituosen"],
+		"Küche": ["Essen"]
+	},
+	"tables": {
+		"size": [5, 8],
+		"names": [
+			[0, 0, 5, 1, "Bühne"],
+			[0, 1, 1, 1, "Musik"],
+			[0, 3, 1, 1, "A3"],
+			[0, 4, 1, 1, "A4"],
+			[0, 5, 1, 1, "A5"],
+			[0, 6, 1, 1, "A6"],
+			[1, 1, 1, 1, "B1"],
+			[1, 2, 1, 1, "B2"],
+			[1, 3, 1, 1, "B3"],
+			[1, 4, 1, 1, "B4"],
+			[1, 5, 1, 1, "B5"],
+			[1, 6, 1, 1, "B6"],
+			[2, 1, 1, 1, "C1"],
+			[2, 2, 1, 1, "C2"],
+			[2, 3, 1, 1, "C3"],
+			[2, 4, 1, 1, "C4"],
+			[2, 5, 1, 1, "C5"],
+			[2, 6, 1, 1, "C6"],
+			[3, 1, 1, 1, "D1"],
+			[3, 2, 1, 1, "D2"],
+			[3, 3, 1, 1, "D3"],
+			[3, 4, 1, 1, "D4"],
+			[3, 5, 1, 1, "D5"],
+			[3, 6, 1, 1, "D6"],
+			[4, 1, 1, 1, "E1"],
+			[4, 2, 1, 1, "E2"],
+			[4, 3, 1, 1, "E3"],
+			[4, 4, 1, 1, "E4"],
+			[4, 5, 1, 1, "E5"],
+			[4, 6, 1, 1, "E6"],
+			[1, 7, 4, 1, "Stehtische"]
+		]
+	},
+	"ui": {
+		"bar": {
+			"auto_close": true,
+			"default": true,
+			"show_completed": 8,
+			"timeout": [ 120, 360 ]
+		},
+		"service": {
+			"show_category_names": true,
+			"fold_categories": true,
+			"order_overview": true,
+			"category_color_map": {
+				"Alkoholfrei": 13,
+				"Bier": 11,
+				"Wein": 12,
+				"Spirituosen": 10,
+				"Essen": 8
+			}
+		}
+	},
+	"debug": false
+}
