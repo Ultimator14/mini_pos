@@ -1,6 +1,18 @@
 # MiniPOS Unreleased
 
 
+# MiniPOS 0.3.9
+
+### Bugfixes
+
+- Fix string concatenation overriding addition in service
+- Limit numbers to maximum safe int
+
+### Internals
+
+- Unify js logic
+
+
 # MiniPOS 0.3.8
 
 ### Features
