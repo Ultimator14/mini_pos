@@ -21,6 +21,18 @@ h2 { text-align: center; }
     cursor: pointer;
     line-height: 1;
 }
+.return-button {
+    font-size: 7vmin;
+
+    background-color: #4CAF50;
+    color: white;
+
+    border: none;
+    border-radius: 3px;
+
+    cursor: pointer;
+    line-height: 1;
+}
 .history-button {
     font-size: 7vmin;
 
