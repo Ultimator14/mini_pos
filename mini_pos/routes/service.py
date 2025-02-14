@@ -122,6 +122,12 @@ def service_table_submit(table):
 
         amount = int(amount_param)
 
+        # Limit to maximum 64bit safe int
+        MAX_INT =  2**53 - 1
+        if amount > MAX_INT:
+            app.logger.warning("POST in /service/<table> with too large amount. Setting to 2**53 - 1...")
+            amount = MAX_INT
+
         comment = request.form.get(f"comment-{product}")
 
         if comment is None:

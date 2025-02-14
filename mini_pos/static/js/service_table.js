@@ -1,3 +1,6 @@
+/* Max safe int, above there are rounding errors */
+const MAX_INT = 9007199254740991;
+
 /*
  * Service Table
  */
@@ -46,6 +49,11 @@ function updateValues() {
         //Catch negative values
         if (amounts[i].value < 0) {
             amounts[i].value = 0;
+        }
+
+        //Catch values > max int
+        if (amounts[i].value > MAX_INT) {
+            amounts[i].value = MAX_INT;
         }
 
         //Extract values
@@ -123,6 +131,9 @@ function modifyAmount(pid, value) {
 
     if (isNaN(current_value)) {
         new_value = 0;
+    }
+    else if (current_value + value > MAX_INT) {
+        new_value = MAX_INT;
     } else {
         new_value = current_value + value;
     }
