@@ -26,6 +26,10 @@ function computeModifyAmountValue(current_value, value_change, max_value) {
         return 0;
     }
 
+    current_value = Number(current_value);
+    value_change = Number(value_change);
+    max_value = Number(max_value);
+
     if (current_value + value_change > MAX_INT) {
         return MAX_INT;
     }
@@ -53,12 +57,12 @@ function fixNumFormat(textbox) {
     }
 
     //Catch negative values
-    if (textbox.value < 0) {
+    if (Number(textbox.value) < 0) {
         textbox.value = 0;
     }
 
     //Catch values > max int
-    if (textbox.value > MAX_INT) {
+    if (Number(textbox.value) > MAX_INT) {
         textbox.value = MAX_INT;
     }
 }
@@ -85,13 +89,13 @@ function updateValues() {
         fixNumFormat(amounts[i]);
 
         //Extract values
-        let amount = amounts[i].value;
+        let amount = Number(amounts[i].value);
         let comment = comments[i].value;
         let name = names[i].innerHTML;
-        let price = prices[i].innerHTML;
+        let price = parseFloat(prices[i].innerHTML);
 
         //Compute per product cose and accumulation
-        let current_cost = parseFloat(price) * parseFloat(amount);
+        let current_cost = price * amount;
         sum += current_cost;
 
         //Set cost field
@@ -101,7 +105,7 @@ function updateValues() {
         amounts2[i].innerHTML = amount;
 
         //Colorize table row if amount is > 0
-        if (parseFloat(amount) > 0) {
+        if (amount > 0) {
             rows[i].classList.add("colorized-row");
 
             //Generate overview
@@ -231,21 +235,21 @@ function updateValues2() {
         fixNumFormat(amounts[i]);
 
         //Catch values > max
-        if (amounts[i].value > max_amounts[i].innerHTML) {
+        if (Number(amounts[i].value) > Number(max_amounts[i].innerHTML)) {
             amounts[i].value = max_amounts[i].innerHTML;
         }
 
         //Extract values
-        let amount = amounts[i].value;
+        let amount = Number(amounts[i].value);
         let name = names[i].innerHTML;
-        let price = prices[i].innerHTML;
+        let price = parseFloat(prices[i].innerHTML);
 
         //Compute accumulation
-        let current_cost = parseFloat(price) * parseFloat(amount);
+        let current_cost = price * amount;
         sum += current_cost;
 
         //Colorize table row if amount is > 0
-        if (parseFloat(amount) > 0) {
+        if (amount > 0) {
             rows[i].classList.add("colorized-row");
 
             //Generate overview
@@ -294,14 +298,14 @@ function payPartially() {
 
     for(let i=0; i<rows.length; i++) {
         //Extract values
-        let amount = amounts[i].value;
-        let max_amount = max_amounts[i].innerHTML;
+        let amount = Number(amounts[i].value);
+        let max_amount = Number(max_amounts[i].innerHTML);
 
-        if (parseFloat(amount) == parseFloat(max_amount)) {
+        if (amount == max_amount) {
             //Remove line
             rows[i].remove();
 
-        } else if (parseFloat(amount) > 0) {
+        } else if (amount > 0) {
             //Reset amount, update max_amount, reset colors
             amounts[i].value = 0;
             max_amounts[i].innerHTML = max_amount - amount;
