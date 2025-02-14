@@ -15,6 +15,54 @@ function compare_ids(a, b) {
     return 0;
 }
 
+function getElementsByClass(classlist) {
+    let clselements= classlist.map(cls => Array.from(document.getElementsByClassName(cls)));
+    clselements.forEach((cls) => cls.sort(compare_ids));
+    return clselements;
+}
+
+function computeModifyAmountValue(current_value, value_change, max_value) {
+    if (isNaN(current_value)) {
+        return 0;
+    }
+
+    if (current_value + value_change > MAX_INT) {
+        return MAX_INT;
+    }
+
+    if (current_value + value_change > max_value) {
+        return max_value;
+    }
+
+    if (current_value + value_change < 0) {
+        return 0;
+    }
+
+    return current_value + value_change;
+}
+
+function fixNumFormat(textbox) {
+    //Catch NaN's
+    if (isNaN(textbox.value)) {
+        textbox.value = 0;
+    }
+
+    //Catch 0x..., 0b...
+    if (textbox.value != String(Number(textbox.value))) {
+        textbox.value = Number(textbox.value);
+    }
+
+    //Catch negative values
+    if (textbox.value < 0) {
+        textbox.value = 0;
+    }
+
+    //Catch values > max int
+    if (textbox.value > MAX_INT) {
+        textbox.value = MAX_INT;
+    }
+}
+
 function updateValues() {
     let classes = [
         "amount-box",
@@ -26,9 +74,7 @@ function updateValues() {
         "product-row"
     ];
 
-    let clselements= classes.map(cls => Array.from(document.getElementsByClassName(cls)));
-    clselements.forEach((cls) => cls.sort(compare_ids));
-    let [amounts, amounts2, comments, costs, names, prices, rows] = clselements;
+    let [amounts, amounts2, comments, costs, names, prices, rows] = getElementsByClass(classes);
 
     let sum = 0;
     let overview = document.getElementById("overview");
@@ -36,25 +82,7 @@ function updateValues() {
     overview.innerHTML = "";  //clear children of overview list
 
     for(let i=0; i<prices.length; i++) {
-        //Catch NaN's
-        if (isNaN(amounts[i].value)) {
-            amounts[i].value = 0;
-        }
-
-        //Catch 0x..., 0b...
-        if (amounts[i].value != String(Number(amounts[i].value))) {
-            amounts[i].value = Number(amounts[i].value);
-        }
-
-        //Catch negative values
-        if (amounts[i].value < 0) {
-            amounts[i].value = 0;
-        }
-
-        //Catch values > max int
-        if (amounts[i].value > MAX_INT) {
-            amounts[i].value = MAX_INT;
-        }
+        fixNumFormat(amounts[i]);
 
         //Extract values
         let amount = amounts[i].value;
@@ -127,22 +155,9 @@ function modifyAmount(pid, value) {
     //Modify current value
     let textbox = document.getElementById("amount-" + pid);
     let current_value = parseInt(textbox.value);
-    let new_value;
 
-    if (isNaN(current_value)) {
-        new_value = 0;
-    }
-    else if (current_value + value > MAX_INT) {
-        new_value = MAX_INT;
-    } else {
-        new_value = current_value + value;
-    }
+    textbox.value = computeModifyAmountValue(current_value, value, MAX_INT);
 
-    if (new_value <= 0) {
-        new_value = 0;
-    }
-
-    textbox.value = new_value;
     updateValues();
 }
 
@@ -205,9 +220,7 @@ function updateValues2() {
         "product-row"
     ];
 
-    let clselements= classes.map(cls => Array.from(document.getElementsByClassName(cls)));
-    clselements.forEach((cls) => cls.sort(compare_ids));
-    let [amounts, max_amounts ,names, prices, rows] = clselements;
+    let [amounts, max_amounts ,names, prices, rows] = getElementsByClass(classes);
 
     let sum = 0;
     let overview = document.getElementById("overview");
@@ -215,20 +228,7 @@ function updateValues2() {
     overview.innerHTML = "";  //clear children of overview list
 
     for(let i=0; i<prices.length; i++) {
-        //Catch NaN's
-        if (isNaN(amounts[i].value)) {
-            amounts[i].value = 0;
-        }
-
-        //Catch 0x..., 0b...
-        if (amounts[i].value != String(Number(amounts[i].value))) {
-            amounts[i].value = Number(amounts[i].value);
-        }
-
-        //Catch negative values
-        if (amounts[i].value < 0) {
-            amounts[i].value = 0;
-        }
+        fixNumFormat(amounts[i]);
 
         //Catch values > max
         if (amounts[i].value > max_amounts[i].innerHTML) {
@@ -277,21 +277,9 @@ function modifyAmount2(pid, value) {
 
     let current_value = parseInt(textbox.value);
     let max_value = parseInt(span.innerHTML);
-    let new_value;
 
-    if (isNaN(current_value)) {
-        new_value = 0;
-    } else if (current_value + value > max_value) {
-        new_value = current_value;
-    } else {
-        new_value = current_value + value;
-    }
+    textbox.value = computeModifyAmountValue(current_value, value, max_value);
 
-    if (new_value <= 0) {
-        new_value = 0;
-    }
-
-    textbox.value = new_value;
     updateValues2();
 }
 
@@ -302,9 +290,7 @@ function payPartially() {
         "product-row"
     ];
 
-    let clselements= classes.map(cls => Array.from(document.getElementsByClassName(cls)));
-    clselements.forEach((cls) => cls.sort(compare_ids));
-    let [amounts, max_amounts, rows] = clselements;
+    let [amounts, max_amounts, rows] = getElementsByClass(classes);
 
     for(let i=0; i<rows.length; i++) {
         //Extract values
