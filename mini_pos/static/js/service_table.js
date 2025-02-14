@@ -68,16 +68,7 @@ function fixNumFormat(textbox) {
 }
 
 function updateValues() {
-    let classes = [
-        "amount-box",
-        "amount2-text",
-        "comment-box",
-        "cost-text",
-        "product-name",
-        "price-text",
-        "product-row"
-    ];
-
+    let classes = ["amount-box", "amount2-text", "comment-box", "cost-text", "product-name", "price-text", "product-row"];
     let [amounts, amounts2, comments, costs, names, prices, rows] = getElementsByClass(classes);
 
     let sum = 0;
@@ -216,14 +207,7 @@ function initialCategoryFold() {
  */
 
 function updateValues2() {
-    let classes = [
-        "amount-box",
-        "max-amount",
-        "product-name",
-        "product-price",
-        "product-row"
-    ];
-
+    let classes = ["amount-box", "max-amount", "product-name", "product-price", "product-row"];
     let [amounts, max_amounts ,names, prices, rows] = getElementsByClass(classes);
 
     let sum = 0;
@@ -288,12 +272,7 @@ function modifyAmount2(pid, value) {
 }
 
 function payPartially() {
-    let classes = [
-        "amount-box",
-        "max-amount",
-        "product-row"
-    ];
-
+    let classes = ["amount-box", "max-amount", "product-row"];
     let [amounts, max_amounts, rows] = getElementsByClass(classes);
 
     for(let i=0; i<rows.length; i++) {
