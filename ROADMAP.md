@@ -33,3 +33,6 @@ This file provides an overview about the planned (future) changes.
 - Convert the client side to PWA
 - Rework fetching logic, change so that fetching does always only fetch data and not the whole html page -> layouting should happen on the client
 - Reccommend products to order (same as last time button) in service, maybe also display in bar to optimize speed
+- Add a "offline" feature i.e. a minified version of the software with less functionality that basically only hosts a webserver with the product list and the ability for waiters to compute prices.
+  It should be enough to use only one table and  disable ordering but instead use a js rewrite to the same page in service
+  However it might be a good idea to use a completely separate server for this which only uses the config, route and static files to avoid installing unneeded dependencies and running unneeded endpoints.
