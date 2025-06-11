@@ -118,7 +118,7 @@ class UIConfig:
 
 class MiniPOSConfig:
     def __init__(self, config_data: dict) -> None:
-        self.products = dict(
+        self.products: ProductsT = dict(
             enumerate(
                 [(prod[0], prod[1], cat) for cat, prods in config_data["products"].items() for prod in prods], start=1
             )
