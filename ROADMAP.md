@@ -9,14 +9,6 @@ This file provides an overview about the planned (future) changes.
 - Add support for bon printers
 - Add support for printing bons (python-escpos?)
 
-Configuration:
-
-- Bons should be added to the config the same way bars are, using a config option `bons` additionally to `bars`
-- Bons should only give the bar name they are assigned so that there is always a bar but not necessarily a bon printer
-- Add a config option for timeout how long in the past prints should attempt to print orders
-- This option should be server side only, servers should stop offering orders that passed the timeout
-- Add an option to change the desired print status i.e. if all new orders should be printed automatically without interaction in bar (status 1) or not (status 0)
-
 Infrastructure:
 
 - The main server should also host an API

@@ -20,6 +20,8 @@ CONFIG_DICT: dict[str, tuple] = {
     "products": (dict[str, list[tuple[str, float]]], True, None),
     # Bars
     "bars": (dict[str, list[str]], False, None),
+    # Bons
+    "printers": (dict[str, tuple[str, int, int]], False, None),
     # Tables
     "tables": (
         dict,
@@ -125,6 +127,7 @@ class MiniPOSConfig:
         )
         self.categories = list(config_data["products"].keys())
         self.bars = config_data.get("bars", {})
+        self.printers = config_data.get("printers", {})
         self.tables: TableConfig = TableConfig(config_data["tables"])
         self.ui: UIConfig = UIConfig(config_data.get("ui", {}))
 

@@ -103,6 +103,7 @@ Some configuration options are
 | tables/size                   | Size for the table grid in service                                        | `int x, int y`                                     |
 | tables/names                  | Table positions, sizes and names                                          | `list[int x, int y, int xlen, int ylen, str name]` |
 | bars                          | Bar names with categories for which they are responsible                  | `dict[str barname, list[str category name]]`       |
+| printers                      | Printer names with desired bar, print-amount and print timeout            | `dict[str,tuple[str,int,int]]`                     |
 | ui/bar/auto_close             | Automatically complete an order when all products are marked as completed | `bool true/false`                                  |
 | ui/bar/default                | Whether to create a default bar at /bar/default that displays everything  | `bool true/false`                                  |
 | ui/bar/show_completed         | Show the last n completed orders in /bar                                  | `int n`                                            |

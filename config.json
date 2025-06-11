@@ -49,6 +49,9 @@
 		"Getränke": ["Alkoholfrei", "Bier", "Wein", "Spirituosen"],
 		"Küche": ["Essen"]
 	},
+	"printers": {
+		"Drucker Küche": ["Küche", 1, 30]
+	},
 	"tables": {
 		"size": [6, 9],
 		"names": [
