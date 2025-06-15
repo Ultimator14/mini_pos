@@ -11,7 +11,10 @@ This file provides an overview about the planned (future) changes.
 
 Infrastructure:
 
-- The main server should also host an API
+- The main server should also host an API with routes
+    - GET /api/printer/\<printer\>/poll: get ids of next orders to print (that are not printed yet)
+    - GET /api/printer/\<printer\>/\<id\>: get order information as json
+    - GET /api/printer/\<printer\>/\<id\>/acknowledge: mark element(s) as printed, response 202
 - Printer clients (separate single-core python processes e.g. on Raspberry Pis) poll new orders from the API
 - Each client must be assigned a bar with bon support (client config), so that they can naturally integrate with bars
 
@@ -51,6 +54,10 @@ Add a warning if such a configuration is found.
 - Fetch ALL data using javascript
 - Implement an API on the server side handling all request with a json output
 - Add popup in service if server is down. Prevent clicks on any button
+- Replace routes:
+    - GET /fetch/bar/\<bar\> (html) -> GET /api/bar/\<bar\> (json)
+    - GET /fetch/service -> GET /api/service
+    - POST /bar/\<bar\> (html) -> POST /api/bar/\<bar\> (json); optional, async, event based
 
 ## Release 0.7.x
 
@@ -67,3 +74,4 @@ Add a warning if such a configuration is found.
 - Add a "offline" feature i.e. a minified version of the software with less functionality that basically only hosts a webserver with the product list and the ability for waiters to compute prices.
   It should be enough to use only one table and  disable ordering but instead use a js rewrite to the same page in service
   However it might be a good idea to use a completely separate server for this which only uses the config, route and static files to avoid installing unneeded dependencies and running unneeded endpoints.
+- Use HTTP response codes to indicate errors
