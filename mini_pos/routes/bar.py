@@ -26,7 +26,7 @@ def bar_name(bar: str):
 
     if app.config["minipos"].bars.get(bar) is None:
         app.logger.error("GET in /bar/%s with invalid bar. Using default bar. Skipping...", bar)
-        return "Error! Bar not found"
+        return "Error! Bar not found", 404
 
     return render_template(
         "bar.html",
@@ -43,7 +43,7 @@ def bar_history(bar: str):
 
     if app.config["minipos"].bars.get(bar) is None:
         app.logger.error("GET in /bar/%s with invalid bar. Using default bar. Skipping...", bar)
-        return "Error! Bar not found"
+        return "Error! Bar not found", 404
 
     return render_template(
         "bar_history.html",

@@ -45,7 +45,7 @@ def service_login_submit():
 
     if waiter is None:
         app.logger.error("POST in /service/login but missing waiter name. Skipping...")
-        return "Error! Missing waiter name"
+        return "Error! Missing waiter name", 400
 
     response = make_response(render_template("service_login.html", waiter=waiter))
     response.set_cookie("waiter", waiter, max_age=60 * 60 * 24 * 7)  # 1 week
@@ -58,7 +58,7 @@ def service_table(table):
 
     if table not in app.config["minipos"].tables.names:
         app.logger.error("GET in /service/<table> but invalid table. Skipping...")
-        return "Error! Invalid table"
+        return "Error! Invalid table", 400
 
     # Generate random number per order to prevent duplicate orders
     nonce = randint(0, 2**32 - 1)  # 32 bit random number
@@ -87,17 +87,17 @@ def service_table_submit(table):
     app.logger.debug("POST /service/<table>")
     if table not in app.config["minipos"].tables.names:
         app.logger.error("POST in /service/<table> but invalid table. Skipping...")
-        return "Error! Invalid table"
+        return "Error! Invalid table", 400
 
     nonce = request.form.get("nonce")
 
     if nonce is None:
         app.logger.error("POST in /service/<table> but missing nonce. Skipping...")
-        return "Error! Missing nonce"
+        return "Error! Missing nonce", 400
 
     if not nonce.isdigit():
         app.logger.error("POST in /service/<table> but nonce not convertible to integer. Skipping...")
-        return "Error! Nonce is not int"
+        return "Error! Nonce is not int", 400
 
     if int(nonce) in Order.get_open_order_nonces():
         app.logger.warning("Catched duplicate order by nonce %s", nonce)
