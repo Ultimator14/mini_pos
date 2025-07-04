@@ -1,0 +1,107 @@
+{
+	"products": {
+		"Alkoholfrei": [
+			["Mineralwasser Classic", 2.50],
+			["Mineralwasser Medium", 2.50],
+			["Paulaner Limo", 2.50],
+			["Paulaner Spezi", 2.50],
+			["Apfelschorle", 3.00],
+			["Johannisbeersaftschorle", 3.00]
+		],
+		"Bier": [
+			["Pils", 3.50],
+			["Radler", 3.50],
+			["Hefeweizen", 4.00],
+			["Colaweizen", 4.00],
+			["Weizen alkoholfrei", 4.00]
+		],
+		"Wein": [
+			["Riesling trocken", 4.00],
+			["Rosé Collection \"O\"", 4.00],
+			["Rotwein trocken", 4.00],
+			["Rieslingschorle süß", 3.50],
+			["Rieslingschorle sauer", 3.50],
+			["Roséschorle süß", 3.50],
+			["Roséschorle sauer", 3.50],
+			["Rotweinschorle süß", 3.50],
+			["Rotweinschorle sauer", 3.50]
+		],
+		"Essen": [
+			["Grillwurst mit Weck", 3.50],
+			["Grillsteak im Weck", 5.00],
+			["Kartoffelecken mit Kräuterquark", 5.00],
+			["Grillwurst mit Kartoffelecken und Kräuterquark", 6.50],
+			["Grillsteak mit Kartoffelecken und Kräuterquark", 8.00],
+			["Großer bunter Salatteller mit Ei und Baguette", 7.00]
+		]
+	},
+	"bars": {
+		"Getränke": ["Alkoholfrei", "Bier", "Wein"],
+		"Küche": ["Essen"]
+	},
+	"tables": {
+		"size": [5, 9],
+		"names": [
+			[0, 0, 1, 1, "A5"],
+			[1, 0, 1, 1, "A4"],
+			[2, 0, 1, 1, "A3"],
+			[3, 0, 1, 1, "A2"],
+			[4, 0, 1, 1, "A1"],
+			[0, 1, 1, 1, "B5"],
+			[1, 1, 1, 1, "B4"],
+			[2, 1, 1, 1, "B3"],
+			[3, 1, 1, 1, "B2"],
+			[4, 1, 1, 1, "B1"],
+			[0, 2, 1, 1, "C5"],
+			[1, 2, 1, 1, "C4"],
+			[2, 2, 1, 1, "C3"],
+			[3, 2, 1, 1, "C2"],
+			[4, 2, 1, 1, "C1"],
+			[0, 3, 1, 1, "D5"],
+			[1, 3, 1, 1, "D4"],
+			[2, 3, 1, 1, "D3"],
+			[3, 3, 1, 1, "D2"],
+			[4, 3, 1, 1, "D1"],
+			[0, 4, 1, 1, "E5"],
+			[3, 4, 1, 1, "E2"],
+			[4, 4, 1, 1, "E1"],
+			[0, 5, 1, 1, "F5"],
+			[1, 5, 1, 1, "F4"],
+			[2, 5, 1, 1, "F3"],
+			[3, 5, 1, 1, "F2"],
+			[4, 5, 1, 1, "F1"],
+			[0, 6, 1, 1, "G5"],
+			[1, 6, 1, 1, "G4"],
+			[2, 6, 1, 1, "G3"],
+			[3, 6, 1, 1, "G2"],
+			[4, 6, 1, 1, "G1"],
+			[0, 7, 1, 1, "H5"],
+			[1, 7, 1, 1, "H4"],
+			[2, 7, 1, 1, "H3"],
+			[3, 7, 1, 1, "H2"],
+			[4, 7, 1, 1, "H1"],
+			[4, 8, 1, 1, "I1"]
+		]
+	},
+	"ui": {
+		"bar": {
+			"auto_close": true,
+			"default": true,
+			"show_completed": 5,
+			"timeout": [ 120, 600 ]
+		},
+		"service": {
+			"show_category_names": true,
+			"fold_categories": true,
+			"order_overview": true,
+			"category_color_map": {
+				"Alkoholfrei": 13,
+				"Bier": 11,
+				"Wein": 12,
+				"Spirituosen": 10,
+				"Essen": 8
+			}
+		}
+	},
+	"debug": false
+}
