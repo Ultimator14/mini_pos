@@ -4,6 +4,15 @@ This file provides an overview about the planned (future) changes.
 
 ## Release 0.4.x
 
+### Bugfixes regarding `auto_close: false`:
+
+The following bugs currently occur with `auto_close: false`:
+
+- Order is not closed if order is part of multiple bars
+- Partial close removes order from list in bar
+
+A solution to these issues requires a partial rewrite of the database.
+
 ### Bons
 
 - Add support for bon printers
